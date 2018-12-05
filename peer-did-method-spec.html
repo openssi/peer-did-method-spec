@@ -42,15 +42,22 @@
     </section>
     <section id='abstract'>
       <p>
-        Peer DIDs are rooted in a relationship-management protocol that can be implemented independent of any particular
-          blockchain. By design, this protocol has no independently referenceable source of truth;
-          rather, it gives meaning to DIDs only within the context of a private relationship. Only the parties to a
-          given relationship know what its DIDs mean, because only they will have exchanged the information related to
-          that relationship. The protocol, not a blockchain, is the root of trust.
-
-        Because peer DIDs cannot be publicly resolved, they are not suitable for "<a
+        Most DIDs are rooted in a global or at least broadly known source of truth like a blockchain, a database, a
+          distributed filesystem, or similar. This lets arbitrary parties resolve the DIDs to an endpoint and keys. It
+          is an important feature for many use cases.</p>
+      <p>However, the vast majority of relationships between human individuals are simpler. When Alice and Bob want to
+          interact, there are exactly and only 2 parties in the world who should care: Alice and Bob. Letting the world
+          resolve the identifiers and keys that only Alice and Bob care about is unnecessary, and it represents a
+          privacy and security risk as well as a problem of cost, scale, and performance.</p>
+      <p>This raises the possibility of DIDs that are only resolvable and usable by peers within the context of a given
+          relationship. Such identifiers can still have all the other characterstics that make DIDs useful -- DID
+          Documents, endpoints, and keys -- but depend on direct peer-to-peer communication instead of a shared
+          source of truth.</p>
+      <p>This spec defines a DID method for such "Peer DIDs". It is a method compatible with but independent of any
+          particular blockchain. The protocol that communicates state, not a central store of state, is the root of
+          trust. Such DIDs are not suitable for "<a
           href="https://docs.google.com/document/d/1gfIz5TT0cNp2kxGMLFXr19x1uoZsruUe_0glHst2fZ8/edit#heading=h.kp8mg3kwe5qz">anywise</a>"
-          use cases. However, peer DIDs have certain virtues that make them uniquely desirable:
+          use cases. However, peer DIDs have certain virtues that make them uniquely desirable:</p>
 
           <ul>
             <li>They are essentially free to create, store, and maintain (no transaction costs).</li>
@@ -61,7 +68,7 @@
             <li>Because they are not beholden to any particular blockchain, they have minimal political or technical baggage.</li>
           </ul>
 
-        We expect that peer-to-peer relationships in every blockchain ecosystem can benefit by offloading
+      <p>We expect that peer-to-peer relationships in every blockchain ecosystem can benefit by offloading
         <a href="https://docs.google.com/document/d/1gfIz5TT0cNp2kxGMLFXr19x1uoZsruUe_0glHst2fZ8/edit#heading=h.eurb6x3u0443">pairwise</a>
         and <a href="https://docs.google.com/document/d/1gfIz5TT0cNp2kxGMLFXr19x1uoZsruUe_0glHst2fZ8/edit#heading=h.cn50pi7diqgj">n-wise</a>
         relationships to peer DIDs.
@@ -82,14 +89,16 @@
         <h2>Target System(s)</h2>
         <p>This DID method applies to any relationship management implementation that is compatible with
             the <a href="https://github.com/hyperledger/indy-hipe/blob/5128e13bffaba57d4d63d2f3cd9430a529156930/text/relationship-state-machine/README.md">
-                Indy HIPE on relationship protocol</a>, whether or not they have anything to do with Indy.</p>
+                Indy HIPE on relationship protocol</a>, whether or not they have anything to do with Indy. (The
+            Indy HIPE simply provided a convenient mechanism for defining foundational concepts.)
+        </p>
     </section>
     <section>
         <h2>Namespace Specific Identifier (NSI)</h2>
         <p>
           The Peer DID scheme is defined by the following <a href="ftp://ftp.rfc-editor.org/in-notes/std/std68.txt">ABNF</a>:<br><br>
           <code>
-            sovrin-did    = "did:peer:idstring" *(":" subnamespace)<br>
+            peer-did      = "did:peer:idstring" *(":" subnamespace)<br>
             idstring      = 21*22(char)<br>
             subnamespace  = ALPHA *(ALPHA / DIGIT / "_" / "-")<br>
             char          = "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "A" / "B" / "C"<br/>
