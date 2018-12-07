@@ -88,7 +88,7 @@
     <section>
         <h2>Target System(s)</h2>
         <p>This DID method applies to any relationship management implementation that is compatible with
-            the <a href="https://github.com/hyperledger/indy-hipe/blob/5128e13bffaba57d4d63d2f3cd9430a529156930/text/relationship-state-machine/README.md">
+            the <a href="https://github.com/dhh1128/indy-hipe/blob/relationship-protocol/text/peer-relationship-protocol/README.md">
                 Indy HIPE on relationship protocol</a>, whether or not they have anything to do with Indy. (The
             Indy HIPE simply provided a convenient mechanism for defining foundational concepts.)
         </p>
@@ -129,114 +129,65 @@
     </section>
     <section>
       <h2>JSON-LD Context Definition</h2>
-        <p>On Sovrin, public DIDs and their corresponding documents are stored on the ledger.</p>
        <p class="replace-me">TODO</p>
     </section>
     <section>
         <h2>CRUD Operation Definitions</h2>
 
         <h3>Create (Register)</h3>
-        <p>
-            The DID method specification must specify how a client creates a DID record—the combination of a DID and its associated document—on the 
-            target system, including all cryptographic operations necessary to establish proof of ownership.
-            The Sovrin spec adds a new entry under <code>publicKey</code> called <code>authorizations</code>. 
-            This is used to indicate possible authorisations the public key is supposed to have. The keyword <code>ALL</code> means that the public key can make whatever change it wants to the DID doc.
-            While creating a new DID doc, the field <code>authorizations</code> cannot be left empty. It has to either contain the keyword <code>ALL</code> or be ommitted, 
-            in that case it is assumed that the key has all authorisations.
-        </p>
-        <p>For example:</p>
-        <p>To create a DID, you must submit a transaction that looks like this: <br>
-          <pre>
-                {
-                    "submitterId": &lt;Trust Anchor DID&gt;,
-                    "signature": &lt;signature over this transaction from the Trust Anchor&gt;,
-                    "reqId": &lt;A nonce for this transaction&gt;,
-                    "operation": {
-                        "type": "NYM",
-                        "did": &lt;new DID that is being registered&gt;,
-                        "document": {
-                            "publicKey": [{
-                                "id": &lt;a valid unique identifier&gt;,
-                                "type": &lt;ed25519, defined in appendix&gt;,
-                                "publicKeyBase58": &lt;Key material encoded&gt;,
-                                "authorizations": ["ALL"]
-                            }],
-                            "authentication": [{
-                                "type": &lt;type of DID authentication&gt;,
-                                "publicKey": "&lt;reference to a publicKey object&gt;",
-                            }],
-                            "service": [{
-                              "type": &lt;agentService, emailService, apiService, dnsService, etc&gt;,
-                              "serviceEndpoint": &lt;A URI for the endpoint&gt;
-                            }],
-                            "role":&lt;Optional; Enumeration for roles, an integer; if left empty then no special role is assigned&gt;
-                        }
-                    }
-                }
+        <p>A peer DID is created by sending a <a
+                href="https://github.com/dhh1128/indy-hipe/blob/relationship-protocol/text/peer-relationship-protocol/README.md#join_us">join_us
+        </a> message from one peer to another:</p>
+        <pre>
+{
+  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/query_view",
+  "@id": "adfd4f7a-afd8-4578-8233-6c8d231329fa",
+  "view_of": [ "did:peer:qQk1twjzCmEMgLDRNmo7oS" ]
+}
+        </pre>
 
-                Example
-                {
-                    "submitterId": "did:sov:29wksjcn38djfh47ruqrtcd5",
-                    "signature": "1qaz2wsx3edc4rfv5tgb6yhn7ujm8iklop==",
-                    "reqId": "okn987yhbgFtErDsCXsw",
-                    "operation": {
-                        "type": "NYM",
-                        "did": "did:sov:mnjkl98uipsndg2hdjdjuf7",
-                        "document": {
-                            "publicKey": [{
-                                "id": "key1"
-                                "type": "ED25519SignatureVerification",
-                                "publicKeyBase58": "..."
-                            }],
-                            "authentication": [{
-                                "type": "ED25519SigningAuthentication",
-                                "publicKey": "key1"
-                            }],
-                            "service": [{
-                              "type": "agentService",
-                              "serviceEndpoint":"https://www.sovrin.org/agents"
-                            }]
-                        }
-                    }
-                }
-            </pre> The transaction must be signed by a Trust Anchor and must provide an un-registered DID and a document of data
-            about that DID. Possible outcomes from the create operation include:
-            <ul>
-                <li>NACK: "Malformed transaction or missing required fields"</li>
-                <li>REJECT: "Authorization rules are invalid. DID already registered or non Trust Anchor authored the transaction or signature did not match”</li>
-                <li>SUCCESS: "Contains the sequence number of the transaction and the merkle proof"</li>
-            </ul>
-        </p>
-        <p>The DID document is rendered as follows. The exact data structure persisted on the ledger does not have to match the following and can vary for each node. 
-          <pre>
-            {
-              "id": "did:sov:mnjkl98uipsndg2hdjdjuf7",
-              "publicKey": [{
-                  "id": "key1"
-                  "type": "ED25519SignatureVerification",
-                  "publicKeyBase58": "...",
-                  "authorizations": ["all"]
-                }],
-              "authentication": [{
-                  "type": "ED25519SigningAuthentication",
-                  "publicKey": "key1"
-                }],
-              "service": [{
-                  "type": "agentService",
-                  "serviceEndpoint":"https://www.sovrin.org/agents"
-                }]
+        <p>Bob's normal response, also a join_us message, would be quite similar, except that the
+            <code>you</code> section would acknowledge Alice's previous message. It does this in the
+            <code>you.&lt;Alice's peer DID&gt;.latest key</code> by hashing the received DID Doc
+            from Alice and reporting how many versions of Alice's state Bob has seen:</p>
+        <pre>
+{
+    "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/join_us",
+    "@id": "49817207-f50e-4ed5-a389-716ae61586dd",
+    "@thread": { "thid": "e61586dd-f50e-4ed5-a389-716a49817207", "seqnum": 0 },
+    "me": {
+        "doc": {
+            "@context": "https://w3id.org/did/v1",
+            "id": "did:peer:qQk1twjzCmEMgLDRNmo7oS",
+            "publicKey": [
+            {"id": "routing", "type": "Ed25519Verkey2018",  "owner": "did:peer:qQk1twjzCmEMgLDRNmo7oS","publicKey": "4x6qAfCNrqQqEB3nS7Zfu7K8HH5gYEeNc3z7PYXmd54d"},
+            {"id": "1", "type": "Ed25519Verkey2018",  "owner": "did:peer:qQk1twjzCmEMgLDRNmo7oS","publicKey": "Ar5P8bBr3vXMguTw3U14S6mN2rxrDsYV8Tt75FZ2ZTu4"}
+            ],
+            "authentication": [
+            {"type": "Ed25519Verkey2018", "publicKey": "ddid:peer:qQk1twjzCmEMgLDRNmo7oS#1"}
+            ],
+            "service": [
+            {"type": "Agency", "serviceEndpoint": "did:sov:Av1e1Cpu2MavT6QN8nuLJ4" }
+            ]
+        }
+    },
+    "you": [
+        "did:peer:EMmo7oSqQk1twmgLDRNjzC": {
+            "latest": {
+            "sha256": "5B67C6528002FE929A228FE9F914C4B0A668E6AAEE38031BDEC6E2A0C0462D0D",
+            "v": 1
             }
-          </pre>
+        }
+    ],
+    "us": {},
+    "comment_ltxt": "Hi, Alice. This is Bob."
+}
         </p>
 
         <h3>Read (Resolve)</h3>
-        <p>A Sovrin DID record can be looked up directly by the DID using a standard Sovrin GET_NYM transaction that simply
-            takes the DID and will return the DID record. The client trusts the DID record because it either receives the
-            same DID record from sufficient number of validators or it receives a proof of the DID record from a single validator
-            that the DID record is part of a merkle tree whose root has an aggregate signature from sufficient number of
-            validators.
-        </p>
-        <p>This is how the DID record query looks like</p>
+        <p>A peer DID can be resolved to a DID Document by sending a <a
+                href="https://github.com/dhh1128/indy-hipe/blob/relationship-protocol/text/peer-relationship-protocol/README.md#query_view">query_view
+        </a> message from one peer to another:</p>
         <pre>
                 {
                     "submitterId": &lt;Optional; DID of the author of this query&gt;,
@@ -247,87 +198,42 @@
                     }
                 }
         </pre>
-        <p>Anyone can query a DID record, by sending the above request. The response contains the DID document.</p>
+        <p>A response is a <a
+                href="https://github.com/dhh1128/indy-hipe/blob/relationship-protocol/text/peer-relationship-protocol/README.md#my_view">my_view
+        </a> message like this:
+        </p>
         <pre>
-        </pre>
+{
+  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/my_view",
+
+  "me": {
+    "doc": {
+      "@context": "https://w3id.org/did/v1",
+      "id": "did:peer:qQk1twjzCmEMgLDRNmo7oS",
+      "publicKey": [
+        {"id": "routing", "type": "Ed25519Verkey2018",  "owner": "did:peer:qQk1twjzCmEMgLDRNmo7oS","publicKey": "4x6qAfCNrqQqEB3nS7Zfu7K8HH5gYEeNc3z7PYXmd54d"},
+        {"id": "1", "type": "Ed25519Verkey2018",  "owner": "did:peer:qQk1twjzCmEMgLDRNmo7oS","publicKey": "Ar5P8bBr3vXMguTw3U14S6mN2rxrDsYV8Tt75FZ2ZTu4"}
+      ],
+      "authentication": [
+        {"type": "Ed25519Verkey2018", "publicKey": "ddid:peer:qQk1twjzCmEMgLDRNmo7oS#1"}
+      ],
+      "service": [
+        {"type": "Agency", "serviceEndpoint": "did:sov:Av1e1Cpu2MavT6QN8nuLJ4" }
+      ]
+    },
+    "latest": {
+      "sha256": "C6E2914C4B0A668EAEE38031BDE6AA0C0462D0D5B676528002FE9C29A228FE9F",
+      "v": 2
+    }
+  }
+}        </pre>
 
         <h3>Update (Replace)</h3>
-        <p>To replace the DID document, the owner or guardian (guardianship ends once ownership begins) of the DID should send the following
-            transaction using a key referenced in the <strong>authentication</strong> property.
-            <pre>
-                  {
-                    "submitterId": &lt;DID of the author of this query&gt;,
-                    "signature": [&lt;signature over this transaction from the author&gt;,]
-                    "reqId": &lt;a nonce for this query&gt;,
-                    "operation": {
-                        "type": "NYM",
-                        "did": &lt;DID whose record needs to be updated&gt;,
-                        "document": {
-                            "publicKey": [{
-                                "id": &lt;a valid unique identifier&gt;
-                                "type": &lt;ED25519&gt;
-                                "publicKeyBase58": &lt;Key material encoded in format&gt;,
-                                "authorizations": ["all"]
-                            },{
-                                "id": &lt;a valid unique identifier&gt;
-                                "type": &lt;ED25519&gt;
-                                "publicKeyBase58": &lt;Key material encoded in format&gt;
-                            },{
-                                "id": &lt;a valid unique identifier&gt;
-                                "type": &lt;ED25519&gt;
-                                "publicKeyBase58": &lt;Key material encoded in format&gt;
-                            }],
-                            "authentication": [{
-                                "type": "ED25519SigningAuthenticationThreshold",
-                                "threshold": &lt;an integer&gt;,
-                                "publicKey": [&lt;key references&gt;]
-                            }],
-                            "service": [{
-                              "type": &lt;agentService, emailService, apiService, dnsService, authenticationService, etc&gt;,
-                              "serviceEndpoint": &lt;A URI for the endpoint&gt;
-                            }]
-                        }
-                      }
-                  }
-                </pre>
-                <br/>
-                This example shows how to update the DID document to require multiple signatures for authentication:
-                <pre>
-                {
-                    "submitterId": "did:sov:qazWSX3erfcY459iLMh7",
-                    "signature": ["1qaz2wsx3eeciguytGGVDR990ik=="]
-                    "reqId": "897432983746n43g"
-                    "operation": {
-                        "type": "NYM",
-                        "did": "did:sov:c432cDSGUASJN987jnJKb",
-                        "document": {
-                            "publicKey": [{
-                                "id": "#key1",
-                                "type": "ED25519VerificationKey",
-                                "publicKeyBase58": ...
-                            },{
-                                "id": "#key2",
-                                "type": "ED25519VerificationKey",
-                                "publicKeyBase58": ...
-                            },{
-                                "id": "#key3",
-                                "type": "ED25519VerificationKey",
-                                "publicKeyBase58": ...
-                            }],
-                            "authentication": [{
-                                "type": "ED25519SigningAuthenticationThreshold",
-                                "threshold": 2,
-                                "publicKey": ["#key1","#key2","#key3"]
-                            }],
-                            "service": [{
-                              "type": "agentService",
-                              "serviceEndpoint": "https://www.sovrin.org/agents"
-                            }]
-                        }
-                      }
-                  }
-                </pre>
-        </p>
+        <p>The owner of a peer DID can update their associated DID Document by sending an <a
+                href="https://github.com/dhh1128/indy-hipe/blob/relationship-protocol/text/peer-relationship-protocol/README.md#query_view">update_us
+        </a> message to another peer:</p>
+
+            <pre>TODO</pre>
 
         <h3>Delete (Revoke)</h3>
         <p>Deleting or revoking a verification key is not to be confused with temporary suspension or rotation. Deletion
@@ -338,79 +244,41 @@
             when a person dies or a business is legally dissolved. It does not remove any record or history of the
             identity--it simply prevents any new history from accruing. This guarantees that
             no malicious actor can recover and reactivate an identity that's dead.</p>
-        <p>The scope of deletion in Sovrin is one DID only. This does not prevent an entity from creating new DIDs;
+        <p>The scope of deletion in peer DIDs is one DID only. This does not prevent an entity from creating new DIDs;
         it simply prevents an entity from reusing the old DID that has been terminated.</p>
         <p> To revoke the document of the DID, the owner of
-            the DID should send the following transaction.
+            the DID should send a <a
+                    href="https://github.com/dhh1128/indy-hipe/blob/relationship-protocol/text/peer-relationship-protocol/README.md#query_view">leave_us
+        </a> message to another peer:</p>
             <pre>
-                {
-                    "submitterId": &lt;DID of the owner&gt;,
-                    "signature": &lt;signature over this transaction from the DID in identifier&gt;,
-                    "reqId": &lt;a nonce for this transaction&gt;,
-                    "operation": {
-                        "type": "NYM",
-                        "did": &lt;DID whose key is being revoked&gt;,
-                        "document": null
-                    }
-                }
+{
+  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/leave_us",
+  "@id": "c17147d2-ada6-4d3c-a489-dc1e1bf778ab",
+  "ack_requested": false,
+  "comment_ltxt": "It's not about you. It's about me..."
+}
             </pre>
         </p>
     </section>
 
     <section>
         <h2>Security Considerations</h2>
-        <h3>Attacks</h3>
-            <p>Secure communication to the Sovrin Ledger uses <a href="http://curvezmq.org">CurveZMQ</a> to mitigate attacks like eavesdropping, replay, message insertion, deletion, modification, impersonation, and man-in-the-middle. Any vulnerabilities in that protocol will apply to Sovrin.</p>
-            <p>Sovrin uses a modified version of the Redundant Byzantinne Fault Tolerace protocol called <a href="https://github.com/hyperledger/indy-plenum/wiki">Plenum</a> to reach consensus.</p>
-
-        <p>Sovrin currently stores only the following data on the ledger:
-            <ul>
-                <li>Public DIDs/DID Documents which includes: public keys and service endpoints</li>
-                <li>Credential Schemas</li>
-                <li>Credential Definitions – the use of a specific Schema, by a specific DID for the purpose of issuing credentials and a reference to a Revocation Registry</li>
-                <li>Revocation Registries associated with Credential Definitions</li>
-                <li>Policy Registries – used for authorizing agents and a reference to a Policy Accumulator.</li>
-                <li>Policy Accumulators – proving authorizing agents in zero knowledge.</li>
-            </ul>
-            All confidential information such as cryptographic private keys are stored with end consumers of Sovrin.
-        </p>
-
-        <h3>Residual Risks</h3>
-            <p>We don't believe to have any residual risks at this time.</p>
-
-        <div class="replace-me">
-        <h3>Recovery From Key Compromise</h3>
-
-            <p>This section MUST provide integrity protection and update authentication for all operations required by Section 7 of this specification (DID Operations).</p>
-
-            <p><a href="https://en.wikipedia.org/wiki/Confused_deputy_problem" target="_blank">Confused Deputy Problem</a> when attempting separation of writeAuthorization from authenticationCredential.</p>
-            <p>Other sections from DID spec to incorporate into the outline:</p>
+        <div>
+            TODO
         </div>
     </section>
 
     <section>
         <h2>Privacy Considerations</h2>
         <div>
-          Assume psuedonymous DID. What Sovrin is doing about privacy and addresses each of these.
-            <p>Considering <a href="http://www.lifewithalacrity.com/2015/04/the-four-kinds-of-privacy.html" target="_blank">all
-                four types of privacy</a>, explore issues from these sections of the DID spec:</p>
-
-            <pre style="color:magenta">
-            10. Privacy Considerations
-            10.1 Requirements of DID Method Specifications
-            10.2 Keep Personally-Identifiable Information (PII) Off-Ledger
-            10.3 DID Correlation Risks and Pseudonymous DIDs
-            10.4 Document Correlation Risks
-            10.5 Herd Privacy
-            </pre>
+TODO
         </div>
     </section>
 
     <section>
         <h2>Reference Implementations</h2>
-        The code at <a href="https://github.com/hyperledger/indy-node/tree/stable" target="_blank">https://github.com/hyperledger/indy-node, stable</a>
-        and <a href="https://github.com/hyperledger/indy-sdk/tree/master" target="_blank">https://github.com/hyperledger/indy-sdk, master</a>
-        constitute a canonical implementation of Sovrin DIDs, and should be treated like an oracle.
+        The code at <a href="https://example.com" target="_blank">X</a>
+        constitutes a canonical implementation of peer DIDs, and should be treated like an oracle.
         <p>Note that the code includes a test suite; any other implementations should ensure that all tests pass before they claim compatibility.</p>
     </section>
 
@@ -419,82 +287,10 @@
         <p>Many developers maintaining the code and spec tend to hang out in RocketChat at chat.hyperledger.org, #indy and #indy-sdk.
             You might also connect with us in Hyperledger and W3C working groups or at the semi-annual Internet Identity Workshop conferences.</p>
     </section>
+
     <section>
-      <h2>Appendix A: Key Algorithm Types</h2>
-      This is extracted from RFC 5480 and 5639:<br>
-      The NIST-named curves are:<br>
-<br>
-         -- Note that in [X9.62] the curves are referred to as 'ansiX9' as<br>
-         -- opposed to 'sec'.  For example, secp192r1 is the same curve as<br>
-         -- ansix9p192r1.<br>
-<br>
-         -- Note that in [PKI-ALG] the secp192r1 curve was referred to as<br>
-         -- prime192v1 and the secp256r1 curve was referred to as<br>
-         -- prime256v1.<br>
-<br>
-         -- Note that [FIPS186-3] refers to secp192r1 as P-192, secp224r1 as<br>
-         -- P-224, secp256r1 as P-256, secp384r1 as P-384, and secp521r1 as<br>
-         -- P-521.<br>
-<br>
-      secp192r1   ... same as nistp192, prime192v1<br>
-      secp224r1   ... same as nistp224, prime224v1<br>
-      secp256k1   ... used by Bitcoin<br>
-      secp256r1   ... same as nistp256, prime256v1<br>
-      secp384r1   ... same as nistp384, prime384v1<br>
-      secp521r1   ... same as nistp521, prime521v1<br>
-      Curves from http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf<br>
-      nistp192    ... same as secp192r1, prime192v1<br>
-      nistp224    ... same as secp224r1, prime224v1<br>
-      nistp256    ... same as secp256r1, prime256v1<br>
-      nistp384    ... same as secp384r1, prime384v1<br>
-      nistp521    ... same as secp521r1, prime521v1<br>
-      Curves from ANS X9.62<br>
-      prime192v1   ... same as nistp192, secp192r1<br>
-      prime192v2<br>
-      prime192v3<br>
-      prime224v1   ...same as nistp224, secp224r1<br>
-      prime239v1<br>
-      prime239v2<br>
-      prime239v3<br>
-      prime256v1   ... same as nistp256, secp256r1<br>
-      prime384v1   … same as nistp384, secp384r1<br>
-      prime521v1   ... same as nistp521, secp521r1<br>
-<br>
-      Barreto Naehring curves are defined at <a href="https://tools.ietf.org/id/draft-kasamatsu-bncurves-01.html#rfc.section.4.3.1">ISO/IEC 15946-5</a>, <a href="https://eprint.iacr.org/2007/390.pdf">DevScoDah2007</a>, and <a href="https://fidoalliance.org/specs/fido-uaf-v1.1-id-20170202/fido-ecdaa-algorithm-v1.1-id-20170202.html">FIDO ECDAA Section 4</a>
-<br><br>
-      The following are valid values for <strong>publicKey/type</strong><br><br>
-      <table border="1">
-        <tr><th>Key Type</th></tr>
-        <tr><td>rsa</td></tr>
-        <tr><td><a href="https://safecurves.cr.yp.to">Twisted Edwards/Montgomery Curves</a></td></tr>
-        <tr><td>m-221, e-222, ed1174, ed25519, ed383187, ed41417, e-382, m-383, ed448, e-521, m-511</td></tr>
-        <tr><td><a href="http://www.ecc-brainpool.org/download/Domain-parameters.pdf">BrainPool Curves</a></td></tr>
-        <tr><td>brainpoolp160r1, brainpoolp192r1, brainpoolp224r1, brainpoolp256r1, brainpoolp320r1, brainpoolp384r1, brainpoolp512r1</td></tr>
-        <tr><td><a href="http://www.secg.org/SEC2-Ver-1.0.pdf">SEC2 Curves</a></td></tr>
-        <tr><td>secp112r1, secp128r1, secp160r1, secp192r1, secp224r1, secp256r1, secp384r1, secp521r1</td></tr>
-        <tr><td>secp160k1, secp163k1, secp192k1, secp224k1, secp256k1</td></tr>
-        <tr><td>sect163r2, sect233r1, sect239r1, sect283r1, sect409r1, sect571r1</td></tr>
-        <tr><td><a href="https://tools.ietf.org/id/draft-kasamatsu-bncurves-01.html">Barreto Naehrig Curves</a></td></tr>
-        <tr><td>fp224bn, fp254bna, fp254bnb, fp256bn, fp384bn, fp512bn, fp638bn</td></tr>
-      </table>
+      <h2>Appendix B: Wire message format</h2>
+      TODO
     </section>
-    <section>
-      <h2>Appendix B: Ed25519 Signature Suite</h2>
-      A description to the Ed25519 Signature Suite can be found <a href="https://w3c-dvcg.github.io/lds-ed255192018/">here</a>.
-    </section>
-    <section>
-        <h2>Appendix C: Public Key Authorizations</h2>
-        The following authorizations are supported:
-        <li>
-            <code>ADD_KEY</code>: Add new key to the DID doc. The new key can only have ADD_KEY authorization.
-        </li>
-        <li>
-            <code>REM_KEY</code>: Remove existing keys from the DID doc.
-        </li>
-        <li>
-            <code>ALL</code>: All possible authorizations. The key submitted during creation of DID doc has this authorisations. 
-            The key with this authorization can add keys with ADD_KEY, REM_KEY and ALL authorization
-        </li>
-      </section>
   </body>
 </html>
