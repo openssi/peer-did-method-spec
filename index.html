@@ -27,7 +27,10 @@
         ],
         processVersion: 2017,
         edDraftURI: "https://github.com/dhh1128/peer-did-method-spec",
-        shortName: "peer"
+        shortName: "peer",
+        subtitle: "A blockchain-agnostic decentralized identifier method",
+        github: "https://github.com/dhh1128/peer-did-method-spec",
+        wg: "greater SSI community"
       };
     </script>
   </head>
@@ -44,7 +47,7 @@
         <p>This document defines a "peer" <a href="https://w3c-ccg.github.io/did-spec/#specific-did-method-schemes">DID Method</a>
             that can be used independent of any central source of truth. The method is cheap, fast, scalable,
             and secure. It is suitable for most private relationships between people, organizations, and IoT things.
-            DIDs associated with this method are also promotable to a more public context. That is, blockchains with a
+            DIDs associated with this method are also promotable to a more public context. That is, blockchains with
             different DID methods can graft some or all peer DIDs into their namespace(s) with no risk of accidental
             collision, and no loss of meaning. Peer DID will have a recognizable and consistent identity in all of them.
         </p>
@@ -143,9 +146,9 @@
                 And if one of Alice's agents gets hacked and attempts to subvert the Alice~Bob relationship,
                 who is the uncontaminated party that can refuse to cooperate with the rogue agent? Bob is.</p>
 
-            <p>Another way to think about this is that Bob is like a centralized resource that Alice's agents
-                try to access; in that mental model, of course Bob would be a logical place to enforce access
-                rules for Alice.</p>
+            <p>Another way to think about this is that, within the Alice~Bob relationship, Bob acts as a substitute
+                for a centralized resource that Alice's agents try to access. In such a mental model, of course Bob
+                would be a logical place to enforce access rules for Alice.</p>
         </section>
 
         <p>We expect that peer-to-peer relationships in every blockchain ecosystem can benefit by offloading pairwise
@@ -160,6 +163,9 @@
             <p>A DID that uses this method MUST begin with the following prefix: <code>did:peer</code>.
                 Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix,
                 is the NSI specified below.</p>
+            <p>Early feedback on this method suggested that we embed it beneath the namespace of a particular blockchain,
+                as in <code>did:sov:peer</code> or <code>did:v1:peer</code>. In fact, the Veres One DID method does this
+            very thing.</p>
         </section>
         <section>
             <h3>Target System(s)</h3>
@@ -430,7 +436,7 @@
             automation. (For a discussion about "rich" and "static" agents, see <a target="_blank"
             href="https://docs.google.com/presentation/d/1ExQM_suu9MISrPanpK9sBGqVZFxf8pp4GvytcsKbkVM/edit#slide=id.g445a9ada60_0_21">
                     Agent Taxonomy</a>.)</p>
-            
+
             <p>Achieving robust synchronization in such a world is nearly impossible--especially with
             low latency. In particular, static agents might not participate in any kind of sophisticated
             intra-domain synchronization, because they are so simple and their state engines are so
