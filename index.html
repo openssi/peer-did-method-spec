@@ -265,7 +265,7 @@
             <p><em>Messages are <a target="_blank" href="https://tools.ietf.org/html/rfc8259">JSON</a></em>. They are
                 compatible with <a target="_blank" href="https://w3c.github.io/json-ld-syntax/#basic-concepts">basic
                 concepts of JSON-LD</a>, but <a target="_blank"
-                href="https://github.com/hyperledger/indy-hipe/blob/3d8ec6c5/text/json-ld-compatibility/README.md">no
+                href="https://github.com/hyperledger/indy-hipe/blob/64e16d3b/text/json-ld-compatibility/README.md">no
                 deep knowledge of JSON-LD is required to understand them, and no dependency
                 on JSON-LD libraries is necessary</a>. The specifics of JSON format are discussed below.</p>
             <p><em>Messages are serialized and encrypted</em> in a standard way for transport. This method associates
@@ -306,19 +306,34 @@
                 <ol>
                     <li>One of the parties (the <em>inviter</em>) sends an <em>invitation</em> to connect. The
                         invitation is NOT encrypted, and it does NOT require the recipient (the <em>invitee</em>) to
-                        have special software that understands this protocol. Instead, it is a URI that can be a deep
-                        link, helping the invitee to learn about SSI, get an SSI-capable app, and otherwise onboard.
-                        If the invitee already has SSI-aware software, the URI can be recognized by a registered
-                        handler, short-circuiting the onboarding/learning process. This invitation URI
-                        and may be transmitted by email, SMS, QR code, or any other convenient method. If it is
-                        important to the inviter that it be secured, the inviter can share the invitation on a secure
-                        channel.</li>
+                        have special software that understands this protocol. Instead, it is a specially formatted URI
+                        that can be a deep link, helping the invitee to learn about SSI, get an SSI-capable app, and
+                        otherwise onboard into the ecosystem. If the invitee already has SSI-aware software, the URI
+                        can be recognized by a registered handler, short-circuiting the URI fetch and the onboarding/
+                        learning process. This invitation URI may be transmitted by email, SMS, QR code, or any other
+                        convenient method. If it is important to the inviter that it be secured, the inviter can share
+                        the invitation on a secure channel.</li>
                     <li>The invitee sends an encrypted <em>connection request</em> back to the inviter, using the
                         endpoint that the inviter supplied in the invitation. This connection request includes the
                         invitee's DID Doc, DID, and keys.</li>
-                    <li>The inviter sends a <em>connection response</em> the other direction. This response includes
-                        the inviter's DID Doc, DID, and keys.</li>
+                    <li>The inviter sends an encrypted <em>connection response</em> the other direction. This response
+                        includes the inviter's DID Doc, DID, and keys.</li>
                 </ol>
+            <p>These three steps have been carefully defined to achieve a number of important goals:</p>
+                <ul>
+                    <li>Because the invitation can be sent to someone who does not know about DIDs or SSI at all,
+                    and because it can be sent over insecure channels, establishing DID relationships has an
+                    extremely low bar. This is vital to the virality of SSI.</li>
+                    <li>The invitation identifies an endpoint over which the
+                        connecting can occur, but it does not communicate peer keys or a peer DID from the inviter,
+                        and the endpoint that the inviter uses (as well as the inviter's DID and keys) are only
+                        transmitted once security and privacy are guaranteed.</li>
+                    <li>The protocol can be used by parties using any DID method. One of the parties can be using
+                        a peer DID, both can, or neither can.</li>
+                    <li>The invitation can be sent by a third party, allow introductions (Alice introduces Carol to Bob).
+                        However, an introducer is prevented from seeing the secure and private connection built by the
+                        two parties.</li>
+                </ul>
             </section>
 
             <section>
