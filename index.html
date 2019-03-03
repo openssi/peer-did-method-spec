@@ -246,7 +246,9 @@
                 device can be added or an existing device can be revoked. This requires her to share her M-of-N
                 policy with Bob, with enough information about agent keys that he can validate a multi-party
                 digital signature. Thus, our protocol must occasionally contemplate details about this more
-                granular level of each peer's <a target="_blank" href="http://bit.ly/2QP9GzQ">sovereign domain</a>.</p>
+                granular level of each peer's <a target="_blank"
+                href="https://docs.google.com/document/d/1gfIz5TT0cNp2kxGMLFXr19x1uoZsruUe_0glHst2fZ8/edit#heading=h.pufsrf9ucjvv">
+                sovereign domain</a>.</p>
 
         </section>
 
@@ -262,8 +264,10 @@
                 or future protocols we have not yet invented.</p>
             <p><em>Messages are <a target="_blank" href="https://tools.ietf.org/html/rfc8259">JSON</a></em>. They are
                 compatible with <a target="_blank" href="https://w3c.github.io/json-ld-syntax/#basic-concepts">basic
-                concepts of JSON-LD</a>, but no deep knowledge of JSON-LD is required to understand them, and no dependency
-                on JSON-LD libraries is necessary. The specifics of JSON format are discussed below.</p>
+                concepts of JSON-LD</a>, but <a target="_blank"
+                href="https://github.com/hyperledger/indy-hipe/blob/3d8ec6c5/text/json-ld-compatibility/README.md">no
+                deep knowledge of JSON-LD is required to understand them, and no dependency
+                on JSON-LD libraries is necessary</a>. The specifics of JSON format are discussed below.</p>
             <p><em>Messages are serialized and encrypted</em> in a standard way for transport. This method associates
                 security guarantees with the message envelope rather than the transport, and is aligned philosophically with
                 the approach of <a target="_blank" href="https://datatracker.ietf.org/wg/mls/about/">IETF's Message
@@ -271,15 +275,19 @@
                 the wire format uses <a target="_blank" href="https://www.rfc-editor.org/rfc/rfc7516.txt">JWEs</a>
                 with some extensions, instead. The particulars are detailed in <a target="_blank"
                 href="https://github.com/hyperledger/indy-hipe/blob/master/text/0028-wire-message-format/README.md">
-                an Indy HIPE</a>. The format is as close as we could get to JWE</a> conformance, but
-                includes some extensions to handle multiplexed encryption. These extensions are under review by the
+                an Indy HIPE</a>. However, nothing about this format is dependent on Indy. In particular, there are
+                two implementations of the algorithm that do not have any dependence on Indy--one in pure javascript,
+                and one in pure python. (TODO: get link to Daniel Bluhm's javascript impl, and to BC Gov's python
+                impl.) (There is also an Indy SDK implementation in Rust.) The format is as close as
+                we could get to JWE</a> conformance, but includes some extensions to handle multiplexed encryption.
+                These extensions are under review by the
                 maintainers of JWE/JWT and are likely to be mainstreamed eventually.</p>
 
-            <p>All JSON messages in this protocol are part of a "message family" named <code>relmgmt</code>. This
+            <p>All JSON messages in this protocol are part of a "message family" named <code>connections</code>. This
             family is identified by the following DID
                 reference (a form of URI [TODO: hyperlink to def of DID reference in DID spec]):</p>
 
-            <pre>did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0</pre>
+            <pre>"did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0</pre>
 
             <p>Of course, subsequent evolutions of the message family will replace `1.0` with
                 an appropriate update per <a target="_blank" href="https://semver.org">semver</a> rules.</p>
@@ -290,54 +298,27 @@
             <h3>CRUD Operations</h3>
             <section>
             <h4>Create (Register)</h4>
-            <p>A peer DID is created by sending a <a
-                    href="https://github.com/dhh1128/indy-hipe/blob/relationship-protocol/text/peer-relationship-protocol/README.md#join_us">join_us
-            </a> message from one peer to another:</p>
-            <pre>
-{
-  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/query_view",
-  "@id": "adfd4f7a-afd8-4578-8233-6c8d231329fa",
-  "view_of": [ "did:peer:qQk1twjzCmEMgLDRNmo7oS" ]
-}
-            </pre>
-
-            <p>Bob's normal response, also a join_us message, would be quite similar, except that the
-                <code>you</code> section would acknowledge Alice's previous message. It does this in the
-                <code>you.&lt;Alice's peer DID&gt;.latest key</code> by hashing the received DID Doc
-                from Alice and reporting how many versions of Alice's state Bob has seen:</p>
-            <pre>
-{
-    "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/join_us",
-    "@id": "49817207-f50e-4ed5-a389-716ae61586dd",
-    "@thread": { "thid": "e61586dd-f50e-4ed5-a389-716a49817207", "seqnum": 0 },
-    "me": {
-        "doc": {
-            "@context": "https://w3id.org/did/v1",
-            "id": "did:peer:qQk1twjzCmEMgLDRNmo7oS",
-            "publicKey": [
-            {"id": "routing", "type": "Ed25519Verkey2018",  "owner": "did:peer:qQk1twjzCmEMgLDRNmo7oS","publicKey": "4x6qAfCNrqQqEB3nS7Zfu7K8HH5gYEeNc3z7PYXmd54d"},
-            {"id": "1", "type": "Ed25519Verkey2018",  "owner": "did:peer:qQk1twjzCmEMgLDRNmo7oS","publicKey": "Ar5P8bBr3vXMguTw3U14S6mN2rxrDsYV8Tt75FZ2ZTu4"}
-            ],
-            "authentication": [
-            {"type": "Ed25519Verkey2018", "publicKey": "ddid:peer:qQk1twjzCmEMgLDRNmo7oS#1"}
-            ],
-            "service": [
-            {"type": "Agency", "serviceEndpoint": "did:sov:Av1e1Cpu2MavT6QN8nuLJ4" }
-            ]
-        }
-    },
-    "you": [
-        "did:peer:EMmo7oSqQk1twmgLDRNjzC": {
-            "latest": {
-            "sha256": "5B67C6528002FE929A228FE9F914C4B0A668E6AAEE38031BDEC6E2A0C0462D0D",
-            "v": 1
-            }
-        }
-    ],
-    "us": {},
-    "comment_ltxt": "Hi, Alice. This is Bob."
-}
-            </pre>
+            <p>Although the cryptographic operation of <em>creating</em> a peer DID and its first keypair can be done at
+            any time and does not require a message, <em>registering</em> a peer DID with the other party or parties in a
+            relationship involves a specific sequence of messages known as the <em>connection protocol</em>. The
+            protocol is <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/b3f5c388/text/connection-protocol/README.md">
+            formally documented in an Indy HIPE</a>; only a summary is offered here. It has 3 steps:</p>
+                <ol>
+                    <li>One of the parties (the <em>inviter</em>) sends an <em>invitation</em> to connect. The
+                        invitation is NOT encrypted, and it does NOT require the recipient (the <em>invitee</em>) to
+                        have special software that understands this protocol. Instead, it is a URI that can be a deep
+                        link, helping the invitee to learn about SSI, get an SSI-capable app, and otherwise onboard.
+                        If the invitee already has SSI-aware software, the URI can be recognized by a registered
+                        handler, short-circuiting the onboarding/learning process. This invitation URI
+                        and may be transmitted by email, SMS, QR code, or any other convenient method. If it is
+                        important to the inviter that it be secured, the inviter can share the invitation on a secure
+                        channel.</li>
+                    <li>The invitee sends an encrypted <em>connection request</em> back to the inviter, using the
+                        endpoint that the inviter supplied in the invitation. This connection request includes the
+                        invitee's DID Doc, DID, and keys.</li>
+                    <li>The inviter sends a <em>connection response</em> the other direction. This response includes
+                        the inviter's DID Doc, DID, and keys.</li>
+                </ol>
             </section>
 
             <section>
