@@ -79,7 +79,7 @@
                     of trust because it guarantees the following properties:</p>
             <ol>
                 <li><em>DIDs are associated with a key pair at the moment of creation</em>. This prevents a
-                    dangerous category of man-in-the-middle attacks where an attacker could rotate a DID's keys
+                    category of man-in-the-middle attacks where an attacker could rotate a DID's keys
                     at the outset of a relationship unbeknownst to peers.</li>
                 <li><em>DIDs are forced to be globally unique.</em> This prevents accidental collisions when
                     identity owners store many peer DIDs in their wallets. It also makes it possible for blockchains
@@ -93,8 +93,8 @@
             <section>
             <h3>Advantages</h3>
                 <p>Peer DIDs are not suitable for <a href="http://bit.ly/2SNaXVB">anywise</a> use cases, which are <a
-                        href="http://bit.ly/2GaYWHN">usually public by intent</a>. However, peer DIDs have certain virtues that
-                    make them desirable for private relationships between a small number of enumerable parties:</p>
+                        href="http://bit.ly/2GaYWHN">usually public by intent</a>. However, peer DIDs have certain
+                    virtues that make them desirable for private relationships between a small number of enumerable parties:</p>
             <ul>
                 <li>They have no transaction costs, making them essentially free to create, store, and maintain.</li>
                 <li>They scale and perform entirely as a function of participants, not with any central system's capacity.</li>
@@ -111,16 +111,16 @@
         </section>
         <section>
             <h2>Groups</h2>
-            <p>Most of this doc is framed by a pairwise Alice~Bob context. This sort of pair (no matter whether its
+            <p>Most of this doc is framed by a pairwise Alice:Bob context. This sort of pair (no matter whether its
             members are people, IoT devices, or institutions) will be the most common peer relationship in the SSI
             landscape. Groups larger than 2 can also have a peer-style relationship--but not all groups will be
-            modeled that way. Therefore, applying this HIPE to groups should be done thoughtfully.</p>
+            modeled that way. Therefore, applying this method to groups should be done thoughtfully.</p>
 
-            <p>Some groups, such as Doctor~Patient~Hospital, are clearly n-wise. Each party can enumerate all the
+            <p>Some groups, such as Doctor+Hospital+Patient, are clearly n-wise. Each party can enumerate all the
                 other parties, and each party uses the same identifier in all directions within the group. N-wise
                 groups are peer groups by definition: (see <a target="_blank"
                 href="https://github.com/hyperledger/indy-hipe/blob/master/text/0014-ssi-notation/README.md">Indy
-                    HIPE 0014</a> for help on SSI notation).</p>
+                    HIPE 0014</a> for help on the SSI notation used in this diagram).</p>
             <img src="n-wise.png"/>
             <p>But groups can also be modeled with a hub-and-spoke model. That model is commonly used in group chats, for example: each member of the group chat sends and receives via a central service, which in turn broadcasts to all other members of the group. This hub-and-spoke model is actually just a pairwise variant, because the relationship is between a member and the hub; all other relationships are only indirect:</p>
             <img src="hub-wise.png"/>
@@ -143,10 +143,10 @@
 
             <p>This might seem wrong--shouldn't Alice enforce her own security? But it is quite rational. Who cares
                 whether the agents he is dealing with truly belong to Alice and are authorized by her? Bob does.
-                And if one of Alice's agents gets hacked and attempts to subvert the Alice~Bob relationship,
+                And if one of Alice's agents gets hacked and attempts to subvert the Alice:Bob relationship,
                 who is the uncontaminated party that can refuse to cooperate with the rogue agent? Bob is.</p>
 
-            <p>Another way to think about this is that, within the Alice~Bob relationship, Bob acts as a substitute
+            <p>Another way to think about this is that, within the Alice:Bob relationship, Bob acts as a substitute
                 for a centralized resource that Alice's agents try to access. In such a mental model, of course Bob
                 would be a logical place to enforce access rules for Alice.</p>
         </section>
@@ -164,12 +164,16 @@
                 Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix,
                 is the NSI specified below.</p>
             <p>Early feedback on this method suggested that we embed it beneath the namespace of a particular blockchain,
-                as in <code>did:sov:peer</code> or <code>did:v1:peer</code>. In fact, the Veres One DID method does this
-            very thing.</p>
+            as in <code>did:sov:peer</code> or <a
+            target="_blank" href="https://w3c-ccg.github.io/didm-veres-one/#veres-one-did-format"><code>did:v1:nym</code></a>.
+            However, this DID method is not captive to any particular blockchain, does not take its resolution rules
+            from a parent method, and does not require anchoring or reference to a blockchain to be valid.
+            Therefore, its name is inherently top-level. How this method may be used in conjunction with various
+                blockchains is discussed <a href="#cross-registraiton">later</a>.</p>
         </section>
         <section>
             <h3>Target System(s)</h3>
-            <p>This DID method applies to any relationship management implementation that meets the following two
+            <p>This DID method applies to any identity management implementation that meets the following two
                 requirements:</p>
             <ul>
                 <li><em>Cryptonyms</em> -- The DIDs are created using the <a href="#gen_method">algorithm described below</a>,
@@ -183,38 +187,44 @@
             <p><a name="gen_method"></a>
               The Peer DID scheme is defined by the following <a href="ftp://ftp.rfc-editor.org/in-notes/std/std68.txt">ABNF</a>:<br><br>
               <code>
-                peer-did      = "did:peer:idstring" *(":" subnamespace)<br>
-                idstring      = 21*22(char)<br>
-                subnamespace  = ALPHA *(ALPHA / DIGIT / "_" / "-")<br>
-                char          = "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "A" / "B" / "C"<br/>
+                peer-did      = "did:peer:" keyfmtchar ":" idstring<br>
+                keyfmtchar    = "1"<br>
+                idstring      = 21*22base58char<br>
+                base58char    = "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "A" / "B" / "C"<br/>
                   &nbsp;&nbsp;&nbsp;&nbsp;/ "D" / "E" / "F" / "G" / "H" / "J" / "K" / "L" / "M" / "N" / "P" / "Q"<br/>
                   &nbsp;&nbsp;&nbsp;&nbsp;/ "R" / "S" / "T" / "U" / "V" / "W" / "X" / "Y" / "Z" / "a" / "b" / "c"<br/>
                   &nbsp;&nbsp;&nbsp;&nbsp;/ "d" / "e" / "f" / "g" / "h" / "i" / "j" / "k" / "m" / "n" / "o" / "p"<br/>
                   &nbsp;&nbsp;&nbsp;&nbsp;/ "q" / "r" / "s" / "t" / "u" / "v" / "w" / "x" / "y" / "z"<br>
               </code><br>
-              All Peer DIDs are base58 encoded using the Bitcoin/IPFS alphabets of a 16-byte uuid.
-              The encoding uses most alphas and digits, omitting 0OIl to avoid readability problems. This
-                gives an NSI length of either 21 or 22 characters, and it means that DIDs are case-sensitive and may not
-                be case-normalized, even though the prefix is always lower-case.
+              All Peer DIDs are base58 encoded values. The underlying number represented in base58 is a cryptographic
+              public key or a derivative (e.g., hash) thereof, as determined by <code>keyfmtchar</code>. At the time of this writing, only
+                one <code>keyfmtchar</code> is defined. This is "1", denoting a format where <code>idstring</code> is the
+                upper 16 bytes of an Ed25519 public key. This gives <code>idstring</code> a length of either 21 or 22
+                base58 characters. This spec may be updated to include other <code>keyfmtchar</code> variants for
+                SecP256, Curve448, or similar. Such updates might change the length of <code>idstring</code> as well.</p>
+            <p>The encoding of <code>idstring</code> uses most alphas and digits, omitting 0 (zero), O (capital o),
+                I (capital i), and (lower L) to avoid readability problems. Regardless of the length of <code>idstring</code>,
+                peer DIDs are case-sensitive and may not be case-normalized, even though the prefix is always lower-case.
               </p>
         </section>
         <section>
             <h3>Namestring Generation Method</h3>
-            <p>The unique 16-byte value underlying a Peer DID MUST be generated by using a cryptographically robust
-                algorithm that includes secure randomness to create an Ed25519 keypair, and then selecting as the NSI
-                the least significant 16 bytes of the public verification key. In this way, the DID can be known to
-                begin its existence already associated with keys, and the owner of the new DID is guaranteed to be
-                the only entity in the world who possesses the private key.
+            <p>The unique numeric value underlying a Peer DID MUST be generated by using a cryptographically robust
+                algorithm with secure randomness to create an Ed25519 keypair (or, when additional formats are supported,
+                an analogous keypair on a different curve), and then selecting as the NSI a subset of the public
+                verification key that is at least 128 bits, and that is dependent on <code>keyfmtchar</code>. For
+                <code>keyfmtchar</code> = "1", the NSI = the most significant 16 bytes of the public verification key.</p>
+            <p>In this way, the DID can be known to begin its existence already associated with keys, and the owner
+                of the new DID is guaranteed to be the only entity in the world who possesses the private key.
+                This guarantees the initial integrity of the DID's chain of custody.
             </p>
         </section>
         <section>
             <h3>Examples</h3>
             <p>A convenient regex to match <code>peer</code> DIDs is: <br><br>
-                <code>^[1-9A-HJ-NP-Za-km-z]{21,22}$</code><br><br>
-               A convenient regex to match the entire did string is:<br><br>
-                <code>^did:peer:[1-9A-HJ-NP-Za-km-z]{21,22}(?&lt;namespace&gt;(?::\w[-\w]*)*)$</code>
+                <code>^did:peer:1:[1-9A-HJ-NP-Za-km-z]{21,22}$</code>.
             </p>
-            <p>A valid <code>peer</code> DID might be: <code>did:peer:YTEFYzByfU2RwJPyULfLLn</code>.</p>
+            <p>A valid <code>peer</code> DID might be: <code>did:peer:1:YTEFYzByfU2RwJPyULfLLn</code>.</p>
         </section>
     </section>
     <section>
@@ -222,29 +232,44 @@
         <section>
             <h3>Roles</h3>
 
-            <p>In a peer relationship, we would expect only one role: <code>peer</code>. And this is
-                the case, at a high level.</p>
+            <p>We call this the "peer" DID method because it enables peers--parties with no relative hierarchy--to
+                exchange DIDs without recourse to a central authority. Thus, we expect only one role in our
+                protocol: <code>peer</code>. And this is the case, at a high level.</p>
 
-            <p>However, at another level of detail, peers are composed of agents, and agents
-            have interesting differences. Agents may have different responsibilities,
-            different capabilities, and different authorizations. Some agents may share
-                the same <a target="_blank" href="http://bit.ly/2QP9GzQ">sovereign domain</a>
-                with one another, while others may not.</p>
+            <p>However, at another level of detail, each peer may interact through various pieces of software
+                and hardware that proxy them. They may need to reveal a modest amount of information about such agents to
+                achieve cooperative security. For example, Alice may control 3 devices, and may wish to protect
+                herself from hacking by saying that at least 2 of her existing devices must agree before a new
+                device can be added or an existing device can be revoked. This requires her to share her M-of-N
+                policy with Bob, with enough information about agent keys that he can validate a multi-party
+                digital signature. Thus, our protocol must occasionally contemplate details about this more
+                granular level of each peer's<a target="_blank" href="http://bit.ly/2QP9GzQ">sovereign domain</a>.</p>
 
-            <p>For most of this discussion, we will describe messages as being passed
-            between two or more entities that have the `peer` role. However, we will
-                occasionally dip into a lower level as we explain granular agent behavior.</p>
         </section>
 
         <section>
-            <h3>Message Format</h3>
+            <h3>Messages</h3>
 
-            The messages used to establish, maintain, and end a relationship are JSON,
-            encrypted and serialized according to a <a target="_blank" href="http://bit.ly/2QxFGsT">standard
-            described in an Indy HIPE about wire format</a>. The format is as close as we could get to
-            <a target="_blank" href="https://www.rfc-editor.org/rfc/rfc7516.txt">JWE</a> conformance, but
-            includes some additional extensions. These extensions are under review
-            by the maintainers of JWE/JWT and are likely to be mainstreamed eventually.
+            <p><em>Peers interact via messages</em>. This is a more general claim than saying that peers expose an API,
+                because it doesn't assume that peers are directly callable by each other. It must be possible to
+                exchange DIDs in this method in a very asynchronous fashion (e.g., one party sends a message while the
+                other party is offline; a response is returned when the original sender may not be actively listening).</p>
+            <p><em>Message transmission is transport-agnostic</em>. That is, the messages can flow over any combination
+                of http, bluetooth, NFC, email, AMPRNet (TCP/IP over ham radio), snail mail, sneakernet, intermediaries,
+                or future protocols we have not yet invented.</p>
+            <p><em>Messages are <a target="_blank" href="https://tools.ietf.org/html/rfc8259">JSON</a></em>. They are
+                compatible with <a target="_blank" href="https://w3c.github.io/json-ld-syntax/#basic-concepts">basic
+                concepts of JSON-LD</a>, but no deep knowledge of JSON-LD is required to understand them, and no dependency
+                on JSON-LD libraries is necessary. The specifics of JSON format are discussed below.</p>
+            <p><em>Messages are serialized and encrypted</em> in a standard way for transport. This method associates
+                security guarantees with the message envelope rather than the transport, and is aligned philosophically with
+                the approach of <a target="_blank" href="https://datatracker.ietf.org/wg/mls/about/">IETF's Message
+                Level Security initiative</a>. However, the first version of this spec predates MLS's maturity, so
+                the wire format uses <a target="_blank" href="https://www.rfc-editor.org/rfc/rfc7516.txt">JWEs</a>
+                with some extensions, instead. The particulars are detailed in <a target="_blank" href="http://bit.ly/2QxFGsT">
+                an Indy HIPE</a>. The format is as close as we could get to JWE</a> conformance, but
+                includes some additional extensions. These extensions are under review by the maintainers of
+                JWE/JWT and are likely to be mainstreamed eventually.</p>
 
             <p>All JSON messages in this protocol are part of a "message family" named <code>relmgmt</code>. This
             family is identified by the following DID
@@ -427,7 +452,7 @@
             rotation that Bob must reject, is greater than might casually be assumed.
             We tend to think of Alice and Bob as monolithic entities--but in fact, each may have
             multiple agents that they use inside their respective sovereign domains. Ideally,
-            all of Alice's agents would share a coherent, perfectly synchronized view of the Alice~Bob
+            all of Alice's agents would share a coherent, perfectly synchronized view of the Alice:Bob
                 relationship, all the time. But the real world is messier.</p>
 
             <p>One way this is true is in highly complex sovereign domains of institutions. An enterprise
@@ -442,7 +467,7 @@
             intra-domain synchronization, because they are so simple and their state engines are so
             primitive. This could lead to them having their authorization cancelled without
             notification from internal sources. If so, they should get a `problem_report` from Alice
-                when they attempt to exercise privileges in the Alice~Bob relationship.</p>
+                when they attempt to exercise privileges in the Alice:Bob relationship.</p>
 
             <p>This challenge with imperfect propagation of relationship state also manifests in
             the agents of an ordinary consumer. Suppose Alice owns a phone and a tablet. She
