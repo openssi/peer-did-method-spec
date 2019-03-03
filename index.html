@@ -168,8 +168,11 @@
             target="_blank" href="https://w3c-ccg.github.io/didm-veres-one/#veres-one-did-format"><code>did:v1:nym</code></a>.
             However, this DID method is not captive to any particular blockchain, does not take its resolution rules
             from a parent method, and does not require anchoring or reference to a blockchain to be valid.
-            Therefore, its name is inherently top-level. How this method may be used in conjunction with various
-                blockchains is discussed <a href="#cross-registraiton">later</a>.</p>
+            Furthermore, any direct or indirect anchoring of a peer DID to a specific blockchain is driven by
+            circumstance and changeable at any time. For example, a peer DID could specify that it is using
+            a dead drop on blockchain 1, then change to blockchain 2, then change to blockchains 3 and 4 at
+            the same time. Therefore, "peer" belongs at the top of the DID namespace. How this method may be
+            used in conjunction with various blockchains is discussed <a href="#cross-registration">later</a>.</p>
         </section>
         <section>
             <h3>Target System(s)</h3>
@@ -178,7 +181,7 @@
             <ul>
                 <li><em>Cryptonyms</em> -- The DIDs are created using the <a href="#gen_method">algorithm described below</a>,
                     endowing them with properties vital for trust that is not dependent on a central source of truth.</li>
-                <li><em>Protocol</em> -- The metadata for DIDs (what is stored in an on-chain DID Doc in other methods)
+                <li><em>Protocol</em> -- The metadata for DIDs (what would be stored in an on-chain DID Doc in other methods)
                 is communicated as described below.</li>
             </ul>
         </section>
@@ -203,7 +206,7 @@
                 base58 characters. This spec may be updated to include other <code>keyfmtchar</code> variants for
                 SecP256, Curve448, or similar. Such updates might change the length of <code>idstring</code> as well.</p>
             <p>The encoding of <code>idstring</code> uses most alphas and digits, omitting 0 (zero), O (capital o),
-                I (capital i), and (lower L) to avoid readability problems. Regardless of the length of <code>idstring</code>,
+                I (capital i), and l (lower L) to avoid readability problems. Regardless of the length of <code>idstring</code>,
                 peer DIDs are case-sensitive and may not be case-normalized, even though the prefix is always lower-case.
               </p>
         </section>
@@ -243,7 +246,7 @@
                 device can be added or an existing device can be revoked. This requires her to share her M-of-N
                 policy with Bob, with enough information about agent keys that he can validate a multi-party
                 digital signature. Thus, our protocol must occasionally contemplate details about this more
-                granular level of each peer's<a target="_blank" href="http://bit.ly/2QP9GzQ">sovereign domain</a>.</p>
+                granular level of each peer's <a target="_blank" href="http://bit.ly/2QP9GzQ">sovereign domain</a>.</p>
 
         </section>
 
@@ -266,10 +269,11 @@
                 the approach of <a target="_blank" href="https://datatracker.ietf.org/wg/mls/about/">IETF's Message
                 Level Security initiative</a>. However, the first version of this spec predates MLS's maturity, so
                 the wire format uses <a target="_blank" href="https://www.rfc-editor.org/rfc/rfc7516.txt">JWEs</a>
-                with some extensions, instead. The particulars are detailed in <a target="_blank" href="http://bit.ly/2QxFGsT">
+                with some extensions, instead. The particulars are detailed in <a target="_blank"
+                href="https://github.com/hyperledger/indy-hipe/blob/master/text/0028-wire-message-format/README.md">
                 an Indy HIPE</a>. The format is as close as we could get to JWE</a> conformance, but
-                includes some additional extensions. These extensions are under review by the maintainers of
-                JWE/JWT and are likely to be mainstreamed eventually.</p>
+                includes some extensions to handle multiplexed encryption. These extensions are under review by the
+                maintainers of JWE/JWT and are likely to be mainstreamed eventually.</p>
 
             <p>All JSON messages in this protocol are part of a "message family" named <code>relmgmt</code>. This
             family is identified by the following DID
