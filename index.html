@@ -450,9 +450,16 @@
 
             <section>
                 <h4>Delete</h4>
-                <p>Deleting a DID terminates the relationship between two parties and should cause the other party to
-                    remove the DID, DID Doc, and associated metadata from its local cache. This is done by
-                    sending a <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/d014879d/text/conn-mgmt-protocols/README.md#leave"><code>leave</code>
+                <p>In a self-sovereign paradigm, abandoning a relationship can be done unilaterally, and does not
+                    require formal announcement; one party can simply stop communicating with the other. Since there
+                    is no public record of the relationship to delete, no further action is strictly required.
+                    Indeed, sometimes a formal announcement is impossible, if one of the parties
+                    is offline.</p>
+
+                <p>However, it is best practice to announcing that the relationship is being abandoned. This
+                    should cause the other party to remove the DID, DID Doc, and associated metadata from its
+                    local cache, and stop trying to communicate. Formally terminating a connection happens by sending a
+                    <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/d014879d/text/conn-mgmt-protocols/README.md#leave"><code>leave</code>
                         message</a> to a peer:</p>
                 <pre>
 {
@@ -461,12 +468,6 @@
   "~please_ack": {}
 }
                 </pre>
-                <p>
-                This message is used to announce that a party is abandoning the relationship. In a self-sovereign
-                paradigm, abandoning a relationship can be done unilaterally, and does not require formal
-                announcement. Indeed, sometimes a formal announcement is impossible, if one of the parties
-                    is offline. So while using this message is encouraged and best practice, it is not mandatory.</p>
-
                 <p>If Bob receives a message like this, he should assume that Alice no longer considers
                 herself connected, and take appropriate action. This could include destroying
                 data about Alice that he has accumulated over the course of their relationship,
