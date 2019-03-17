@@ -349,14 +349,16 @@
   "as_of_time": "2019-07-23 18:05:06.123Z"
 }
             </pre>
-            <p>A response is a <a
-                    href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#state_response">state_response
-            </a> message like this:
+            <p>The <code>as_of_time</code> property is optional and often omitted; if so, the DID Doc at
+            the current time is returned.</p>
+            <p>A <a href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#state_response">state_response
+            </a> message is returned. It includes a DID Doc and some additional metadata, and looks like this:
             </p>
             <pre>
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/state_response",
-  "@id": "6a4986dd-f50e-4ed5-a389-718e61517207",
+  "@id": "1517207d-f50e-4ed5-a389-6a4986d718e6",
+  "~thread": { "thid": "6a4986dd-f50e-4ed5-a389-718e61517207" },
   "for": "did:peer:rjHiqAzCbsNYhMZDTUASHg",
   "did_doc": {
       "@context": "https://w3id.org/did/v1",
@@ -374,11 +376,17 @@
   },
   "as_of_time": "2019-07-23 18:05:06.123Z"
 }        </pre>
+                <p>Note the use of <code>~thread</code> in the response, with <code>thid</code> equal to the
+                <code>@id</code> property of the previous request, to connect the two messages. This is a
+                <a target="_blank" href="https://github.com/hyperledger/indy-hipe/tree/master/text/0027-message-id-and-threading#threaded-messages">
+                    standard message threading feature of DID Communication</a>, and also shows up in other
+                message interactions described here.</p>
             </section>
 
             <section>
                 <h4>Update</h4>
-                <p>The owner of a peer DID can update their associated DID Document by sending an <a
+                <p>The owner of a peer DID can update their associated DID Document with anyone who knows the
+                    DID--one or more agents of the peer, or agents of the owner itself--by sending an <a
                         href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#sync_state">sync_state
                 </a> message to another peer. An example of this type of message is:</p>
 
@@ -417,7 +425,8 @@
   ]
 }
                 </pre>
-                <p>This message does not follow a simple request~response pattern, because either party
+                <p>This message does not follow a simple request~response pattern, and does not have "update"
+                    in its name, because either party
                 may know details that the other party lacks. The sender picks a point in time, <code>delta_time</code>,
                 where it believes it and the receiver were probably in sync; it then describes the <a target="_blank"
                 href="https://github.com/hyperledger/indy-hipe/blob/d014879d/text/conn-mgmt-protocols/README.md#did-doc-deltas">deltas</a>
