@@ -339,28 +339,26 @@
             <section>
             <h4>Read (Resolve)</h4>
             <p>A peer DID can be resolved to a DID Document by sending a <a
-                    href="https://github.com/dhh1128/indy-hipe/blob/relationship-protocol/text/peer-relationship-protocol/README.md#query_view">query_view
+                    href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#state_request">state_request
             </a> message from one peer to another:</p>
             <pre>
-                    {
-                        "submitterId": &lt;Optional; DID of the author of this query&gt;,
-                        "reqId": &lt;Optional; a nonce for this query&gt;,
-                        "operation": {
-                            "did": &lt;DID to be queried&gt;,
-                            "type": "GET_NYM"
-                        }
-                    }
+{
+  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0/state_request",
+  "@id": "6a4986dd-f50e-4ed5-a389-718e61517207",
+  "for": "did:peer:rjHiqAzCbsNYhMZDTUASHg",
+  "as_of_time": "2019-07-23 18:05:06.123Z"
+}
             </pre>
             <p>A response is a <a
-                    href="https://github.com/dhh1128/indy-hipe/blob/relationship-protocol/text/peer-relationship-protocol/README.md#my_view">my_view
+                    href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#state_response">state_response
             </a> message like this:
             </p>
             <pre>
 {
-  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/my_view",
-
-  "me": {
-    "doc": {
+  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/state_response",
+  "@id": "6a4986dd-f50e-4ed5-a389-718e61517207",
+  "for": "did:peer:rjHiqAzCbsNYhMZDTUASHg",
+  "did_doc": {
       "@context": "https://w3id.org/did/v1",
       "id": "did:peer:qQk1twjzCmEMgLDRNmo7oS",
       "publicKey": [
@@ -373,46 +371,85 @@
       "service": [
         {"type": "Agency", "serviceEndpoint": "did:sov:Av1e1Cpu2MavT6QN8nuLJ4" }
       ]
-    },
-    "latest": {
-      "sha256": "C6E2914C4B0A668EAEE38031BDE6AA0C0462D0D5B676528002FE9C29A228FE9F",
-      "v": 2
-    }
-  }
+  },
+  "as_of_time": "2019-07-23 18:05:06.123Z"
 }        </pre>
             </section>
 
             <section>
-                <h4>Update (Replace)</h4>
+                <h4>Update</h4>
                 <p>The owner of a peer DID can update their associated DID Document by sending an <a
-                        href="https://github.com/dhh1128/indy-hipe/blob/relationship-protocol/text/peer-relationship-protocol/README.md#query_view">update_us
-                </a> message to another peer:</p>
+                        href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#sync_state">sync_state
+                </a> message to another peer. An example of this type of message is:</p>
 
-                    <pre>TODO</pre>
+                <pre>
+{
+  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/sync_state",
+  "@id": "e61586dd-f50e-4ed5-a389-716a49817207",
+  "for": "did:peer:rjHiqAzCbsNYhMZDTUASHg",
+  "base_hash": "d48f058771956a305e12a3b062a3ac81bd8653d7b1a88dd07db8f663f37bf8e0",
+  "base_hash_time": "2019-07-23 18:05:06.123Z",
+  "deltas": [
+    {
+      "ops": [
+        {
+          "op": "add_key",
+          "fragment": {
+            "id": "6", "type": "Ed25519Verkey2018",
+            "owner": "did:peer:EMmo7oSqQk1twmgLDRNjzC",
+            "publicKey": "DjbU8jgf1MjGWu6hGwr4N4EoAfhfTjutjWc8fgdxb3QP"
+          }
+        },
+        {
+          "op": "remove_key",
+          "fragment": {"id": "5"}
+        }
+      ],
+      "delta_time": "2019-07:23 19:00:01",
+      "result_hash": "058771956a305e12a3b062a3ac81d48fbd8653d7f663f37bf8e0b1a88dd07db8",
+      "proofs": [
+        {
+          "by": "#4",
+          "signature": "MIIB6gYJKoZIhvcNAQcCoIIB2zCCAdcCAQE...wYDVQQKEwR"
+        }
+      ]
+    }
+  ]
+}
+                </pre>
+                <p>This message does not follow a simple request~response pattern, because either party
+                may know details that the other party lacks. The sender picks a point in time, <code>delta_time</code>,
+                where it believes it and the receiver were probably in sync; it then describes the <a target="_blank"
+                href="https://github.com/hyperledger/indy-hipe/blob/d014879d/text/conn-mgmt-protocols/README.md#did-doc-deltas">deltas</a>
+                that it know about, that have happened since.</p>
+                <p>If the recipient already has the same state, it replies with an <a target="_blank"
+                href="https://github.com/hyperledger/indy-hipe/blob/518b5a9a/text/acks/README.md">ACK</a>.
+                If the recipient knew about a subset of the delta, but not all of it, it applies what is left of the
+                delta, and sends an ACK. If the recipient has a more evolved state, the recipient sends a reply
+                that is a new <code>sync_state</code>code> message informing the sender of new information. As with
+                the ACKs, this new message is known to be a reply to the original <code>sync_state</code> because its
+                <a target="_blank" href="https://github.com/hyperledger/indy-hipe/tree/master/text/0027-message-id-and-threading#threaded-messages">
+                    <code>~thread</code> decorator identifies the previous message's <code>@id</code> as its <code>thid</code></a>
+                If the recipient does not recognize the base_hash, it selects a hash from a point in time earlier than
+                    <code>base_hash_time</code> and sends back a new <code>sync_state</code> message with that earlier base.
+                If the recipient detects a conflict, it attempts to merge states. If the merge is successful, it sends a
+                    new <code>sync_state</code> that shows the merge. If the merge is not successful, then a merge
+                    conflict exists, and the merge conflict policy for the sovereign domain of the associated DID is
+                    invoked. See <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/d014879d/text/conn-mgmt-protocols/README.md#merges-and-merge-conflicts">"Merges and Merge Conflicts"</a>.
+                </p>
             </section>
 
             <section>
-                <h4>Delete (Revoke)</h4>
-                <p>Deleting or revoking a verification key is not to be confused with temporary suspension or rotation. Deletion
-                    sets an identity's verification key to null; this permanently terminates the identity's ability to operate
-                    on the network because there is no key that the identity can use to authenticate itself--even to submit a
-                    new key rotation request. It is irreversible.</p>
-                 <p>Revocation may be appropriate
-                    when a person dies or a business is legally dissolved. It does not remove any record or history of the
-                    identity--it simply prevents any new history from accruing. This guarantees that
-                    no malicious actor can recover and reactivate an identity that's dead.</p>
-                <p>The scope of deletion in peer DIDs is one DID only. This does not prevent an entity from creating new DIDs;
-                it simply prevents an entity from reusing the old DID that has been terminated.</p>
-                <p> To revoke the document of the DID, the owner of
-                    the DID should send a <a
-                            href="https://github.com/dhh1128/indy-hipe/blob/relationship-protocol/text/peer-relationship-protocol/README.md#query_view">leave_us
-                </a> message to another peer:</p>
+                <h4>Delete</h4>
+                <p>Deleting a DID terminates the relationship between two parties and should cause the other party to
+                    remove the DID, DID Doc, and associated metadata from its local cache. This is done by
+                    sending a <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/d014879d/text/conn-mgmt-protocols/README.md#leave"><code>leave</code>
+                message to a peer:</p>
                 <pre>
 {
-  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/leave_us",
+  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connection/1.0/leave",
   "@id": "c17147d2-ada6-4d3c-a489-dc1e1bf778ab",
-  "ack_requested": false,
-  "comment_ltxt": "It's not about you. It's about me..."
+  "~please_ack": {}
 }
                 </pre>
                 <p>
@@ -422,97 +459,24 @@
                     is offline. So while using this message is encouraged and best practice, it is not mandatory.</p>
 
                 <p>If Bob receives a message like this, he should assume that Alice no longer considers
-                herself part of "us", and take appropriate action. This could include destroying
+                herself connected, and take appropriate action. This could include destroying
                 data about Alice that he has accumulated over the course of their relationship,
                 removing her peer DID and its public key(s) and endpoints from his wallet, and so
                 forth. The nature of the relationship, the need for a historical audit trail, regulatory
                 requirements, and many other factors may influence what's appropriate; the protocol
                     simply requires that the message be understood to have permanent termination semantics.</p>
 
-                <p>If `ack_requested` is `true`, then it is best practice for Bob to send a `my_view`
-                message with Alice's DID removed from the `you` field. This acknowledges that she is
-                no longer in the relationship from his perspective. This will make more sense
-                when the `my_view` message is described, later on--but here's what such a `my_view`
-                    message would look like if Alice and Bob were in a pairwise relationship:</p>
+                <p>The <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/518b5a9a/text/acks/README.md#requesting-an-ack-please_ack">
+                    <code>~please_ack</code> decorator</a> is optional. It asks the receiver to
+                send an acknowledgement that it has processed the message. If used, the receiver
+                should send an ACK that looks like this:</p>
 
 <pre>
 {
-"@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/my_view",
-"@thread": { "thid": "c17147d2-ada6-4d3c-a489-dc1e1bf778ab", "seqnum": 0 },
-"you": [],
-"comment_ltxt": "Bye. I'm not retaining anything about you."
+"@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0/ack",
+"@thread": { "thid": "c17147d2-ada6-4d3c-a489-dc1e1bf778ab" }
 }
 </pre>
-            </section>
-        </section>
-        <section>
-            <h3>Cooperative Synchronization</h3>
-
-            <p>The significance of the error situation described above, where Alice attempts a key
-            rotation that Bob must reject, is greater than might casually be assumed.
-            We tend to think of Alice and Bob as monolithic entities--but in fact, each may have
-            multiple agents that they use inside their respective sovereign domains. Ideally,
-            all of Alice's agents would share a coherent, perfectly synchronized view of the Alice:Bob
-                relationship, all the time. But the real world is messier.</p>
-
-            <p>One way this is true is in highly complex sovereign domains of institutions. An enterprise
-            might control dozens of rich agents running as daemons on its servers--and maybe hundreds
-            or thousands of static agents embodied in cron jobs, web hooks, and other forms of
-            automation. (For a discussion about "rich" and "static" agents, see <a target="_blank"
-            href="https://docs.google.com/presentation/d/1ExQM_suu9MISrPanpK9sBGqVZFxf8pp4GvytcsKbkVM/edit#slide=id.g445a9ada60_0_21">
-                    Agent Taxonomy</a>.)</p>
-
-            <p>Achieving robust synchronization in such a world is nearly impossible--especially with
-            low latency. In particular, static agents might not participate in any kind of sophisticated
-            intra-domain synchronization, because they are so simple and their state engines are so
-            primitive. This could lead to them having their authorization cancelled without
-            notification from internal sources. If so, they should get a `problem_report` from Alice
-                when they attempt to exercise privileges in the Alice:Bob relationship.</p>
-
-            <p>This challenge with imperfect propagation of relationship state also manifests in
-            the agents of an ordinary consumer. Suppose Alice owns a phone and a tablet. She
-            temporarily misplaces the phone, so she sends Bob a message with her tablet, removing
-            the phone's keys from the list of authorized keys. If Alice later finds the phone and
-            tries to use it to send Bob a message, she should get a `problem_report` message as
-                described above, explaining that this operation looks invalid from Bob's perspective.</p>
-
-            <p>Both of these examples show that the responsibility for communicating about the state
-            of a relationship is not easily partitioned. Bob should do what he can to tell his
-            agents about any changes he makes, *and also* about any changes that Alice makes.
-            And he should be helpful about informing Alice's agents if he knows more about the
-            relationship state than they do. Alice should do the same. If both engage in cooperative
-            synchronization, then the overall knowledge about relationship state may not be
-                perfect, but it will be good enough to function robustly.</p>
-
-            <p>The `query_view` and `my_view` messages help, here. If an agent receives a `problem_report`
-            announcing that it is out-of-date on its view of relationship state, the agent can follow
-            up with a `query_view` to see what state it lacks. Bob's static agent may be able to discover
-            and plug the gap by talking to Alice, even if Bob hasn't been able to update his own static
-                agent directly.</p>
-
-            <p>[TODO: go back and explain how we use Merkle roots with all messages in this family</p>
-
-            <section>
-                <h4>Split Brain</h4>
-
-            <p>If an agent rotates its keys in Bob's domain and then sends an announcement of that change
-            to Alice, only to have Alice reject it because the agent's view of state is stale [TODO:
-            go back and add in something in `update_us` that ties the update to a merkle root, such that
-            we can detect staleness even if the agent is still authorized...], then we have a problem:
-            the agent's old key might have been authorized, but the new one is not. And the agent has
-            thrown away the old key. This phenomenon of having independent actors evolve in parallel in
-                incompatible ways is called "the split brain problem" in database theory.</p>
-
-            <p>To avoid this problem, agents should not fully commit a key rotation on their side until
-                receiving an acknowledgement from the other side of the relationship.</p>
-
-            <p>Note that split brain can still happen, despite an agent's best efforts to delay the commit,
-            if the agent on the other side doesn't deliver a `problem-report` as described above. And even
-            if it does, there is still a corner case where split brain can occur, because Bob's stale
-            agent's proposed change might be acknowledged by one of Alice's agents that, itself, has a
-            stale view of the relationship. Therefore, a `problem-report` about the staleness is sendable
-            at any point when the the split brain is detected. [TODO: describe algorithm to undo split brain
-                if detected.]</p>
             </section>
         </section>
     </section>
