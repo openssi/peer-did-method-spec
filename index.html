@@ -520,22 +520,22 @@
                 authorizations on keys must be specified in the <code>authorization</code> section of a peer DID doc.
                 Its structure is:</p>
 
-            <pre>
-            “authorization”: [ list of <em>grant</em>s ]
-            <em>grant</em> = { "let": <em>recipient</em> , “do”: <em>privs</em> }
-            <em>recipient block</em> = one of the following:
-                “key”: keyref, e.g., “#1”
-                "group":
-                “and”: [ list of recipient block ]
-                “or”: [ list of recipient block ]
-                “m_of_n”: {“m”: number, “n”: [ list of recipient block ]}
+            <p>
+            “authorization”: [ list of <em>grant</em>s ]<br/>
+            <em>grant</em> = { "let": <em>recipient</em> , “do”: <em>privs</em> }<br/>
+            <em>recipient block</em> = one of the following:<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;“key”: keyref, e.g., “#1”<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;"group":<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;“and”: [ list of recipient block ]<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;“or”: [ list of recipient block ]<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;“m_of_n”: {“m”: number, “n”: [ list of recipient block ]}<br/>
             <em>privs</em> = a string that enumerates the privileges being granted.
                 This string is list-like, but is not modeled using a JSON list or dict
                 because of some specialized syntax that conflicts with canonicalization
                 requirements. Its format is space-delimited list of privileges, where each
                 privilege is an op code name. The list must be sorted in ascending
                 alphabetical order to aid normalization.
-            </pre>
+            </p>
 
             <p>Basically, authorizations are a series of grants. Grants identify the recipient, which is either a key or a combination of keys, and the privileges that the recipient is receiving.</p>
 
