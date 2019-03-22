@@ -555,39 +555,55 @@
                 </ul>
             </li>
             </ul>
-            <section>
-                <h4>Backup and Recovery</h4>
-                <p></p>
-                <h4>Revocation of Devices</h4>
-                <h4>Revocation of Keys</h4>
-            </section>
         </section>
     </section>
 
     <section>
         <h2>Privacy Considerations</h2>
-        <div>
-TODO
-        </div>
+        <p>Peer DIDs should remain pairwise or n-wise, not being reused across relationships. This
+        allows proper isolation to defeat correlation. It also enables granular exercise of sovereignty in a
+        robust, <a target="_blank" href="https://medium.com/evernym/three-dimensions-of-identity-bc06ae4aec1c">
+                multidimensional identity</a>.</p>
+    </section>
+
+    <section>
+        <h2>Grafting Peer DIDs Into Another DID Method Namespace</h2>
+        <p>Because peer DIDs are guaranteed to be globally unique at the moment of creation,
+            their 128-bit NSI will not exist on any other blockchain. Blockchain-based DID methods
+            can register a peer DID Doc using their own method. As the DID value, they can either
+            combine their own method prefix with peer DID's NSI ("did:peer:abc123" --> "did:xyz:abc123"),
+            or they can create a child namespace for peer DIDs beneath their own ("did:peer:abc123" -->
+            did:xyz:peer:abc123").</p>
+        <p>If a peer DID is registered and grafted into another DID namespace, using either method,
+            a decision must be made about which version of the DID Doc is normative: the one registered on
+            that blockchain, one registered on another blockchain, or one not registered on a blockchain
+            at all. Ideally, there would be no difference between the DID Docs stored in each place.
+            This could be achieved by freezing the DID Doc at the moment when it is cross registered.</p>
+        <p>One reason why this grafting and cross-registering feature is interesting is that peer DIDs
+            could be supported by existing DID tools (e.g., the universal resolver) that require a
+            blockchain, without any retooling.</p>
     </section>
 
     <section>
         <h2>Reference Implementations</h2>
-        The code at <a href="https://example.com" target="_blank">X</a>
-        constitutes a canonical implementation of peer DIDs, and should be treated like an oracle.
-        <p>Note that the code includes a test suite; any other implementations should ensure that all tests pass before they claim compatibility.</p>
+        <p>The wire format for DID Communication encryption has three independent implementations--on
+        in libindy, one in python with no Indy dependencies, and one in javascript with no Indy dependencies.</p>
+        <p>The connection protocol that creates and registers peer DIDs, including support for DID resolution
+            after connection, has been fully implemented by
+        half a dozen different organizations, as of March 2019. One of these organizations is not using
+        libindy. The connection management protocols that allow update of DIDs are in various states of
+        implementation. An up-to-date summary of implementation status, including links to the implementations,
+            can be found in the <a target="_blank" href="https://github.com/hyperledger/indy-agent">indy-agent repo on github</a>.</p>
+        <p>There is a formal test suite for the protocols as well, in the same github repo.</p>
     </section>
 
     <section>
         <h2>Resources</h2>
-        <p>Developers maintaining this spec and its reference implementation are often found on RocketChat a
-            chat.hyperledger.org, #indy and #indy-sdk. You might also connect with us in Hyperledger and W3C working
-            groups or at the semi-annual Internet Identity Workshop conferences.</p>
+        <p>Developers maintaining this spec and its reference implementations are often found on RocketChat a
+            chat.hyperledger.org, #indy and #indy-sdk. You might also connect with them via the Hyperledger Indy
+            mailing list at indy@lists.hyperledger.org, or in Hyperledger and W3C working
+            groups, or at the semi-annual Internet Identity Workshop conferences.</p>
     </section>
 
-    <section>
-      <h2>Appendix B: Wire message format</h2>
-      TODO
-    </section>
   </body>
 </html>
