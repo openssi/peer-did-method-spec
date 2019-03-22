@@ -521,15 +521,15 @@
                 Its structure is:</p>
 
             <p>
-            “authorization”: [ list of <em>grant</em>s ]<br/>
-            <em>grant</em> = { "let": <em>recipient</em> , “do”: <em>privs</em> }<br/>
-            <em>recipient block</em> = one of the following:<br/>
+            “authorization”: [ list of <b>grant</b>s ]<br/>
+            <b>grant</b> = { "let": <b>recipient</b> , “do”: <b>privs</b> }<br/>
+            <b>recipient block</b> = one of the following:<br/>
             &nbsp;&nbsp;&nbsp;&nbsp;“key”: keyref, e.g., “#1”<br/>
             &nbsp;&nbsp;&nbsp;&nbsp;"group":<br/>
             &nbsp;&nbsp;&nbsp;&nbsp;“and”: [ list of recipient block ]<br/>
             &nbsp;&nbsp;&nbsp;&nbsp;“or”: [ list of recipient block ]<br/>
             &nbsp;&nbsp;&nbsp;&nbsp;“m_of_n”: {“m”: number, “n”: [ list of recipient block ]}<br/>
-            <em>privs</em> = a string that enumerates the privileges being granted.
+            <b>privs</b> = a string that enumerates the privileges being granted.
                 This string is list-like, but is not modeled using a JSON list or dict
                 because of some specialized syntax that conflicts with canonicalization
                 requirements. Its format is space-delimited list of privileges, where each
