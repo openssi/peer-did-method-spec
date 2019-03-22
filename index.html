@@ -513,7 +513,7 @@
             to be unpredictable and globally unique at creation time.</p>
         </section>
         <section>
-            <h3>Key Management</h3>
+            <h3>Key Authorizations</h3>
             <p>The keys authorized to participate in a peer relationship may not all have the same
             privileges. All keys have the privilege of rotating themselves. Keys that have the privilege
             of adding keys can only add keys with equal or lesser privileges than themselves. All other
@@ -556,6 +556,12 @@
             </li>
             </ul>
         </section>
+        <section>
+            <h3>Key Management</h3>
+            <p>Keys used to control peer DIDs, or keys authorized to communicate and update the DID Docs
+            for peer DIDs, should be managed according to best practices for DKMS, as described in
+                <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/9223b7fe/text/dkms/dkms-v4.md">the DKMS spec</a>.</p>
+        </section>
     </section>
 
     <section>
@@ -564,6 +570,7 @@
         allows proper isolation to defeat correlation. It also enables granular exercise of sovereignty in a
         robust, <a target="_blank" href="https://medium.com/evernym/three-dimensions-of-identity-bc06ae4aec1c">
                 multidimensional identity</a>.</p>
+        <img src="pairwise.png"/>
     </section>
 
     <section>
