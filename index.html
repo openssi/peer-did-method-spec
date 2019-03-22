@@ -122,7 +122,7 @@
             <p>Some groups, such as Doctor+Hospital+Patient, are clearly n-wise. Each party can enumerate all the
                 other parties, and each party uses the same identifier in all directions within the group. N-wise
                 groups are peer groups by definition: (see <a target="_blank"
-                href="https://github.com/hyperledger/indy-hipe/blob/master/text/0014-ssi-notation/README.md">Indy
+                href="https://github.com/hyperledger/indy-hipe/blob/master/text/0014-ssi-notation/README.md">
                     HIPE 0014</a> for help on the SSI notation used in this diagram).</p>
             <img src="n-wise.png"/>
             <p>But groups can also be modeled with a hub-and-spoke model. That model is commonly used in group chats, for example: each member of the group chat sends and receives via a central service, which in turn broadcasts to all other members of the group. This hub-and-spoke model is actually just a pairwise variant, because the relationship is between a member and the hub; all other relationships are only indirect:</p>
@@ -275,10 +275,10 @@
                 the wire format uses <a target="_blank" href="https://www.rfc-editor.org/rfc/rfc7516.txt">JWEs</a>
                 with some extensions, instead. The particulars are detailed in <a target="_blank"
                 href="https://github.com/hyperledger/indy-hipe/blob/master/text/0028-wire-message-format/README.md">
-                an Indy HIPE</a>. However, nothing about this format is dependent on Indy. In particular, there are
+                a HIPE</a>. However, nothing about this format is dependent on Hyperledger Indy. In particular, there are
                 two implementations of the algorithm that do not have any dependence on Indy--one in pure javascript,
                 and one in pure python. (TODO: get link to Daniel Bluhm's javascript impl, and to BC Gov's python
-                impl.) There is also a C-callable Indy SDK implementation in Rust. The format is as close as
+                impl.) There is also a C-callable implementation in Rust. The format is as close as
                 we could get to JWE</a> conformance, but includes some extensions to handle multiplexed encryption.
                 These extensions are under review by the
                 maintainers of JWE/JWT and are likely to be mainstreamed eventually.</p>
@@ -302,7 +302,7 @@
             any time and does not require a message, <em>registering</em> a peer DID with the other party or parties in a
             relationship involves a specific sequence of messages known as the <em>connection protocol</em>. The
             protocol is <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/b3f5c388/text/connection-protocol/README.md">
-            formally documented in an Indy HIPE</a>; only a summary is offered here. It has 3 steps:</p>
+            formally documented in a HIPE</a>; only a summary is offered here. It has 3 steps:</p>
                 <ol>
                     <li>One of the parties (the <em>inviter</em>) sends an <em>invitation</em> to connect. The
                         invitation is NOT encrypted, and it does NOT require the recipient (the <em>invitee</em>) to
