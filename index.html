@@ -273,15 +273,21 @@
                 the approach of <a target="_blank" href="https://datatracker.ietf.org/wg/mls/about/">IETF's Message
                 Level Security initiative</a>. However, the first version of this spec predates MLS's maturity, so
                 the wire format uses <a target="_blank" href="https://www.rfc-editor.org/rfc/rfc7516.txt">JWEs</a>
-                with some extensions, instead. The particulars are detailed in <a target="_blank"
+                with some extensions, instead. The extensions allow the same message to be encrypted once for multiple
+                recipients and sent to them all in an efficient manner:</p>
+            <img src="multiplex.png"/>
+            <p>These extensions are under review by the
+                maintainers of JWE/JWT and are likely to be mainstreamed eventually.
+                The particulars are detailed in <a target="_blank"
                 href="https://github.com/hyperledger/indy-hipe/blob/master/text/0028-wire-message-format/README.md">
-                a HIPE</a>. However, nothing about this format is dependent on Hyperledger Indy. In particular, there are
-                two implementations of the algorithm that do not have any dependence on Indy--one in pure javascript,
-                and one in pure python. (TODO: get link to Daniel Bluhm's javascript impl, and to BC Gov's python
-                impl.) There is also a C-callable implementation in Rust. The format is as close as
-                we could get to JWE</a> conformance, but includes some extensions to handle multiplexed encryption.
-                These extensions are under review by the
-                maintainers of JWE/JWT and are likely to be mainstreamed eventually.</p>
+                a doc</a> that explains how agents in the Hyperledger Indy ecosystem have implemented the format -
+                but the format is easy to implement without any Indy dependencies, and its design has no
+                connection to the Indy blockchain. See <a href="javascript:alert('TODO: get Daniel Bluhm's impl link')">this implementation
+                in pure javascript</a>, and <a target="_blank" href="https://github.com/bcgov/indy-catalyst/blob/bba2ef5c/agent/indy_catalyst_agent/wallet/crypto.py#L402">
+                this one in pure python</a>, in addition to
+                <a target="_blank" href="https://github.com/hyperledger/indy-sdk/blob/fbad7422/libindy/src/api/crypto.rs#L634">
+                Indy's C-callable implementation in Rust</a>.
+                </p>
 
             <p>All JSON messages in this protocol are part of a "message family" named <code>connections</code>. This
             family is identified by the following <a target="_blank" href="https://w3c-ccg.github.io/did-spec/#the-generic-did-scheme">DID
