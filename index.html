@@ -600,8 +600,13 @@
 
     <section>
         <h2>Reference Implementations</h2>
-        <p>The wire format for DID Communication encryption has three independent implementations--on
-        in libindy, one in python with no Indy dependencies, and one in javascript with no Indy dependencies.</p>
+        <p>The wire format for DID Communication encryption has three independent implementations--one in
+            <a target="_blank" href="https://github.com/hyperledger/indy-sdk/blob/fbad7422/libindy/src/api/crypto.rs#L634">
+                libindy</a>, one in
+            <a target="_blank" href="https://github.com/bcgov/indy-catalyst/blob/bba2ef5c/agent/indy_catalyst_agent/wallet/crypto.py#L402">
+                python with no Indy dependencies</a>, and one in
+            <a target="_blank" href="https://github.com/dbluhm/indy-pack-unpack-js/blob/db9d83e4/index.js">
+                javascript with no Indy dependencies</a>.</p>
         <p>The connection protocol that creates and registers peer DIDs, including support for DID resolution
             after connection, has been fully implemented by
         half a dozen different organizations, as of March 2019. One of these organizations is not using
