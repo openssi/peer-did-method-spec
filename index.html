@@ -45,15 +45,23 @@
     </section>
     <section id='abstract'>
         <p>This document defines a "peer" <a href="https://w3c-ccg.github.io/did-spec/#specific-did-method-schemes">DID Method</a>
-            that can be used independent of any central source of truth. The method is cheap, fast, scalable,
+            that can be used independent of any central source of truth. The method is intended to be cheap, fast, scalable,
             and secure. It is suitable for most private relationships between people, organizations, and things.
             DIDs associated with this method are also promotable to a more public context. That is, blockchains with
             different DID methods could choose to graft some or all peer DIDs into their namespace(s) with no risk of accidental
-            collision, and no loss of meaning. Peer DID would have a recognizable and consistent identity in all of them.
+            collision, and no loss of meaning. A particular peer DID would have a recognizable and consistent identity
+            in all of them.
         </p>
         <p>We expect that peer-to-peer relationships in every blockchain ecosystem can benefit by offloading pairwise
             and n-wise relationships to peer DIDs.
         </p>
+        <blockquote><p><em>Terminology note</em>: as used in this spec, "peer DID" means a DID that uses the "did:peer"
+            DID method we're defining. Such DIDs are often <a href="http://bit.ly/2BhEPC2">pairwise</a>,
+            but "pairwise DID" is not a synonym, since peer DIDs can also be used to model <a
+            href="http://bit.ly/2Qr2BGc"> n-wise</a> relationships. Similarly, "peer DID" is not intended
+            to be a synonym for a DID that is not publicly resolvable. Many different approaches to such
+            DIDs might exist; "peer DID" is just the name for the approach described here.</p>
+        </blockquote>
     </section>
     <section id='sotd'>
       <p>&nbsp;
@@ -95,8 +103,8 @@
                     DID is discovered to be less than unique, a true problem exists and systems can fairly
                     raise an exception.
                     </li>
-                <li><em>DID values are securely random.</em> This prevents attackers from discovering patterns
-                    in DID values that might undermine privacy.</li>
+                <li><em>The values of DIDs are securely random.</em> This prevents attackers from discovering patterns
+                    in DIDs that might undermine privacy.</li>
                 <li><em>Parties to a relationship can prove the orderly and authorized evolution of their
                     keys to one another.</em></li>
             </ol>
@@ -127,15 +135,32 @@
             landscape. Groups larger than 2 can also have a peer-style relationship--but not all groups will be
             modeled that way. Therefore, applying this method to groups should be done thoughtfully.</p>
 
-            <p>Some groups, such as Doctor+Hospital+Patient, are clearly n-wise. Each party can enumerate all the
+            <p><a target="_blank" href="https://docs.google.com/document/d/17wn4zah37ATGXClWfbvTu07v_YmkDgQfGEWhBiROZBo/edit">
+                Some groups, such as Doctor+Hospital+Patient, are clearly n-wise</a>. Each party can enumerate all the
                 other parties, and each party uses the same identifier in all directions within the group. N-wise
                 groups are peer groups by definition: (see <a target="_blank"
                 href="https://github.com/hyperledger/indy-hipe/blob/master/text/0014-ssi-notation/README.md">
                     HIPE 0014</a> for help on the SSI notation used in this diagram).</p>
             <img src="n-wise.png"/>
-            <p>But groups can also be modeled with a hub-and-spoke model. That model is commonly used in group chats, for example: each member of the group chat sends and receives via a central service, which in turn broadcasts to all other members of the group. This hub-and-spoke model is actually just a pairwise variant, because the relationship is between a member and the hub; all other relationships are only indirect:</p>
+            <p>N-wise groups often exist alongside pairwise relationships. For example, a 3-wise business
+                partnership between Alice, Bob, and Carol is probably preceded by pairwise relationships between
+                each of the parties. When the business is founded, a new 3-wise relationship is created, with the
+                parties allocating new DIDs, keys, and DID Docs to this relationship independent of the ones
+                they use in their pairwise friendships. This keeps business and personal relationships separate.
+                If a new partner is added, the 3-wise relationship can become 4-wise; if a partner dies, the
+                partnership can lose an active participant, but continue to recognize that party in the
+                relationship history. This shows the close affinity but separation between pairwise and
+                n-wise. For more details, see <a target="_blank"
+                href="https://docs.google.com/document/d/1BjYdivGQ9GxIz9CJ2ymNvMA68uHZm8bFOTyCHDmziOU/edit">this
+                    exploratory doc</a>.</p>
+            <p>Groups can also be modeled with a hub-and-spoke model. That model is commonly used in group chats,
+                for example: each member of the group chat sends and receives via a central service, which in turn
+                broadcasts to all other members of the group. This hub-and-spoke model is actually just a pairwise
+                variant, because the relationship is between a member and the hub; all other relationships are only
+                indirect:</p>
             <img src="hub-wise.png"/>
-            <p>We do not cover hub-and-spoke groups explicitly below. They are compatible with this method, if reanalyzed as pairwise. Otherwise, the protocol may need adaptation.</p>
+            <p>We do not cover hub-and-spoke groups explicitly below. They are compatible with this method, if
+                reanalyzed as pairwise. Otherwise, the protocol may need adaptation.</p>
         </section>
         <section>
             <h2>Enforcement</h2>
@@ -180,7 +205,8 @@
             circumstance and changeable at any time. For example, a peer DID could specify that it is using
             a dead drop on blockchain 1, then change to blockchain 2, then change to blockchains 3 and 4 at
             the same time. Therefore, "peer" belongs at the top of the DID namespace. How this method may be
-            used in conjunction with various blockchains is discussed <a href="#cross-registration">later</a>.</p>
+            used in conjunction with various blockchains is discussed <a
+                        href="#grafting-peer-dids-into-another-did-method-namespace">later</a>.</p>
         </section>
         <section>
             <h3>Target System(s)</h3>
