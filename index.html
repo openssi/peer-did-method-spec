@@ -135,15 +135,32 @@
             landscape. Groups larger than 2 can also have a peer-style relationship--but not all groups will be
             modeled that way. Therefore, applying this method to groups should be done thoughtfully.</p>
 
-            <p>Some groups, such as Doctor+Hospital+Patient, are clearly n-wise. Each party can enumerate all the
+            <p><a target="_blank" href="https://docs.google.com/document/d/17wn4zah37ATGXClWfbvTu07v_YmkDgQfGEWhBiROZBo/edit">
+                Some groups, such as Doctor+Hospital+Patient, are clearly n-wise</a>. Each party can enumerate all the
                 other parties, and each party uses the same identifier in all directions within the group. N-wise
                 groups are peer groups by definition: (see <a target="_blank"
                 href="https://github.com/hyperledger/indy-hipe/blob/master/text/0014-ssi-notation/README.md">
                     HIPE 0014</a> for help on the SSI notation used in this diagram).</p>
             <img src="n-wise.png"/>
-            <p>But groups can also be modeled with a hub-and-spoke model. That model is commonly used in group chats, for example: each member of the group chat sends and receives via a central service, which in turn broadcasts to all other members of the group. This hub-and-spoke model is actually just a pairwise variant, because the relationship is between a member and the hub; all other relationships are only indirect:</p>
+            <p>N-wise groups often exist alongside pairwise relationships. For example, a 3-wise business
+                partnership between Alice, Bob, and Carol is probably preceded by pairwise relationships between
+                each of the parties. When the business is founded, a new 3-wise relationship is created, with the
+                parties allocating new DIDs, keys, and DID Docs to this relationship independent of the ones
+                they use in their pairwise friendships. This keeps business and personal relationships separate.
+                If a new partner is added, the 3-wise relationship can become 4-wise; if a partner dies, the
+                partnership can lose an active participant, but continue to recognize that party in the
+                relationship history. This shows the close affinity but separation between pairwise and
+                n-wise. For more details, see <a target="_blank"
+                href="https://docs.google.com/document/d/1BjYdivGQ9GxIz9CJ2ymNvMA68uHZm8bFOTyCHDmziOU/edit">this
+                    exploratory doc</a>.</p>
+            <p>Groups can also be modeled with a hub-and-spoke model. That model is commonly used in group chats,
+                for example: each member of the group chat sends and receives via a central service, which in turn
+                broadcasts to all other members of the group. This hub-and-spoke model is actually just a pairwise
+                variant, because the relationship is between a member and the hub; all other relationships are only
+                indirect:</p>
             <img src="hub-wise.png"/>
-            <p>We do not cover hub-and-spoke groups explicitly below. They are compatible with this method, if reanalyzed as pairwise. Otherwise, the protocol may need adaptation.</p>
+            <p>We do not cover hub-and-spoke groups explicitly below. They are compatible with this method, if
+                reanalyzed as pairwise. Otherwise, the protocol may need adaptation.</p>
         </section>
         <section>
             <h2>Enforcement</h2>
