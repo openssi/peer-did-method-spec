@@ -84,9 +84,17 @@
                 <li><em>DIDs are associated with a key pair at the moment of creation</em>. This prevents a
                     category of man-in-the-middle attacks where an attacker could rotate a DID's keys
                     at the outset of a relationship unbeknownst to peers.</li>
-                <li><em>DIDs are forced to be globally unique.</em> This prevents accidental collisions when
-                    identity owners store many peer DIDs in their wallets. It also makes it possible for blockchains
-                    to "adopt" a peer DID by mapping it into their namespace, without incurring the risk of collision.</li>
+                <li><em>DIDs have an acceptable level of uniqueness.</em> This is NOT a guarantee that DIDs will
+                    never be reused by their owner, NOR is it a guarantee that collusion cannot subvert uniqueness.
+                    Thus, it is not a uniqueness upon which deep trust can be based.
+                    Rather, it is a guarantee that good behavior will not produce accidental collisions. In this
+                    sense, it is rather like the uniqueness offered by NATing mechanisms in IPv4. It provides
+                    enough uniqueness that a DID can be used as an index in a database or as a routing target
+                    in DID communication. It also makes it possible for blockchains to "adopt" a peer DID
+                    by mapping it into their namespace, without incurring the risk of ambiguity. Any time a peer
+                    DID is discovered to be less than unique, a true problem exists and systems can fairly
+                    raise an exception.
+                    </li>
                 <li><em>DID values are securely random.</em> This prevents attackers from discovering patterns
                     in DID values that might undermine privacy.</li>
                 <li><em>Parties to a relationship can prove the orderly and authorized evolution of their
