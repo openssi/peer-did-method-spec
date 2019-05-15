@@ -37,6 +37,10 @@
             url: "https://github.com/brentzundel"
           },
           {
+            name: "Sam Curren",
+            url: "https://github.com/TelegramSam"
+          },
+          {
             name: "csmarc",
             url: "https://github.com/csmarc"
           },
@@ -75,13 +79,6 @@
         <p>We expect that peer-to-peer relationships in every blockchain ecosystem can benefit by offloading pairwise
             and n-wise relationships to peer DIDs.
         </p>
-        <blockquote><p><em>Terminology note</em>: as used in this spec, "peer DID" means a DID that uses the "did:peer"
-            DID method we're defining. Such DIDs are often <a href="http://bit.ly/2BhEPC2">pairwise</a>,
-            but "pairwise DID" is not a synonym, since peer DIDs can also be used to model <a
-            href="http://bit.ly/2Qr2BGc"> n-wise</a> relationships. Similarly, "peer DID" is not intended
-            to be a synonym for a DID that is not publicly resolvable. Many different approaches to such
-            DIDs might exist; "peer DID" is just the name for the approach described here.</p>
-        </blockquote>
     </section>
     <section id='sotd'>
       <p>&nbsp;
@@ -98,6 +95,13 @@
             to them, at least insofar as their DID management is concerned. Letting the world resolve the identifiers
             and keys that only peers care about is unnecessary, and it represents a privacy and security risk as well
             as a problem of cost, scale, and performance.</p>
+        <blockquote><p><em>Terminology note</em>: as used in this spec, "peer DID" means a DID that uses the "did:peer"
+            DID method we're defining. Such DIDs are often <a href="http://bit.ly/2BhEPC2">pairwise</a>,
+            but "pairwise DID" is not a synonym, since peer DIDs can also be used to model <a
+                    href="http://bit.ly/2Qr2BGc"> n-wise</a> relationships. Similarly, "peer DID" is not intended
+            to be a synonym for a DID that is not publicly resolvable. Many different approaches to such
+            DIDs might exist; "peer DID" is just the name for the approach described here.</p>
+        </blockquote>
         <section>
             <h2>Pairwise, N-wise</h2>
             <p>The omnipresence of peer relationships raises the possibility of DIDs that are only resolvable and usable
@@ -282,8 +286,8 @@
             <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
             <ul>
                 <li>Create a <em>genesis</em> version of the DID Doc for the DID. The genesis version must include at
-                least one public key.</li>
-                <li>Remove the <code>id</code> field from the DID Doc.
+                least one verification key.</li>
+                <li>Remove the main <code>id</code> field (the one that would normally contain the DID value) from the DID Doc.
                 This creates a variant of the peer DID doc known as the <em>stored variant</em>, as opposed to the
                 <em>resolved variant</em> that would have an actual DID value in the <code>id</code> field.</li>
                 <li>Calculate the SHA256 hash of the bytes of the stored variant of the DID Doc, and select the first 16
@@ -445,6 +449,7 @@
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/state_response",
   "@id": "1517207d-f50e-4ed5-a389-6a4986d718e6",
   "~thread": { "thid": "6a4986dd-f50e-4ed5-a389-718e61517207" },
+<<<<<<< HEAD
   "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
   "did_doc": {
       "@context": "https://w3id.org/did/v1",
@@ -456,6 +461,15 @@
         {"id": "1", "type": "Ed25519Verkey2018",  "owner":
                 "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
                 "publicKey": "Ar5P8bBr3vXMguTw3U14S6mN2rxrDsYV8Tt75FZ2ZTu4"}
+=======
+  "for": "did:peer:1:rjHiqAzCbsNYhMZDTUASHg",
+  "did_doc": {
+      "@context": "https://w3id.org/did/v1",
+      "id": "did:peer:1:qQk1twjzCmEMgLDRNmo7oS",
+      "publicKey": [
+        {"id": "routing", "type": "Ed25519Verkey2018",  "owner": "did:peer:1:rjHiqAzCbsNYhMZDTUASHg","publicKey": "4x6qAfCNrqQqEB3nS7Zfu7K8HH5gYEeNc3z7PYXmd54d"},
+        {"id": "1", "type": "Ed25519Verkey2018",  "owner": "did:peer:1:rjHiqAzCbsNYhMZDTUASHg","publicKey": "Ar5P8bBr3vXMguTw3U14S6mN2rxrDsYV8Tt75FZ2ZTu4"}
+>>>>>>> upstream/master
       ],
       "authentication": [
         {"type": "Ed25519Verkey2018", "publicKey": "#1"}
