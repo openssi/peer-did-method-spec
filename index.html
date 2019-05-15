@@ -59,13 +59,6 @@
         <p>We expect that peer-to-peer relationships in every blockchain ecosystem can benefit by offloading pairwise
             and n-wise relationships to peer DIDs.
         </p>
-        <blockquote><p><em>Terminology note</em>: as used in this spec, "peer DID" means a DID that uses the "did:peer"
-            DID method we're defining. Such DIDs are often <a href="http://bit.ly/2BhEPC2">pairwise</a>,
-            but "pairwise DID" is not a synonym, since peer DIDs can also be used to model <a
-            href="http://bit.ly/2Qr2BGc"> n-wise</a> relationships. Similarly, "peer DID" is not intended
-            to be a synonym for a DID that is not publicly resolvable. Many different approaches to such
-            DIDs might exist; "peer DID" is just the name for the approach described here.</p>
-        </blockquote>
     </section>
     <section id='sotd'>
       <p>&nbsp;
@@ -82,6 +75,13 @@
             to them, at least insofar as their DID management is concerned. Letting the world resolve the identifiers
             and keys that only peers care about is unnecessary, and it represents a privacy and security risk as well
             as a problem of cost, scale, and performance.</p>
+        <blockquote><p><em>Terminology note</em>: as used in this spec, "peer DID" means a DID that uses the "did:peer"
+            DID method we're defining. Such DIDs are often <a href="http://bit.ly/2BhEPC2">pairwise</a>,
+            but "pairwise DID" is not a synonym, since peer DIDs can also be used to model <a
+                    href="http://bit.ly/2Qr2BGc"> n-wise</a> relationships. Similarly, "peer DID" is not intended
+            to be a synonym for a DID that is not publicly resolvable. Many different approaches to such
+            DIDs might exist; "peer DID" is just the name for the approach described here.</p>
+        </blockquote>
         <section>
             <h2>Pairwise, N-wise</h2>
             <p>The omnipresence of peer relationships raises the possibility of DIDs that are only resolvable and usable
