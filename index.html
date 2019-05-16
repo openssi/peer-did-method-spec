@@ -251,15 +251,21 @@
                   &nbsp;&nbsp;&nbsp;&nbsp;/ "d" / "e" / "f" / "g" / "h" / "i" / "j" / "k" / "m" / "n" / "o" / "p"<br/>
                   &nbsp;&nbsp;&nbsp;&nbsp;/ "q" / "r" / "s" / "t" / "u" / "v" / "w" / "x" / "y" / "z"<br>
               </code><br>
-              All Peer DIDs are base58 encoded values. The underlying number represented in base58 is a cryptographic
-              public key or a derivative (e.g., hash) thereof, as determined by <code>keyfmtchar</code>. At the time of this writing, only
-                one <code>keyfmtchar</code> is defined. This is "1", denoting a format where <code>idstring</code> is the
-                upper 16 bytes of an Ed25519 public key. This gives <code>idstring</code> a length of either 21 or 22
-                base58 characters. This spec may be updated to include other <code>keyfmtchar</code> variants for
+              
+                <p>All Peer DIDs are base58 encoded values. The underlying number represented in base58 is a cryptographic
+                public key or a derivative (e.g., hash) thereof. For future extensibility, the scheme includes a key format 
+                character field (<code>keyfmtchar</code>) that identifies the corresponding <code>idstring</code> to define 
+                the length of the NSI.</p>
+              
+                <p>At the time of this writing, only one <code>keyfmtchar</code> is defined. This is "1", denoting a format 
+                where <code>idstring</code> is the upper 16 bytes of an Ed25519 public key. This gives <code>idstring</code> 
+                a length of either 21 or 22 base58 characters. The encoding of <code>idstring</code> uses most alphas and digits, 
+                omitting 0 (zero), O (capital o), I (capital i), and l (lower L) to avoid readability problems. Regardless of 
+                the length of <code>idstring</code>, peer DIDs are case-sensitive and may not be case-normalized, even though 
+                the prefix is always lower-case.</p>
+              
+                <p>Note that this spec may be updated to include other <code>keyfmtchar</code> variants for
                 SecP256, Curve448, or similar. Such updates might change the length of <code>idstring</code> as well.</p>
-            <p>The encoding of <code>idstring</code> uses most alphas and digits, omitting 0 (zero), O (capital o),
-                I (capital i), and l (lower L) to avoid readability problems. Regardless of the length of <code>idstring</code>,
-                peer DIDs are case-sensitive and may not be case-normalized, even though the prefix is always lower-case.
               </p>
         </section>
         <section>
