@@ -133,6 +133,20 @@
             </section>
         </section>
         <section>
+            <h3>Comparison Peer DID with public-ledger-based DIDs</h3>
+                <p>Public-ledger-based DIDs (e.g. did:sov:...) could be used, in principle, for pairwise and 
+                    N-wise. The disadvantage of that is the associated registration and maintenance cost, as 
+                    the number of pairwise or n-wise relationships is likely to become large, even for small 
+                    organisations. Also privacy considerations make public-ledger-based DIDs less desirable for 
+                    pairwise and (small-scale) n-wise.</p>
+                <p>Similarly, Peer DID (did:peer:...) could be used, hypothetically, for public use. The main disadvantage 
+                    is the lack of a formal publication mechanism. Whereas nothing refrains a user to publish a Peer DID 
+                    and its associated DID Document on some website, such publication will be hard to discover, maintain 
+                    (DID Document roll-over) and integrate into interoperable applications. Public-ledger-based DIDs all 
+                    have their intrinsic and authoratitive publication mechanism, as identified by its DID method name.
+                    </p>
+            </section>
+        <section>
             <h2>Groups</h2>
             <p>Most of this doc is framed by a pairwise Alice:Bob context. This sort of pair (no matter whether its
             members are people, IoT devices, or institutions) will be the most common peer relationship in the SSI
