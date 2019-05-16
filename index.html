@@ -27,6 +27,10 @@
           {
             name: "Sam Curren",
             url: "https://github.com/TelegramSam"
+          },
+          {
+            name: "Tobias Looker",
+            url: "https://github.com/tplooker"
           }
         ],
         processVersion: 2017,
@@ -67,27 +71,55 @@
     <section>
         <h1>Introduction</h1>
         <p>Most introductions to DIDs describe them as identifiers that are rooted in a public source of truth like a
-        blockchain, a database, a distributed filesystem, or similar. This publicness lets arbitrary parties resolve
-        the DIDs to an endpoint and keys. It is an important feature for many use cases.</p>
+            blockchain, a database, a distributed filesystem, or similar. This publicness lets arbitrary parties resolve
+            the DIDs to an endpoint and keys. It is an important feature for many use cases.</p> 
         <p>However, the vast majority of relationships between people, organizations, and things are simpler. When
             Alice(Corp|Device) and Bob want to interact, there are exactly and only 2 parties in the world who should
             care: Alice and Bob. We call these parties "peers" because there is an equality rather than a hierarchy
             to them, at least insofar as their DID management is concerned. Letting the world resolve the identifiers
             and keys that only peers care about is unnecessary, and it represents a privacy and security risk as well
             as a problem of cost, scale, and performance.</p>
-        <blockquote><p><em>Terminology note</em>: as used in this spec, "peer DID" means a DID that uses the "did:peer"
-            DID method we're defining. Such DIDs are often <a href="http://bit.ly/2BhEPC2">pairwise</a>,
-            but "pairwise DID" is not a synonym, since peer DIDs can also be used to model <a
-                    href="http://bit.ly/2Qr2BGc"> n-wise</a> relationships. Similarly, "peer DID" is not intended
-            to be a synonym for a DID that is not publicly resolvable. Many different approaches to such
-            DIDs might exist; "peer DID" is just the name for the approach described here.</p>
-        </blockquote>
+
         <section>
-            <h2>Pairwise, N-wise</h2>
-            <p>The omnipresence of peer relationships raises the possibility of DIDs that are only resolvable and usable
-                by peers within the context of a given relationship. Such <a href="http://bit.ly/2BhEPC2">pairwise</a> or 
-                <a href="http://bit.ly/2Qr2BGc"> n-wise</a> identifiers can still have all the other characteristics that
-                make DIDs useful -- DID Documents, endpoints, keys, authorizations, interoperability, and tooling.</p>
+            <h2>DIDs as Pseudonyms</h2>
+            <p>
+               DIDs are by nature pseudonyms, in the sense that an entity can use a DID as an alias for themselves in
+               some context i.e a relationship. Therefore the different forms of a DID acting as a pseudonym can be 
+               defined in three ways. 
+            </p>
+            <ol>
+                <li>
+                    <em>
+                        Pairwise DID - A DID with the intent that it is known by exactly one other.
+                    </em>
+                </li>
+                <li>
+                    <em>
+                        N-wise DID - A DID with the intent that it is known by exactly n parties, where each of the n parties are known.
+                    </em>
+                </li>
+                <li>
+                    <em>
+                        Anywise DID - A DID where by the number of known parties is un-bounded, i.e the DID is publically resolvable and hence can be known by anyone.
+                    </em>
+                </li>
+            </ol>         
+        
+            <p>
+                The omnipresence of peer relationships raises the possibility of DIDs that are only resolvable and usable
+                by peers within the context of a given relationship. Such pairwise or n-wise identifiers can still have 
+                all the other characterstics that make DIDs useful -- DID Documents, endpoints, keys, authorizations, 
+                interoperability, and tooling. 
+            </p>
+
+            <blockquote><p><em>Terminology note</em>: as used in this spec, "peer DID" means a DID that uses the "did:peer"
+                DID method we're defining. Such DIDs are often pairwise, but "pairwise DID" is not a synonym, since peer DIDs 
+                can also be used to model n-wise relationships. Similarly, "peer DID" is not intended to be a synonym for a 
+                DID that is not publicly resolvable. Many different approaches to such DIDs might exist; "peer DID" is just 
+                the name for the approach described here.</p>
+            </blockquote>    
+        </section>
+
             <section>
             <h3>Guarantees</h3>
                 <p>This spec uses a protocol, rather than a public oracle, as the root of trust. It is worthy
@@ -115,7 +147,7 @@
             </section>
             <section>
             <h3>Advantages</h3>
-                <p>Peer DIDs are not suitable for <a href="http://bit.ly/2SNaXVB">anywise</a> use cases, which are <a
+                <p>Peer DIDs are not suitable for anywise use cases, which are <a
                         href="http://bit.ly/2GaYWHN">usually public by intent</a>. However, peer DIDs have certain
                     virtues that make them desirable for private relationships between a small number of enumerable parties:</p>
             <ul>
@@ -132,6 +164,20 @@
             </ul>
             </section>
         </section>
+        <section>
+            <h3>Comparison Peer DID with public-ledger-based DIDs</h3>
+                <p>Public-ledger-based DIDs (e.g. did:sov:...) could be used, in principle, for pairwise and 
+                    N-wise. The disadvantage of that is the associated registration and maintenance cost, as 
+                    the number of pairwise or n-wise relationships is likely to become large, even for small 
+                    organisations. Also privacy considerations make public-ledger-based DIDs less desirable for 
+                    pairwise and (small-scale) n-wise.</p>
+                <p>Similarly, Peer DID (did:peer:...) could be used, hypothetically, for public use. The main disadvantage 
+                    is the lack of a formal publication mechanism. Whereas nothing refrains a user to publish a Peer DID 
+                    and its associated DID Document on some website, such publication will be hard to discover, maintain 
+                    (DID Document roll-over) and integrate into interoperable applications. Public-ledger-based DIDs all 
+                    have their intrinsic and authoratitive publication mechanism, as identified by its DID method name.
+                    </p>
+            </section>
         <section>
             <h2>Groups</h2>
             <p>Most of this doc is framed by a pairwise Alice:Bob context. This sort of pair (no matter whether its
@@ -237,15 +283,21 @@
                   &nbsp;&nbsp;&nbsp;&nbsp;/ "d" / "e" / "f" / "g" / "h" / "i" / "j" / "k" / "m" / "n" / "o" / "p"<br/>
                   &nbsp;&nbsp;&nbsp;&nbsp;/ "q" / "r" / "s" / "t" / "u" / "v" / "w" / "x" / "y" / "z"<br>
               </code><br>
-              All Peer DIDs are base58 encoded values. The underlying number represented in base58 is a cryptographic
-              public key or a derivative (e.g., hash) thereof, as determined by <code>keyfmtchar</code>. At the time of this writing, only
-                one <code>keyfmtchar</code> is defined. This is "1", denoting a format where <code>idstring</code> is the
-                upper 16 bytes of an Ed25519 public key. This gives <code>idstring</code> a length of either 21 or 22
-                base58 characters. This spec may be updated to include other <code>keyfmtchar</code> variants for
+              
+                <p>All Peer DIDs are base58 encoded values. The underlying number represented in base58 is a cryptographic
+                public key or a derivative (e.g., hash) thereof. For future extensibility, the scheme includes a key format 
+                character field (<code>keyfmtchar</code>) that identifies the corresponding <code>idstring</code> to define 
+                the length of the NSI.</p>
+              
+                <p>At the time of this writing, only one <code>keyfmtchar</code> is defined. This is "1", denoting a format 
+                where <code>idstring</code> is the upper 16 bytes of an Ed25519 public key. This gives <code>idstring</code> 
+                a length of either 21 or 22 base58 characters. The encoding of <code>idstring</code> uses most alphas and digits, 
+                omitting 0 (zero), O (capital o), I (capital i), and l (lower L) to avoid readability problems. Regardless of 
+                the length of <code>idstring</code>, peer DIDs are case-sensitive and may not be case-normalized, even though 
+                the prefix is always lower-case.</p>
+              
+                <p>Note that this spec may be updated to include other <code>keyfmtchar</code> variants for
                 SecP256, Curve448, or similar. Such updates might change the length of <code>idstring</code> as well.</p>
-            <p>The encoding of <code>idstring</code> uses most alphas and digits, omitting 0 (zero), O (capital o),
-                I (capital i), and l (lower L) to avoid readability problems. Regardless of the length of <code>idstring</code>,
-                peer DIDs are case-sensitive and may not be case-normalized, even though the prefix is always lower-case.
               </p>
         </section>
         <section>
