@@ -431,6 +431,18 @@
                         However, an introducer is prevented from seeing the secure and private connection built by the
                         two parties.</li>
                 </ul>
+            <p>Additional security against man-in-the-middle attacks may be achieved by signing of 
+                the public invitation.</p>
+                <ul>
+                    <li>If the public invitation includes a publicly-resolvable DID, then the invitee can verify 
+                        that the signature on the invitation matches with an active verification key for that 
+                        DID.</li>
+                    <li>If the public invitation includes a DID Document, then the invitee can verify that the signature
+                        on the invitation is included in that DID Document. Once the pair of Peer DID is established,
+                        the invitee can ask the invitor for proof-of-control of the initial signing key.</li>
+                    <li>In any case, further action is advisable to build deeper trust about the identity of other 
+                        side. This likely includes mutual exchange of verifiable credentials.</li>
+                </ul>
             </section>
 
             <section>
