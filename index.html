@@ -249,7 +249,7 @@
             <p>The namestring that shall identify this DID method is: <code>peer</code></p>
             <p>A DID that uses this method MUST begin with the following prefix: <code>did:peer</code>.
                 Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix,
-                is the NSI specified below.</p>
+                is the namespace specific identifier specified below.</p>
             <p>Early feedback on this method suggested that we embed it beneath the namespace of a particular blockchain,
             as in <code>did:sov:peer</code> or <a
             target="_blank" href="https://w3c-ccg.github.io/didm-veres-one/#veres-one-did-format"><code>did:v1:nym</code></a>.
@@ -311,8 +311,8 @@
                 an analogous keypair on a different curve), and then selecting as the NSI a subset of the public
                 verification key that is at least 128 bits, and that is dependent on <code>keyfmtchar</code>. For
                 <code>keyfmtchar</code> = "1", the NSI = the most significant 16 bytes of the public verification key.</p>
-            <p>In this way, the DID can be known to begin its existence already associated with keys, and the owner
-                of the new DID is guaranteed to be the only entity in the world who possesses the private key.
+            <p>In this way, the DID can be known to begin its existence already associated with keys, and the controller
+                of the new DID can immediately assert they are the only entity in the world who possesses the private key.
                 This guarantees the initial integrity of the DID's chain of custody.
             </p>
         </section>
@@ -426,7 +426,7 @@
                     and because it can be sent over insecure channels, establishing DID relationships has an
                     extremely low bar. This is vital to the virality of SSI.</li>
                     <li>The invitation identifies an endpoint over which the
-                        connecting can occur, but it does not communicate peer keys or a peer DID from the inviter,
+                        connection can occur, but it does not communicate peer keys or a peer DID from the inviter,
                         and the endpoint that the inviter uses (as well as the inviter's DID and keys) are only
                         transmitted once security and privacy are guaranteed.</li>
                     <li>The protocol can be used by parties using any DID method. One of the parties can be using
@@ -633,7 +633,7 @@
             <b>privs</b> = a string that enumerates the privileges being granted.
                 This string is list-like but is not modeled using a JSON list or dict
                 because of some specialized syntax that conflicts with canonicalization
-                requirements. Its format is a space-delimited list of privileges, where each
+                requirements. Its format is a space-delimited list of privileges in string form, where each
                 privilege is an op code name. The list must be sorted in ascending
                 alphabetical order to aid normalization.
             </p>
@@ -677,16 +677,18 @@
     <section>
         <h2>Grafting Peer DIDs Into Another DID Method Namespace</h2>
         <p>Because peer DIDs are guaranteed to be globally unique at the moment of creation,
-            their 128-bit NSI will not exist on any other blockchain. Blockchain-based DID methods
+            their 128-bit NSI should not exist on any blockchain. Blockchain-based DID methods
             can register a peer DID Doc using their own method. As the DID value, they can either
             combine their own method prefix with peer DID's NSI ("did:peer:abc123" --> "did:xyz:abc123"),
             or they can create a child namespace for peer DIDs beneath their own ("did:peer:abc123" -->
             did:xyz:peer:abc123").</p>
         <p>If a peer DID is registered and grafted into another DID namespace, using either method,
-            a decision must be made about which version of the DID Doc is normative: the one registered on
-            that blockchain, one registered on another blockchain, or one not registered on a blockchain
-            at all. Ideally, there would be no difference between the DID Docs stored in each place.
-            This could be achieved by freezing the DID Doc at the moment when it is cross-registered.</p>
+            the result is two DIDs with different namespaces, one peer and one anchored, each with
+            its own DID Doc. A decision must be made about which DID is normative for the relationship,
+            or whether both should continue to be used. If both will be used, it should be understood that
+            the two DID Docs hold keys and other data for two different DIDs, regardless of the shared
+            history of those DIDs. Ideally, there would be no difference between the DID Docs stored in each place,
+            but even with the best intentions of the DID controller, differences may arise.</p>
         <p>One reason why this grafting and cross-registering feature is interesting is that peer DIDs
             could be supported by existing DID tools (e.g., the universal resolver) that require a
             blockchain, without any retooling.</p>
@@ -703,7 +705,7 @@
                 javascript with no Indy dependencies</a>.</p>
         <p>The connection protocol that creates and registers peer DIDs, including support for DID resolution
             after forming a connection, has been fully implemented by
-        half a dozen different organizations, as of March 2019. One of these organizations is not using
+        half a dozen different organizations, as of March 2019. One of these organizations did not use
         libindy. The connection management protocols that allow update of DIDs are in various states of
         implementation. An up-to-date summary of implementation status, including links to the implementations,
             can be found in the <a target="_blank" href="https://github.com/hyperledger/indy-agent">indy-agent repo on github</a>.</p>
@@ -712,10 +714,10 @@
 
     <section>
         <h2>Resources</h2>
-        <p>Developers maintaining this spec and its reference implementations are often found on RocketChat a
-            chat.hyperledger.org, #indy, and #indy-sdk. You might also connect with them via the Hyperledger Indy
-            mailing list at indy@lists.hyperledger.org, or in Hyperledger and W3C working
-            groups, or at the semi-annual Internet Identity Workshop conferences.</p>
+        <p>Developers maintaining this spec and its reference implementations are often found on RocketChat at
+            chat.hyperledger.org, #indy, #indy-sdk, and #aries. You might also connect with them via the Hyperledger Indy
+            mailing list at indy@lists.hyperledger.org, the Hyperledger Aries mailing list at aries@lists.hyperledger.org,
+            in Hyperledger and W3C working groups, or at the semi-annual Internet Identity Workshop conferences.</p>
     </section>
 
   </body>
