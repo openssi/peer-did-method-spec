@@ -323,13 +323,6 @@
               uses base58 or base64 encoding, values will be case sensitive. Therefore, it is strongly
               recommended that routines that handle peer DIDs not normalize case unless they take into
               account the specific hash encoding.</p>
-              <p>As with git commit hashes, it is likely that a small subset of the bits in the <em>numeric basis</em>
-                  of a peer DID will be sufficiently unique for some contexts, and will be more convenient for human
-                  interaction. Therefore, a lossy <em>short form</em> of a peer DID is recognized if the hash encoding
-                  is hex. This form must consist of at least 4 bytes (8 hex characters) after the multibase and
-                  multihash prefixes. It would be suitable for storing in a log file, echoing in a UI, and so forth.
-                  It may NOT be used where precision is required (e.g., in a DID Doc, in DIDComm routing, in credentials).
-              </p>
         </section>
         <section>
             <h3>Namestring Generation Method</h3>
@@ -358,7 +351,7 @@
                 <code>^did:peer:1-F1220[a-fA-F0-9]{8,40}$</code>.
             </p>
             <p>A valid <code>peer</code> DID might be: <code>did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe</code>.
-            A valid short form of the same DID might be: <code>did:peer:1-F1220479cbc07</code>.</p>
+            </p>
         </section>
     </section>
     <section>
