@@ -25,8 +25,28 @@
             url: "https://github.com/dhh1128"
           },
           {
+            name: "Oskar Deventer",
+            url: "https://github.com/Oskar-van-Deventer"
+          },
+          {
+            name: "Christian Lundkvist",
+            url: "https://github.com/christianlundkvist"
+          },
+          {
+            name: "Marton Csernai",
+            url: "https://github.com/csmarc"
+          },
+          {
+            name: "Brent Zundel",
+            url: "https://github.com/brentzundel"
+          },
+          {
             name: "Sam Curren",
             url: "https://github.com/TelegramSam"
+          },
+          {
+            name: "Mike Varley",
+            url: "https://github.com/mavarley"
           },
           {
             name: "Devin Fisher",
@@ -278,50 +298,60 @@
             <p><a name="gen_method"></a>
               The Peer DID scheme is defined by the following <a href="ftp://ftp.rfc-editor.org/in-notes/std/std68.txt">ABNF</a>:<br><br>
               <code>
-                peer-did      = "did:peer:" keyfmtchar ":" idstring<br>
-                keyfmtchar    = "1"<br>
-                idstring      = 21*22base58char<br>
-                base58char    = "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "A" / "B" / "C"<br/>
-                  &nbsp;&nbsp;&nbsp;&nbsp;/ "D" / "E" / "F" / "G" / "H" / "J" / "K" / "L" / "M" / "N" / "P" / "Q"<br/>
-                  &nbsp;&nbsp;&nbsp;&nbsp;/ "R" / "S" / "T" / "U" / "V" / "W" / "X" / "Y" / "Z" / "a" / "b" / "c"<br/>
-                  &nbsp;&nbsp;&nbsp;&nbsp;/ "d" / "e" / "f" / "g" / "h" / "i" / "j" / "k" / "m" / "n" / "o" / "p"<br/>
-                  &nbsp;&nbsp;&nbsp;&nbsp;/ "q" / "r" / "s" / "t" / "u" / "v" / "w" / "x" / "y" / "z"<br>
+                peer-did      = "did:peer:" version "-" idstring<br>
+                version     = "1"<br>
+                idstring      = multibase multihash<br>
+                multibase     = "F" #see hex in <a target="_blank" href="https://github.com/multiformats/multibase">multibase spec</a><br>
+                multihash     = "1220" restofhash #see sha256+hex in <a target="_blank" href="https://github.com/multiformats/multihash">multihash</a> spec<br>
               </code><br>
-              
-                <p>All Peer DIDs are base58 encoded values. The underlying number represented in base58 is a cryptographic
-                public key or a derivative (e.g., hash) thereof. For future extensibility, the scheme includes a key format 
-                character field (<code>keyfmtchar</code>) that identifies the corresponding <code>idstring</code> to define 
-                the length of the NSI.</p>
-              
-                <p>At the time of this writing, only one <code>keyfmtchar</code> is defined. This is "1", denoting a format 
-                where <code>idstring</code> is the upper 16 bytes of an Ed25519 public key. This gives <code>idstring</code> 
-                a length of either 21 or 22 base58 characters. The encoding of <code>idstring</code> uses most alphas and digits, 
-                omitting 0 (zero), O (capital o), I (capital i), and l (lower L) to avoid readability problems. Regardless of 
-                the length of <code>idstring</code>, peer DIDs are case-sensitive and may not be case-normalized, even though 
-                the prefix is always lower-case.</p>
-              
-                <p>Note that this spec may be updated to include other <code>keyfmtchar</code> variants for
-                SecP256, Curve448, or similar. Such updates might change the length of <code>idstring</code> as well.</p>
-              </p>
+              Peer DIDs use an underlying number with high entropy, called the <em>numeric basis</em>, as the
+                source of their uniqueness. This version of the spec (<code>version</code>
+                == <code>1</code>) generates the numeric basis from a hash of the initial content
+                of a DID Doc (see next section). Subsequent versions of the spec may describe
+                additional generation methods as needed.</p>
+              <p>This <em>numeric basis</em> is encoded as a hash using the
+                  <a target="_blank" href="https://github.com/multiformats/multihash">multihash</a> prefix
+                  for sha256+hex: "1220". Although this prefix is redundant today, a multihash prefix is used
+                  so that a different digest or encoding may be selected in the future.</p>
+              <p>The multihash value is preceded by a <a target="_blank"
+                    href="https://github.com/multiformats/multibase">multibase prefix</a> that tells how to
+                  interpret the multihash that follows. Since the multihash value is hex in
+                  this version of the spec, <code>multibase</code> is always "F" today; if the
+                  multihash variant changes in the future, <code>multibase</code> probably will, too.<p>
+              <p>Peer DIDs must be compared according to whatever case-sensitivity is implied by the
+              hash encoding they use. Hex is not case-sensitive, but if a future version of the spec
+              uses base58 or base64 encoding, values will be case sensitive. Therefore, it is strongly
+              recommended that routines that handle peer DIDs not normalize case unless they take into
+              account the specific hash encoding.</p>
         </section>
         <section>
             <h3>Namestring Generation Method</h3>
-            <p>The unique numeric value underlying a Peer DID MUST be generated by using a cryptographically robust
-                algorithm with secure randomness to create an Ed25519 keypair (or, when additional formats are supported,
-                an analogous keypair on a different curve), and then selecting as the NSI a subset of the public
-                verification key that is at least 128 bits, and that is dependent on <code>keyfmtchar</code>. For
-                <code>keyfmtchar</code> = "1", the NSI = the most significant 16 bytes of the public verification key.</p>
-            <p>In this way, the DID can be known to begin its existence already associated with keys, and the controller
-                of the new DID can immediately assert they are the only entity in the world who possesses the private key.
-                This guarantees the initial integrity of the DID's chain of custody.
-            </p>
+            <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
+            <ul>
+                <li>Create a <em>genesis</em> version of the DID Doc for the DID. The genesis version must include at
+                least one verification key.</li>
+                <li>Remove the main <code>id</code> field (the one that would normally contain the DID value) from the DID Doc.
+                This creates a variant of the peer DID doc known as the <em>stored variant</em>, as opposed to the
+                <em>resolved variant</em> that would have an actual DID value in the <code>id</code> field.</li>
+                <li>Calculate the SHA256 hash of the bytes of the stored variant of the DID Doc, and assign it
+                as the DID's numeric basis.</li>
+            </ul>
+            <p>By basing the numeric value of the DID on the genesis version of the DID Doc, the DID can begin its
+                lifecycle with any number of keys and endpoints, and when the doc is signed or auth-encrypted by one
+                of the keys, the recipient can know it has not been modified since creation. This guarantees the
+                initial integrity of the DID's chain of custody.</p>
+            <p>By hashing the stored variant, we avoid the circular problem of
+                including the DID in the data that's being hashed. This means that a peer DID doc must be resolved by
+                converting the stored variant into a resolved variant by inserting the
+                value of the DID being resolved, during resolution.</p>
         </section>
         <section>
             <h3>Examples</h3>
             <p>A convenient regex to match <code>peer</code> DIDs is: <br><br>
-                <code>^did:peer:1:[1-9A-HJ-NP-Za-km-z]{21,22}$</code>.
+                <code>^did:peer:1-F1220[a-fA-F0-9]{8,40}$</code>.
             </p>
-            <p>A valid <code>peer</code> DID might be: <code>did:peer:1:YTEFYzByfU2RwJPyULfLLn</code>.</p>
+            <p>A valid <code>peer</code> DID might be: <code>did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe</code>.
+            </p>
         </section>
     </section>
     <section>
@@ -460,7 +490,7 @@
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0/state_request",
   "@id": "6a4986dd-f50e-4ed5-a389-718e61517207",
-  "for": "did:peer:rjHiqAzCbsNYhMZDTUASHg",
+  "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
   "as_of_time": "2019-07-23 18:05:06.123Z"
 }
             </pre>
@@ -474,13 +504,17 @@
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/state_response",
   "@id": "1517207d-f50e-4ed5-a389-6a4986d718e6",
   "~thread": { "thid": "6a4986dd-f50e-4ed5-a389-718e61517207" },
-  "for": "did:peer:1:rjHiqAzCbsNYhMZDTUASHg",
+  "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
   "did_doc": {
       "@context": "https://w3id.org/did/v1",
-      "id": "did:peer:1:qQk1twjzCmEMgLDRNmo7oS",
+      "id": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
       "publicKey": [
-        {"id": "routing", "type": "Ed25519Verkey2018",  "owner": "did:peer:1:rjHiqAzCbsNYhMZDTUASHg","publicKey": "4x6qAfCNrqQqEB3nS7Zfu7K8HH5gYEeNc3z7PYXmd54d"},
-        {"id": "1", "type": "Ed25519Verkey2018",  "owner": "did:peer:1:rjHiqAzCbsNYhMZDTUASHg","publicKey": "Ar5P8bBr3vXMguTw3U14S6mN2rxrDsYV8Tt75FZ2ZTu4"}
+        {"id": "routing", "type": "Ed25519Verkey2018",  "owner":
+                "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
+                "publicKey": "4x6qAfCNrqQqEB3nS7Zfu7K8HH5gYEeNc3z7PYXmd54d"},
+        {"id": "1", "type": "Ed25519Verkey2018",  "owner":
+                "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
+                "publicKey": "Ar5P8bBr3vXMguTw3U14S6mN2rxrDsYV8Tt75FZ2ZTu4"}
       ],
       "authentication": [
         {"type": "Ed25519Verkey2018", "publicKey": "#1"}
@@ -509,7 +543,7 @@
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/sync_state",
   "@id": "e61586dd-f50e-4ed5-a389-716a49817207",
-  "for": "did:peer:1:rjHiqAzCbsNYhMZDTUASHg",
+  "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
   "base_hash": "d48f058771956a305e12a3b062a3ac81bd8653d7b1a88dd07db8f663f37bf8e0",
   "base_hash_time": "2019-07-23 18:05:06.123Z",
   "deltas": [
@@ -519,7 +553,7 @@
           "op": "add_key",
           "fragment": {
             "id": "6", "type": "Ed25519Verkey2018",
-            "owner": "did:peer:1:EMmo7oSqQk1twmgLDRNjzC",
+            "owner": "did:peer:1-F12203f991725836a3aa2a5479cbc07c81ca2029198aa420b1d9f3e2cbe9d99bc0e13",
             "publicKey": "DjbU8jgf1MjGWu6hGwr4N4EoAfhfTjutjWc8fgdxb3QP"
           }
         },
@@ -620,8 +654,9 @@
         </section>
         <section>
             <h3>Cryptonyms</h3>
-            <p>Because peer DIDs are generated from their initial public key, they cannot be created without the creator
-            controlling them. As mentioned earlier, this prevents man-in-the-middle attacks at the time of creation.
+            <p>Because peer DIDs are generated from an algorithm that includes the values of their initial public key(s)
+            as input, they cannot be created without the creator controlling them. As mentioned earlier, this prevents
+            man-in-the-middle attacks at the time of creation.
             Since keys must be created from keys generated by a secure random number generator, they are guaranteed
             to be unpredictable and globally unique at creation time.</p>
         </section>
@@ -688,12 +723,13 @@
 
     <section>
         <h2>Grafting Peer DIDs Into Another DID Method Namespace</h2>
-        <p>Because peer DIDs are guaranteed to be globally unique at the moment of creation,
-            their 128-bit NSI should not exist on any blockchain. Blockchain-based DID methods
+        <p>Because peer DIDs are globally unique at the moment of creation,
+            their <em>numeric basis</em> will not exist on any other blockchain unless someone
+            copies it there. Blockchain-based DID methods
             can register a peer DID Doc using their own method. As the DID value, they can either
-            combine their own method prefix with peer DID's NSI ("did:peer:abc123" --> "did:xyz:abc123"),
-            or they can create a child namespace for peer DIDs beneath their own ("did:peer:abc123" -->
-            did:xyz:peer:abc123").</p>
+            combine their own method prefix with peer DID's NSI ("did:peer:1-F1220abcd1234" --> "did:xyz:1-F1220abcd1234"),
+            or they can create a child namespace for peer DIDs beneath their own ("did:peer:1-F1220abcd1234" -->
+            did:xyz:peer:1-F1220abcd1234").</p>
         <p>If a peer DID is registered and grafted into another DID namespace, using either method,
             the result is two DIDs with different namespaces, one peer and one anchored, each with
             its own DID Doc. A decision must be made about which DID is normative for the relationship,
