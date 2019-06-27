@@ -258,7 +258,7 @@
         <p>The namestring that shall identify this DID method is: <code>peer</code></p>
         <p>A DID that uses this method MUST begin with the following prefix: <code>did:peer:</code>.
             Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix,
-            is the <a target="#nsi">namespace specific identifier specified below</a>.</p>
+            is the <a target="#gen_method">namespace specific identifier specified below</a>.</p>
         <p>Early feedback on this method suggested that we embed it beneath the namespace of a particular blockchain,
             as in <code>did:sov:peer</code> or <a
                     target="_blank" href="https://w3c-ccg.github.io/didm-veres-one/#veres-one-did-format"><code>did:v1:nym</code></a>.
@@ -269,7 +269,8 @@
             a dead drop on blockchain 1, then change to blockchain 2, then change to blockchains 3 and 4 at
             the same time. Therefore, "peer" belongs at the top of the DID namespace. How this method may be
             used in conjunction with various blockchains is discussed <a
-                    href="#grafting-peer-dids-into-another-did-method-namespace">later</a>.</p>
+            href="#grafting-peer-dids-into-another-did-method-namespace">later</a>.
+        </p>
     </section>
     <section>
         <h3>Target System(s)</h3>
@@ -287,7 +288,6 @@
         </ul>
     </section>
     <section>
-        <a name="nsi"></a>
         <h3>Namespace Specific Identifier (NSI)</h3>
         <p><a name="gen_method"></a>
             The Peer DID scheme is defined by the following
