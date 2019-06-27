@@ -37,7 +37,7 @@
         processVersion: 2017,
         edDraftURI: "https://github.com/openssi/peer-did-method-spec",
         shortName: "peer-did-method",
-        subtitle: "How n-wise DIDs relate to anywise and pairwise",
+        subtitle: "How n-wise DIDs contrast with anywise and pairwise",
         github: "https://github.com/openssi/peer-did-method-spec",
         wg: "greater SSI community",
         noTOC: true
@@ -64,6 +64,17 @@
 <section>
     <h1>N-Wise Semantics</h1>
     <p>
+    <p>N-wise groups often exist alongside pairwise relationships. For example, a 3-wise business
+        partnership between Alice, Bob, and Carol is probably preceded by pairwise relationships between
+        each of the parties. When the business is founded, a new 3-wise relationship is created, with the
+        parties allocating new DIDs, keys, and DID Docs to this relationship independent of the ones
+        they use in their pairwise friendships. This keeps business and personal relationships separate.
+        If a new partner is added, the 3-wise relationship can become 4-wise; if a partner dies, the
+        partnership can lose an active participant, but continue to recognize that party in the
+        relationship history. This shows the close affinity but also the separation between pairwise and
+        n-wise. For more details, see <a target="_blank"
+                href="https://docs.google.com/document/d/1BjYdivGQ9GxIz9CJ2ymNvMA68uHZm8bFOTyCHDmziOU/edit">this
+            exploratory doc</a>.
     </p>
     <section>
         <h2>Features that N-Wise Provides</h2>
