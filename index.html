@@ -287,6 +287,7 @@
         </ul>
     </section>
     <section>
+        <a name="nsi"></a>
         <h3>Namespace Specific Identifier (NSI)</h3>
         <p><a name="gen_method"></a>
             The Peer DID scheme is defined by the following
@@ -328,10 +329,9 @@
             <li>Create a <dfn>genesis version</dfn> of the DID Doc for the DID. The genesis version must include at
                 least one verification key.
             </li>
-            <li>Remove the main
-                <code>id</code> field (the one that would normally contain the DID value) from the DID Doc.
-                This creates a variant of the peer DID doc known as the <dfn>stored variant</dfn>, as opposed to the
-                <dfn>resolved variant</dfn> that would have an actual DID value in the <code>id</code> field.
+            <li>Remove the main <code>id</code> field (the one that would normally contain the DID value) from the DID
+                Doc. This creates a variant of the peer DID doc known as the <dfn>stored variant</dfn>, as opposed to
+                the <dfn>resolved variant</dfn> that would have an actual DID value in the <code>id</code> field.
             </li>
             <li>Calculate the SHA256 hash of the bytes of the stored variant of the DID Doc, and assign it
                 as the DID's numeric basis.
