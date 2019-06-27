@@ -258,7 +258,8 @@
         <p>The namestring that shall identify this DID method is: <code>peer</code></p>
         <p>A DID that uses this method MUST begin with the following prefix: <code>did:peer:</code>.
             Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix,
-            is the <a target="#gen_method">namespace specific identifier specified below</a>.</p>
+            is the <a target="#namespace-specific-identifier-nsi">namespace specific identifier specified below</a>.
+        </p>
         <p>Early feedback on this method suggested that we embed it beneath the namespace of a particular blockchain,
             as in <code>did:sov:peer</code> or <a
                     target="_blank" href="https://w3c-ccg.github.io/didm-veres-one/#veres-one-did-format"><code>did:v1:nym</code></a>.
@@ -277,9 +278,9 @@
         <p>This DID method applies to any identity management implementation that meets the following two
             requirements:</p>
         <ul>
-            <li><em>Generation Algorithm</em> -- The DIDs are created using the <a href="#gen_method">algorithm
-                described below</a>, endowing them with properties vital to trust between peers that is not dependent
-                on a central source of truth.
+            <li><em>Generation Algorithm</em> -- The DIDs are created using the <a href="#namespace-specific-identifier-nsi">
+                algorithm described below</a>, endowing them with properties vital to trust between peers that is not
+                dependent on a central source of truth.
             </li>
             <li>
                 <em>Protocol</em> -- The metadata for DIDs (what would be stored in an on-chain DID Doc in other methods)
