@@ -474,31 +474,23 @@
                     two parties.
                 </li>
             </ul>
-            <p>Additional security against man-in-the-middle attacks may be achieved by signing the public
-                invitation.
+            <p>Additional security against man-in-the-middle attacks may be achieved by signing an invitation, if it is
+                public. If the public invitation includes an anywise DID, then the invitee should verify that a
+                signature the inviation matches with an active verification key for the associated anywise DID. If the
+                public invitation includes a verification key, then the invitee can verify that the signature on the
+                invitation matches with the verification key. Once the pair of Peer DID is established, the invitee can
+                ask the inviter for proof-of-control of that initial verification key. In any case, further action is
+                advisable to build deeper trust about the identity of other side. This likely includes mutual exchange
+                of <a href="https://w3c.github.io/vc-data-model/">verifiable credentials</a>.
             </p>
-            <ul>
-                <li>If the public invitation includes a publicly-resolvable DID, then the invitee can verify
-                    that the signature on the invitation matches with an active verification key for that
-                    DID.
-                </li>
-                <li>If the public invitation includes a verification key, then the invitee can verify that the signature
-                    on the invitation matches with the verification key. Once the pair of Peer DID is established,
-                    the invitee can ask the invitor for proof-of-control of that initial verification key.
-                </li>
-                <li>In any case, further action is advisable to build deeper trust about the identity of other
-                    side. This likely includes mutual exchange of <a href="https://w3c.github.io/vc-data-model/">
-                        verifiable credentials</a>.
-                </li>
-            </ul>
         </section>
 
         <section>
             <h4>Read (Resolve)</h4>
-            <blockquote><p>(This operation, as well as Update and Delete, are documented in greater detail in
+            <p>This operation, as well as Update and Delete, are documented in greater detail in
                 <a href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md"
-                target="aries">Aries RFC 0030</a>. Here, we offer only a summary.)
-            </p></blockquote>
+                target="aries">Aries RFC 0030</a>. Here, we offer only a summary.
+            </p>
             <p>A peer DID can be resolved to a DID Document by sending a <a target="aries"
             href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md#state_request">
             state_request</a> message from one peer to another:</p>
@@ -513,12 +505,13 @@
             <p>The <code>as_of_time</code> property is optional and often omitted; if so, the DID Doc at
                 the current time is returned.</p>
             <p>A
-                <a href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#state_response">state_response
-                </a> message is returned. It includes a DID Doc and some additional metadata, and looks like this:
+                <a href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#state_response"
+                target="aries">state_response</a> message is returned. It includes a DID Doc and some additional
+                metadata, and looks like this:
             </p>
             <pre>
 {
-  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/state_response",
+  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/state_response",
   "@id": "1517207d-f50e-4ed5-a389-6a4986d718e6",
   "~thread": { "thid": "6a4986dd-f50e-4ed5-a389-718e61517207" },
   "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
@@ -541,24 +534,26 @@
       ]
   },
   "as_of_time": "2019-07-23 18:05:06.123Z"
-}        </pre>
+}
+            </pre>
             <p>Note the use of <code>~thread</code> in the response, with <code>thid</code> equal to the
                 <code>@id</code> property of the previous request, to connect the two messages. This is a
-                <a target="_blank" href="https://github.com/hyperledger/indy-hipe/tree/master/text/0027-message-id-and-threading#threaded-messages">
-                    standard message threading feature of DID Communication</a>, and also shows up in other
+                <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0008-message-id-and-threading#threaded-messages">
+                standard message threading feature of DID Communication</a>, and also shows up in other
                 message interactions described here.</p>
         </section>
 
         <section>
             <h4>Update</h4>
-            <p>The owner of a peer DID can update their associated DID Document with anyone who knows the
-                DID--one or more agents of the peer, or agents of the owner itself--by sending a <a
-                        href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#sync_state">sync_state
-                </a> message to another peer. An example of this type of message is:</p>
+            <p>The subject of a peer DID can update their associated DID Document with anyone who knows the
+                DID--one or more agents of the peer, or agents of the owner itself--by sending a <a target="aries"
+                href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#state_response">
+                sync_state</a> message to another peer. An example of this type of message is:</p>
 
             <pre>
 {
-  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/sync_state",
+  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/sync_state",
   "@id": "e61586dd-f50e-4ed5-a389-716a49817207",
   "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
   "base_hash": "d48f058771956a305e12a3b062a3ac81bd8653d7b1a88dd07db8f663f37bf8e0",
@@ -591,31 +586,35 @@
   ]
 }
                 </pre>
-            <p>This message does not follow a simple request~response pattern, and does not have "update"
-                in its name, because either party
-                may know details that the other party lacks. The sender picks a point in time, <code>delta_time</code>,
-                where it believes it and the receiver were probably in sync; it then describes the <a target="_blank"
-                        href="https://github.com/hyperledger/indy-hipe/blob/d014879d/text/conn-mgmt-protocols/README.md#did-doc-deltas">deltas</a>
-                that it knows about, that have happened since.</p>
-            <p>If the recipient already has the same state, it replies with an <a target="_blank"
-                    href="https://github.com/hyperledger/indy-hipe/blob/518b5a9a/text/acks/README.md">ACK</a>.</p>
+            <p>This message does not follow a simple request~response pattern, and does not have "update" in its name,
+                because either party may know details that the other party lacks. This is especially likely when some
+                agents of either party have been offline. The sender picks a point in time, <code>delta_time</code>,
+                where it believes it and the receiver were probably in sync; it then describes the <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0030-sync-connection#did-doc-deltas">
+                deltas</a> that it knows about, that have happened since.
+            </p>
+            <p>If the recipient already has the same state, it replies with an <a target="aries"
+                    href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0015-acks/README.md">ACK</a>.
+            </p>
             <p>If the recipient knew about a subset of the delta, but not all of it, it applies what is left of the
-                delta, and sends an ACK.</p>
-            <p>If the recipient has a more evolved state, the recipient sends a reply
-                that is a new
-                <code>sync_state</code> message informing the sender of hitherto unknown information. As with
-                the ACKs, this new message is known to be a reply to the original <code>sync_state</code> because its
-                <a target="_blank" href="https://github.com/hyperledger/indy-hipe/tree/master/text/0027-message-id-and-threading#threaded-messages">
-                    <code>~thread</code> decorator identifies the previous message's <code>@id</code> as its
-                    <code>thid</code></a>.</p>
+                delta, and sends an ACK.
+            </p>
+            <p>If the recipient has a more evolved state, the recipient sends a reply that is a new <code>sync_state
+            </code> message informing the sender of hitherto unknown information. As with the ACKs, this new message is
+                known to be a reply to the original <code>sync_state</code> because its <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0008-message-id-and-threading#threaded-messages">
+                <code>~thread</code> decorator identifies the previous message's <code>@id</code> as its <code>thid
+                </code></a>.
+            </p>
             <p>If the recipient does not recognize the base_hash, it selects a hash from a point in time earlier than
                 <code>base_hash_time</code> and sends back a new <code>sync_state</code> message with that earlier base.
             </p>
             <p>If the recipient detects a conflict, it attempts to merge states. If the merge is successful, it sends a
                 new <code>sync_state</code> that shows the merge. If the merge is not successful, then a merge
                 conflict exists, and the merge conflict policy for the sovereign domain of the associated DID is
-                invoked. See
-                <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/d014879d/text/conn-mgmt-protocols/README.md#merges-and-merge-conflicts">"Merges and Merge Conflicts"</a>.
+                invoked. See <a target="aries"
+                href="ttps://github.com/hyperledger/aries-rfcs/tree/master/features/0030-sync-connectiong#merges-and-merge-conflicts">
+                    "Merges and Merge Conflicts"</a>.
             </p>
         </section>
 
@@ -630,33 +629,32 @@
             <p>However, it is best practice to announce that the relationship is being abandoned. This
                 should cause the other party to clean up by removing the DID, DID Doc, and associated metadata from its
                 local cache. It should also prevent the other party from trying to communicate in the future.
-                Formally terminating a connection happens by sending a
-                <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/d014879d/text/conn-mgmt-protocols/README.md#leave"><code>leave</code>
-                    message</a> to a peer:</p>
+                Formally terminating a connection happens by sending a <a target="aries"
+                href="ttps://github.com/hyperledger/aries-rfcs/tree/master/features/0030-sync-connection#leave"><code>
+                leave</code> message</a> to a peer:</p>
             <pre>
 {
-  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connection/1.0/leave",
+  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/leave",
   "@id": "c17147d2-ada6-4d3c-a489-dc1e1bf778ab",
   "~please_ack": {}
 }
-                </pre>
+            </pre>
             <p>If Bob receives a message like this, he should assume that Alice no longer considers
                 herself connected, and take appropriate action. This could include destroying
                 data about Alice that he has accumulated over the course of their relationship,
                 removing her peer DID and its public key(s) and endpoints from his wallet, and so
                 forth. The nature of the relationship, the need for a historical audit trail, regulatory
                 requirements, and many other factors may influence what's appropriate; the protocol
-                simply requires that the message be understood to have permanent termination semantics.</p>
+                simply requires that the message be understood to have permanent termination semantics.
+            </p>
 
-            <p>The
-                <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/518b5a9a/text/acks/README.md#requesting-an-ack-please_ack">
-                    <code>~please_ack</code> decorator</a> is optional. It asks the receiver to
-                send an acknowledgement that it has processed the message. If used, the receiver
-                should send an ACK that looks like this:</p>
+            <p>The <a target="aries" href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0015-acks/README.md#requesting-an-ack-please_ack">
+                <code>~please_ack</code> decorator</a> is optional. It asks the receiver to send an acknowledgement that
+                it has processed the message. If used, the receiver should send an ACK that looks like this:</p>
 
             <pre>
 {
-"@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0/ack",
+"@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/ack",
 "@thread": { "thid": "c17147d2-ada6-4d3c-a489-dc1e1bf778ab" }
 }
 </pre>
@@ -669,11 +667,10 @@
     <section>
         <h3>Secure communication</h3>
         <p>All the messages in this protocol (except for a connection invitation that requires no security, by design)
-            must be sent encrypted, using the encryption format
-            specified in
-            <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/master/text/0028-wire-message-format/README.md">DIDComm's wire format</a>.
-            This gives strong guarantees about the confidentiality and integrity of exchanged
-            data, regardless of the transport mechanism used to transmit the messages.</p>
+            must be sent encrypted, using the encryption format specified in <a target="aries"
+            href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0019-encryption-envelope/README.md">
+            DIDComm's encryption envelope</a>. This gives strong guarantees about the confidentiality and integrity of
+            exchanged data, regardless of the transport mechanism used to transmit the messages.</p>
     </section>
     <section>
         <h3>Cryptonyms</h3>
@@ -732,7 +729,8 @@
         <h3>Key Management</h3>
         <p>Keys used to control peer DIDs, or keys authorized to communicate and update the DID Docs
             for peer DIDs, should be managed according to best practices for DKMS, as described in
-            <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/9223b7fe/text/dkms/dkms-v4.md">the DKMS spec</a>.
+            <a target="aries" href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0051-dkms/dkms-v4.md">
+            the DKMS spec</a>.
         </p>
     </section>
 </section>
@@ -769,7 +767,7 @@
 
 <section>
     <h2>Reference Implementations</h2>
-    <p>The wire format for DID Communication encryption has three independent implementations--one in
+    <p>The encryption envelop for DID Communication has three independent implementations--one in
         <a target="_blank" href="https://github.com/hyperledger/indy-sdk/blob/fbad7422/libindy/src/api/crypto.rs#L634">
             libindy</a>, one in
         <a target="_blank" href="https://github.com/bcgov/indy-catalyst/blob/bba2ef5c/agent/indy_catalyst_agent/wallet/crypto.py#L402">
@@ -789,9 +787,9 @@
 <section>
     <h2>Resources</h2>
     <p>Developers maintaining this spec and its reference implementations are often found on RocketChat at
-        chat.hyperledger.org, #indy, #indy-sdk, and #aries. You might also connect with them via the Hyperledger Indy
-        mailing list at indy@lists.hyperledger.org, the Hyperledger Aries mailing list at aries@lists.hyperledger.org,
-        in Hyperledger and W3C working groups, or at the semi-annual Internet Identity Workshop conferences.</p>
+        chat.hyperledger.org, #aries. You might also connect with them via the Hyperledger Aries mailing list at
+        aries@lists.hyperledger.org, in Hyperledger and W3C working groups, or at the semi-annual Internet Identity
+        Workshop conferences.</p>
 </section>
 
 </body>
