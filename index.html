@@ -91,7 +91,6 @@
 <body>
 
 <section class="introductory">
-    <h2>About</h2>
     <p>This <a href="https://w3c-ccg.github.io/did-spec/#specific-did-method-schemes">DID method spec</a> conforms to
         the requirements in the DID specification currently published by the W3C Credentials Community Group. For more
         information about DIDs and DID method specifications, please see the <a href="http://bit.ly/2RX0xm2"
@@ -102,9 +101,8 @@
     <p>This document defines a "peer" <a href="https://w3c-ccg.github.io/did-spec/#specific-did-method-schemes">
         DID Method</a> that can be used independent of any central source of truth. The method is intended to be cheap,
         fast, scalable, and secure. It is suitable for most private relationships between people, organizations, and
-        things.</p>
-    <p>We expect that peer-to-peer relationships in every blockchain ecosystem can benefit by offloading pairwise
-        and n-wise relationships to peer DIDs.</p>
+        things. We expect that peer-to-peer relationships in every blockchain ecosystem can benefit by offloading
+        pairwise and n-wise relationships to peer DIDs.</p>
 </section>
 
 <section id='sotd'>
@@ -121,22 +119,21 @@
         keys. It is an important feature for many use cases.</p>
 
     <p>However, the vast majority of relationships between people, organizations, and things have simpler requirements.
-        When Alice><code>(</code>Corp<code>|</code>Device<code>)</code> and Bob want to interact, there are exactly and
+        When Alice<code>(</code>Corp<code>|</code>Device<code>)</code> and Bob want to interact, there are exactly and
         only 2 parties in the world who should care: Alice and Bob.</p>
 
-    <>Some formal terminology may make the application of this insight to DIDs clearer:</p>
+    <p>Some formal terminology may make the application of this insight to DIDs clearer:</p>
 
-    <ol>
-        <li><em>Anywise DID</em> - A DID intended for use with an unknowable number of parties (e.g., the global public
-            or some subset thereof).</li>
-        <li><em>Pairwise DID</em> - A DID intended to be known by its subject and exactly one other party (e.g., one
-            usable in the Alice and Bob example just above).</li>
-        <li><em>N-wise DID</em> - A DID intended to be known by its subject and exactly <em>N</em> enumerated parties.
+    <dl>
+        <dt>Anywise DID</dt><dd>A DID intended for use with an unknowable number of parties (e.g., the global public
+            or some subset thereof).</dd>
+        <dt>Pairwise DID</dt><dd>A DID intended to be known by its subject and exactly one other party (e.g., one
+            usable in the Alice and Bob example just above).</dd>
+        <dt>N-wise DID</dt><dd>A DID intended to be known by its subject and exactly <em>N</em> enumerated parties.
             A business partnership with 3 members might be a modeled with n-wise DIDs. Pairwise DIDs are just a special
             case of an N-wise DID (<em>N</em> = 2). For more on n-wise DIDs, see <a href="nwise.html">N-Wise
-                Semantics</a>.
-        </li>
-    </ol>
+            Semantics</a>.</dd>
+    </dl>
 
     <p>Generally, an anywise DID needs to be resolvable by strangers. These strangers can use the DID to reference its
         subject without establishing a relationship. On the other hand, pairwise and n-wise DIDs only need to be
