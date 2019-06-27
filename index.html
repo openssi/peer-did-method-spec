@@ -197,8 +197,8 @@
         </p>
         <p>In a similar vein, peer DIDs could be used, hypothetically, for anywise scenarios. The main disadvantage would be
             the lack of a formal publication mechanism. Nothing would prevent a user from publishing a peer DID and its
-            associated DID Document on some website, such publication will be hard to discover, maintain (DID Document
-            evolution) and integrate into interoperable applications. DID methods that use a public ledger or a similar
+            associated DID Document on some website, but such publication would be hard to discover, maintain as DID Docs
+            evolved, and integrate into interoperable applications. DID methods that use a public ledger or a similar
             source of truth are a better choice here, because they have authoratitive answers to the publication problem.
         </p>
     </section>
@@ -209,10 +209,13 @@
             landscape. Groups larger than 2 can also have a peer-style relationship--but not all groups will be
             modeled that way. Therefore, applying this method to groups should be done thoughtfully.</p>
         <p><a target="_blank" href="https://docs.google.com/document/d/17wn4zah37ATGXClWfbvTu07v_YmkDgQfGEWhBiROZBo/edit">
-            Some groups, such as nuclear families living together in the same household, are clearly n-wise</a>. Each party
-            can enumerate all the other parties, and each party uses the same identifier in all directions within the group:
+            Some groups, such as a doctor, a hospital, and a patient participating in a medical procedure together,
+            are clearly n-wise</a>. Each party can enumerate all the other parties, and each party uses the same
+            identifier in all directions within the group:
         </p>
         <img src="n-wise.png"/>
+        <p>(See <a target="aries" href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0006-ssi-notation/README.md">
+            Aries RFC 0006</a> for help with the notation used in the diagram.)</p>
         <p>But groups can also be modeled with a hub-and-spoke model. That model is commonly used in group chats,
             for example: each member of the group chat sends and receives via a central service, which in turn
             broadcasts to all other members of the group. This hub-and-spoke model is actually just a pairwise
