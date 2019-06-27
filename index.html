@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset='utf-8'>
     <title>Peer DID Method Specification</title>
-      <style>
+    <style>
         #instructions {
           border: dashed 1px black;
           padding: 1em;
@@ -13,10 +13,9 @@
           font-style:italic;
           color:magenta
         }
-      </style>
-    <script
-     src='https://www.w3.org/Tools/respec/respec-w3c-common'
-     class='remove'></script>
+
+    </style>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common' class='remove'></script>
     <script class='remove'>
       var respecConfig = {
         specStatus: "ED",
@@ -86,215 +85,184 @@
         github: "https://github.com/openssi/peer-did-method-spec",
         wg: "greater SSI community"
       };
+
     </script>
-  </head>
-  <body>
-    <section class="introductory">
-        <h2>About</h2>
-        <p>This <a href="https://w3c-ccg.github.io/did-spec/#specific-did-method-schemes">DID method spec</a> conforms
-            to the requirements in the DID specification currently published by the W3C Credentials Community Group.
-            For more information about DIDs and DID method specifications, please see the <a
-                    href="http://bit.ly/2RX0xm2" target="_blank">DID Primer</a>
-            and <a href="https://w3c-ccg.github.io/did-spec/">DID Spec</a>.</p>
-    </section>
-    <section id='abstract'>
-        <p>This document defines a "peer" <a href="https://w3c-ccg.github.io/did-spec/#specific-did-method-schemes">DID Method</a>
-            that can be used independent of any central source of truth. The method is intended to be cheap, fast, scalable,
-            and secure. It is suitable for most private relationships between people, organizations, and things.
-            DIDs associated with this method are also promotable to a more public context. That is, blockchains with
-            different DID methods could choose to graft some or all peer DIDs into their namespace(s) with no risk of accidental
-            collision, and no loss of meaning. A particular peer DID would have a recognizable and consistent identity
-            in all of them.
+</head>
+<body>
+
+<section id='abstract'>
+    <p>This document defines a "peer" <a href="https://w3c-ccg.github.io/did-spec/#specific-did-method-schemes">
+        DID Method</a> that conforms to the <a href="https://w3c-ccg.github.io/did-spec/">DID Spec</a>. The method
+        can be used independent of any central source of truth, and is intended to be cheap,
+        fast, scalable, and secure. It is suitable for most private relationships between people, organizations, and
+        things. We expect that peer-to-peer relationships in every blockchain ecosystem can benefit by offloading
+        pairwise and n-wise relationships to peer DIDs.</p>
+</section>
+
+<section id='sotd'>
+    <p>&nbsp;
+    </p>
+</section>
+
+<section>
+    <h1>Introduction</h1>
+
+    <p>Most documentation about DIDs describes them as identifiers that are rooted in a public source of truth like a
+        blockchain, a database, a distributed filesystem, or similar. This publicness lets arbitrary parties <a
+                target="_blank" href="https://w3c-ccg.github.io/did-resolution/">resolve</a> the DIDs to an endpoint and
+        keys. It is an important feature for many use cases.</p>
+
+    <p>However, the vast majority of relationships between people, organizations, and things have simpler requirements.
+        When Alice<code>(</code>Corp<code>|</code>Device<code>)</code> and Bob want to interact, there are exactly and
+        only 2 parties in the world who should care: Alice and Bob.</p>
+
+    <p>Some formal terminology may make the application of this insight to DIDs clearer:</p>
+
+    <dl>
+        <dt>Anywise DID</dt><dd>A DID intended for use with an unknowable number of parties (e.g., the global public
+            or some subset thereof).</dd>
+        <dt>Pairwise DID</dt><dd>A DID intended to be known by its subject and exactly one other party (e.g., one
+            usable in the Alice and Bob example just above).</dd>
+        <dt>N-wise DID</dt><dd>A DID intended to be known by its subject and exactly <em>N</em> enumerated parties.
+            A business partnership with 3 members might be a modeled with n-wise DIDs. Pairwise DIDs are just a special
+            case of an N-wise DID (<em>N</em> = 2). For more on n-wise DIDs, see <a href="nwise.html">N-Wise
+            Semantics</a>.</dd>
+    </dl>
+
+    <p>Generally, an anywise DID needs to be resolvable by strangers. These strangers can use the DID to reference its
+        subject without establishing a relationship. On the other hand, pairwise and n-wise DIDs only need to be
+        resolvable by the parties in the relationship, and <em>each</em> party in the relationship has to contribute a
+        DID to make the relationship work. Because of the reciprocal nature of DID usage in enumerated relationships
+        like this, we call the parties "peers", and it is this dynamic that gives our DID method its name.
+    </p>
+
+    <section>
+        <h3>Guarantees</h3>
+        <p>This spec uses a <a target="aries"
+        href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0003-protocols/README.md#what-is-a-protocol">
+            protocol</a>, rather than a public oracle, as the root of trust. It is worthy of trust because it guarantees
+            the following properties:
         </p>
-        <p>We expect that peer-to-peer relationships in every blockchain ecosystem can benefit by offloading pairwise
-            and n-wise relationships to peer DIDs.
-        </p>
-    </section>
-    <section id='sotd'>
-      <p>&nbsp;
-      </p>
+        <dl>
+            <dt>DIDs are associated with a key pair at the moment of creation.</dt>
+            <dd>This prevents a category of man-in-the-middle attacks where an attacker could rotate a DID's keys
+                at the outset of a relationship, unbeknownst to peers.
+            </dd>
+            <dt>DIDs have an acceptable level of uniqueness.</dt>
+            <dd>This is NOT a guarantee that DIDs will never be reused by their owner, NOR is it a guarantee that
+                collusion cannot subvert uniqueness. Thus, it is not a uniqueness upon which deep trust can be based.
+                Rather, it is a guarantee that good behavior will not produce accidental collisions. In this
+                sense, it is a bit like the uniqueness offered by NATing mechanisms in IPv4. It provides
+                enough uniqueness that a DID can be used as an index in a database or as a routing target
+                in DID communication. It also makes it possible for blockchains to "adopt" a peer DID
+                by mapping it into their namespace, without incurring the risk of ambiguity. Any time a peer
+                DID is discovered to be less than unique, a true problem exists and systems can fairly
+                raise an exception.
+            </dd>
+            <dt>The values of DIDs are securely random.</dt>
+            <dd>This prevents attackers from discovering patterns in DIDs that might undermine privacy.
+            </dd>
+            <dt>Parties to a relationship can prove the orderly and authorized evolution of their
+                keys to one another.</dt>
+        </dl>
     </section>
     <section>
-        <h1>Introduction</h1>
-        <p>Most introductions to DIDs describe them as identifiers that are rooted in a public source of truth like a
-        blockchain, a database, a distributed filesystem, or similar. This publicness lets arbitrary parties resolve
-        the DIDs to an endpoint and keys. It is an important feature for many use cases.</p>
-        <p>However, the vast majority of relationships between people, organizations, and things are simpler. When
-            Alice(Corp|Device) and Bob want to interact, there are exactly and only 2 parties in the world who should
-            care: Alice and Bob. We call these parties "peers" because there is an equality rather than a hierarchy
-            to them, at least insofar as their DID management is concerned. Letting the world resolve the identifiers
-            and keys that only peers care about is unnecessary, and it represents a privacy and security risk as well
-            as a problem of cost, scale, and performance.</p>
-
-        <section>
-            <h2>DIDs as Pseudonyms</h2>
-            <p>
-               DIDs are by nature pseudonyms, in the sense that an entity can use a DID as an alias for themselves in
-               some context i.e a relationship. Therefore the different forms of a DID acting as a pseudonym can be 
-               defined in three ways. 
-            </p>
-            <ol>
-                <li>
-                    <em>
-                        Pairwise DID - A DID with the intent that it is known by exactly one other.
-                    </em>
-                </li>
-                <li>
-                    <em>
-                        N-wise DID - A DID with the intent that it is known by exactly n parties, where each of the n parties are known.
-                    </em>
-                </li>
-                <li>
-                    <em>
-                        Anywise DID - A DID where by the number of known parties is un-bounded, i.e the DID is publically resolvable and hence can be known by anyone.
-                    </em>
-                </li>
-            </ol>         
-        
-            <p>
-                The omnipresence of peer relationships raises the possibility of DIDs that are only resolvable and usable
-                by peers within the context of a given relationship. Such pairwise or n-wise identifiers can still have 
-                all the other characteristics that make DIDs useful -- DID Documents, endpoints, keys, authorizations, 
-                interoperability, and tooling. 
-            </p>
-
-            <blockquote><p><em>Terminology note</em>: as used in this spec, "peer DID" means a DID that uses the "did:peer"
-                DID method we're defining. Such DIDs are often pairwise, but "pairwise DID" is not a synonym, since peer DIDs 
-                can also be used to model n-wise relationships. Similarly, "peer DID" is not intended to be a synonym for a 
-                DID that is not publicly resolvable. Many different approaches to such DIDs might exist; "peer DID" is just 
-                the name for the approach described here.</p>
-            </blockquote>    
-        </section>
-
-            <section>
-            <h3>Guarantees</h3>
-                <p>This spec uses a protocol, rather than a public oracle, as the root of trust. It is worthy
-                    of trust because it guarantees the following properties:</p>
-            <ol>
-                <li><em>DIDs are associated with a key pair at the moment of creation</em>. This prevents a
-                    category of man-in-the-middle attacks where an attacker could rotate a DID's keys
-                    at the outset of a relationship unbeknownst to peers.</li>
-                <li><em>DIDs have an acceptable level of uniqueness.</em> This is NOT a guarantee that DIDs will
-                    never be reused by their owner, NOR is it a guarantee that collusion cannot subvert uniqueness.
-                    Thus, it is not a uniqueness upon which deep trust can be based.
-                    Rather, it is a guarantee that good behavior will not produce accidental collisions. In this
-                    sense, it is rather like the uniqueness offered by NATing mechanisms in IPv4. It provides
-                    enough uniqueness that a DID can be used as an index in a database or as a routing target
-                    in DID communication. It also makes it possible for blockchains to "adopt" a peer DID
-                    by mapping it into their namespace, without incurring the risk of ambiguity. Any time a peer
-                    DID is discovered to be less than unique, a true problem exists and systems can fairly
-                    raise an exception.
-                    </li>
-                <li><em>The values of DIDs are securely random.</em> This prevents attackers from discovering patterns
-                    in DIDs that might undermine privacy.</li>
-                <li><em>Parties to a relationship can prove the orderly and authorized evolution of their
-                    keys to one another.</em></li>
-            </ol>
-            </section>
-            <section>
-            <h3>Advantages</h3>
-                <p>Peer DIDs are not suitable for anywise use cases, which are <a
-                        href="http://bit.ly/2GaYWHN">usually public by intent</a>. However, peer DIDs have certain
-                    virtues that make them desirable for private relationships between a small number of enumerable parties:</p>
-            <ul>
-                <li>They have no transaction costs, making them essentially free to create, store, and maintain.</li>
-                <li>They scale and perform entirely as a function of participants, not with any central system's capacity.</li>
-                <li>Because they are not persisted in any central system, there is no trove to protect.</li>
-                <li>Because only the parties to a given relationship know them, there is no concern about personal data and
-                    privacy regulations due to third-party data controllers or processors.</li>
-                <li>Because they are not beholden to any particular blockchain, they have minimal political or technical
-                    baggage.</li>
-                <li>They can be mapped into the namespaces of other DID ecosystems, allowing a peer DID to have
+        <h3>Advantages</h3>
+        <p>Peer DIDs are not suitable for anywise use cases, which are usually public by intent. However, peer DIDs have
+            certain virtues that make them desirable for private relationships between a small number of enumerable
+            parties:</p>
+        <ul>
+            <li>They have no transaction costs, making them essentially free to create, store, and maintain.</li>
+            <li>They scale and perform entirely as a function of participants, not with any central system's capacity.</li>
+            <li>Because they are not persisted in any central system, there is no trove to protect.</li>
+            <li>Because only the parties to a given relationship know them, there is no concern about personal data and
+                privacy regulations due to third-party data controllers or processors.
+            </li>
+            <li>Because they are not beholden to any particular blockchain, they have minimal political or technical
+                baggage.
+            </li>
+            <li>They can be mapped into the namespaces of other DID ecosystems, allowing a peer DID to have
                 predictable meaning in 1 or more other blockchains. This solves a problem with blockchain forks
-                fighting over the ownership of a DID and promotes interoperability.</li>
-            </ul>
-            </section>
-        </section>
-        <section>
-            <h3>Comparison Peer DID with public-ledger-based DIDs</h3>
-                <p>Public-ledger-based DIDs (e.g. did:sov:...) could be used, in principle, for pairwise and 
-                    N-wise. The disadvantage of that is the associated registration and maintenance cost, as 
-                    the number of pairwise or n-wise relationships is likely to become large, even for small 
-                    organisations. Also privacy considerations make public-ledger-based DIDs less desirable for 
-                    pairwise and (small-scale) n-wise.</p>
-                <p>Similarly, Peer DID (did:peer:...) could be used, hypothetically, for public use. The main disadvantage 
-                    is the lack of a formal publication mechanism. Whereas nothing refrains a user to publish a Peer DID 
-                    and its associated DID Document on some website, such publication will be hard to discover, maintain 
-                    (DID Document roll-over) and integrate into interoperable applications. Public-ledger-based DIDs all 
-                    have their intrinsic and authoratitive publication mechanism, as identified by its DID method name.
-                    </p>
-            </section>
-        <section>
-            <h2>Groups</h2>
-            <p>Most of this doc is framed by a pairwise Alice:Bob context. This sort of pair (no matter whether its
+                fighting over the ownership of a DID and promotes interoperability.
+            </li>
+        </ul>
+    </section>
+    <section>
+        <h3>Comparison to Other DID Methods</h3>
+        <p>We could certainly build peer relationships with anywise DIDs based on a public ledger or a similar source of
+            truth. However, in the same way that a company doesn't want the public to resolve private host names inside its
+            corporate intranet, letting others resolve pairwise and n-wise DIDs is unnecessary, and it represents a privacy
+            and security risk as well as a problem of cost, scale, and performance. We strongly recommend that peer DIDs
+            be used for peer relationships.
+        </p>
+        <p>In a similar vein, peer DIDs could be used, hypothetically, for anywise scenarios. The main disadvantage would be
+            the lack of a formal publication mechanism. Nothing would prevent a user from publishing a peer DID and its
+            associated DID Document on some website, but such publication would be hard to discover, maintain as DID Docs
+            evolved, and integrate into interoperable applications. DID methods that use a public ledger or a similar
+            source of truth are a better choice here, because they have authoratitive answers to the publication problem.
+        </p>
+    </section>
+    <section>
+        <h3>Applicability in Group Relationships</h3>
+        <p>Most of this doc is framed by a pairwise Alice:Bob context. This sort of pair (no matter whether its
             members are people, IoT devices, or institutions) will be the most common peer relationship in the SSI
             landscape. Groups larger than 2 can also have a peer-style relationship--but not all groups will be
             modeled that way. Therefore, applying this method to groups should be done thoughtfully.</p>
-
-            <p><a target="_blank" href="https://docs.google.com/document/d/17wn4zah37ATGXClWfbvTu07v_YmkDgQfGEWhBiROZBo/edit">
-                Some groups, such as Doctor+Hospital+Patient, are clearly n-wise</a>. Each party can enumerate all the
-                other parties, and each party uses the same identifier in all directions within the group. N-wise
-                groups are peer groups by definition: (see <a target="_blank"
-                href="https://github.com/hyperledger/indy-hipe/blob/master/text/0014-ssi-notation/README.md">
-                    HIPE 0014</a> for help on the SSI notation used in this diagram).</p>
-            <img src="n-wise.png"/>
-            <p>N-wise groups often exist alongside pairwise relationships. For example, a 3-wise business
-                partnership between Alice, Bob, and Carol is probably preceded by pairwise relationships between
-                each of the parties. When the business is founded, a new 3-wise relationship is created, with the
-                parties allocating new DIDs, keys, and DID Docs to this relationship independent of the ones
-                they use in their pairwise friendships. This keeps business and personal relationships separate.
-                If a new partner is added, the 3-wise relationship can become 4-wise; if a partner dies, the
-                partnership can lose an active participant, but continue to recognize that party in the
-                relationship history. This shows the close affinity but also the separation between pairwise and
-                n-wise. For more details, see <a target="_blank"
-                href="https://docs.google.com/document/d/1BjYdivGQ9GxIz9CJ2ymNvMA68uHZm8bFOTyCHDmziOU/edit">this
-                    exploratory doc</a>.</p>
-            <p>Groups can also be modeled with a hub-and-spoke model. That model is commonly used in group chats,
-                for example: each member of the group chat sends and receives via a central service, which in turn
-                broadcasts to all other members of the group. This hub-and-spoke model is actually just a pairwise
-                variant, because the relationship is between a member and the hub; all other relationships are only
-                indirect:</p>
-            <img src="hub-wise.png"/>
-            <p>We do not cover hub-and-spoke groups explicitly below. They are compatible with this method, if
-                reanalyzed as pairwise. Otherwise, the protocol may need adaptation.</p>
-        </section>
-        <section>
-            <h2>Enforcement</h2>
-
-            <p>In centralized systems, security is enforced at the center. This is so obvious that we take it for
-                granted--you can't access a database unless you log in first, and it's the database that enforces this.</p>
-
-            <p>Despite their other decentralized features, blockchains are no different in this respect. If a
-                blockchain accepts updates to a DID Doc, then the blockchain must guarantee that those updates are
-                only made by authorized parties. Thus, most DID methods imagine a blockchain parsing the
-                authorization section of a DID Doc, and rejecting mischief from hackers.</p>
-
-            <p>However, in a peer relationship, there IS no centralized authority. This leads to an interesting
-                inversion of responsibility that must be understood: Bob enforces Alice's authorization policy,
-                and Alice enforces Bob's.</p>
-
-            <p>This might seem wrong--shouldn't Alice enforce her own security? But it is quite rational. Who cares
-                whether the agents he is dealing with truly belong to Alice and are authorized by her? Bob does.
-                And if one of Alice's agents gets hacked and attempts to subvert the Alice:Bob relationship,
-                who is the uncontaminated party that can refuse to cooperate with the rogue agent? Bob is.</p>
-
-            <p>Another way to think about this is that, within the Alice:Bob relationship, Bob acts as a substitute
-                for a centralized resource that Alice's agents try to access. In such a mental model, of course, Bob
-                would be a logical place to enforce access rules for Alice.</p>
-        </section>
-
+        <p>Some groups, such as a doctor, a hospital, and a patient participating in a medical procedure together, are
+            <a href="nwise.html#sweet-spot">clearly n-wise</a>. Each party can enumerate all the other parties, and each
+            party uses the same identifier in all directions within the group:
+        </p>
+        <img src="n-wise.png"/>
+        <p>(See <a target="aries" href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0006-ssi-notation/README.md">
+            Aries RFC 0006</a> for help with the notation used in the diagram.)</p>
+        <p>But groups can also be modeled with a hub-and-spoke model. That model is commonly used in group chats,
+            for example: each member of the group chat sends and receives via a central service, which in turn
+            broadcasts to all other members of the group. This hub-and-spoke model is actually just a pairwise
+            variant, because the relationship is between a member and the hub; all other relationships are only
+            indirect:</p>
+        <img src="hub-wise.png"/>
+        <p>Use of peer DIDs with n-wise groups is explicitly supported and documented below. We do not cover hub-and-spoke
+            groups in the same way. They are compatible with this method, if reanalyzed as pairwise. Otherwise, the
+            protocol described here may need adaptation.</p>
     </section>
     <section>
-        <h2>Core Characteristics</h2>
-        <section>
-            <h3>Namestring</h3>
-            <p>The namestring that shall identify this DID method is: <code>peer</code></p>
-            <p>A DID that uses this method MUST begin with the following prefix: <code>did:peer</code>.
-                Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix,
-                is the namespace specific identifier specified below.</p>
-            <p>Early feedback on this method suggested that we embed it beneath the namespace of a particular blockchain,
+        <h3>Enforcement</h3>
+
+        <p>In centralized systems, security is enforced at the center. This is so obvious that we take it for
+            granted--you can't access a database unless you log in first, and it's the database that enforces this.</p>
+
+        <p>Despite their other decentralized features, blockchains are no different in this respect. If a
+            blockchain accepts updates to a DID Doc, then the blockchain must guarantee that those updates are
+            only made by authorized parties. Thus, most DID methods imagine a blockchain parsing the
+            authorization section of a DID Doc, and rejecting mischief from hackers.</p>
+
+        <p>However, in a peer relationship, there IS no centralized authority. This leads to an interesting
+            inversion of responsibility that must be understood: Bob enforces Alice's authorization policy,
+            and Alice enforces Bob's.</p>
+
+        <p>This might seem wrong--shouldn't Alice enforce her own security? But it is quite rational. Who cares
+            whether the agents he is dealing with truly belong to Alice and are authorized by her? Bob does.
+            And if one of Alice's agents gets hacked and attempts to subvert the Alice:Bob relationship,
+            who is the uncontaminated party that can refuse to cooperate with the rogue agent? Bob is.</p>
+
+        <p>Another way to think about this is that, within the Alice:Bob relationship, Bob acts as a substitute
+            for a centralized resource that Alice's agents try to access. In such a mental model, of course, Bob
+            would be a logical place to enforce access rules for Alice.</p>
+    </section>
+</section>
+
+<section>
+    <h2>Core Characteristics</h2>
+    <section>
+        <h3>Namestring</h3>
+        <p>The namestring that shall identify this DID method is: <code>peer</code></p>
+        <p>A DID that uses this method MUST begin with the following prefix: <code>did:peer:</code>.
+            Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix,
+            is the <a href="#namespace-specific-identifier-nsi">namespace specific identifier specified below</a>.
+        </p>
+        <p>Early feedback on this method suggested that we embed it beneath the namespace of a particular blockchain,
             as in <code>did:sov:peer</code> or <a
-            target="_blank" href="https://w3c-ccg.github.io/didm-veres-one/#veres-one-did-format"><code>did:v1:nym</code></a>.
+                    target="_blank" href="https://w3c-ccg.github.io/didm-veres-one/#veres-one-did-format"><code>did:v1:nym</code></a>.
             However, this DID method is not captive to any particular blockchain, does not take its resolution rules
             from a parent method, and does not require anchoring or reference to a blockchain to be valid.
             Furthermore, any direct or indirect anchoring of a peer DID to a specific blockchain is driven by
@@ -302,228 +270,248 @@
             a dead drop on blockchain 1, then change to blockchain 2, then change to blockchains 3 and 4 at
             the same time. Therefore, "peer" belongs at the top of the DID namespace. How this method may be
             used in conjunction with various blockchains is discussed <a
-                        href="#grafting-peer-dids-into-another-did-method-namespace">later</a>.</p>
-        </section>
-        <section>
-            <h3>Target System(s)</h3>
-            <p>This DID method applies to any identity management implementation that meets the following two
-                requirements:</p>
-            <ul>
-                <li><em>Cryptonyms</em> -- The DIDs are created using the <a href="#gen_method">algorithm described below</a>,
-                    endowing them with properties vital to trust between peers that is not dependent on a central source of truth.</li>
-                <li><em>Protocol</em> -- The metadata for DIDs (what would be stored in an on-chain DID Doc in other methods)
-                is communicated as described below.</li>
-            </ul>
-        </section>
-        <section>
-            <h3>Namespace Specific Identifier (NSI)</h3>
-            <p><a name="gen_method"></a>
-              The Peer DID scheme is defined by the following <a href="ftp://ftp.rfc-editor.org/in-notes/std/std68.txt">ABNF</a>:<br><br>
-              <code>
-                peer-did      = "did:peer:" version "-" idstring<br>
-                version     = "1"<br>
-                idstring      = multibase multihash<br>
-                multibase     = "F" #see hex in <a target="_blank" href="https://github.com/multiformats/multibase">multibase spec</a><br>
-                multihash     = "1220" restofhash #see sha256+hex in <a target="_blank" href="https://github.com/multiformats/multihash">multihash</a> spec<br>
-              </code><br>
-              Peer DIDs use an underlying number with high entropy, called the <em>numeric basis</em>, as the
-                source of their uniqueness. This version of the spec (<code>version</code>
-                == <code>1</code>) generates the numeric basis from a hash of the initial content
-                of a DID Doc (see next section). Subsequent versions of the spec may describe
-                additional generation methods as needed.</p>
-              <p>This <em>numeric basis</em> is encoded as a hash using the
-                  <a target="_blank" href="https://github.com/multiformats/multihash">multihash</a> prefix
-                  for sha256+hex: "1220". Although this prefix is redundant today, a multihash prefix is used
-                  so that a different digest or encoding may be selected in the future.</p>
-              <p>The multihash value is preceded by a <a target="_blank"
-                    href="https://github.com/multiformats/multibase">multibase prefix</a> that tells how to
-                  interpret the multihash that follows. Since the multihash value is hex in
-                  this version of the spec, <code>multibase</code> is always "F" today; if the
-                  multihash variant changes in the future, <code>multibase</code> probably will, too.<p>
-              <p>Peer DIDs must be compared according to whatever case-sensitivity is implied by the
-              hash encoding they use. Hex is not case-sensitive, but if a future version of the spec
-              uses base58 or base64 encoding, values will be case sensitive. Therefore, it is strongly
-              recommended that routines that handle peer DIDs not normalize case unless they take into
-              account the specific hash encoding.</p>
-        </section>
-        <section>
-            <h3>Namestring Generation Method</h3>
-            <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
-            <ul>
-                <li>Create a <em>genesis</em> version of the DID Doc for the DID. The genesis version must include at
-                least one verification key.</li>
-                <li>Remove the main <code>id</code> field (the one that would normally contain the DID value) from the DID Doc.
-                This creates a variant of the peer DID doc known as the <em>stored variant</em>, as opposed to the
-                <em>resolved variant</em> that would have an actual DID value in the <code>id</code> field.</li>
-                <li>Calculate the SHA256 hash of the bytes of the stored variant of the DID Doc, and assign it
-                as the DID's numeric basis.</li>
-            </ul>
-            <p>By basing the numeric value of the DID on the genesis version of the DID Doc, the DID can begin its
-                lifecycle with any number of keys and endpoints, and when the doc is signed or auth-encrypted by one
-                of the keys, the recipient can know it has not been modified since creation. This guarantees the
-                initial integrity of the DID's chain of custody.</p>
-            <p>By hashing the stored variant, we avoid the circular problem of
-                including the DID in the data that's being hashed. This means that a peer DID doc must be resolved by
-                converting the stored variant into a resolved variant by inserting the
-                value of the DID being resolved, during resolution.</p>
-        </section>
-        <section>
-            <h3>Examples</h3>
-            <p>A convenient regex to match <code>peer</code> DIDs is: <br><br>
-                <code>^did:peer:1-F1220[a-fA-F0-9]{8,40}$</code>.
-            </p>
-            <p>A valid <code>peer</code> DID might be: <code>did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe</code>.
-            </p>
-        </section>
+            href="#grafting-peer-dids-into-another-did-method-namespace">later</a>.
+        </p>
     </section>
     <section>
-        <h2>Protocol</h2>
-        <section>
-            <h3>Roles</h3>
+        <h3>Target System(s)</h3>
+        <p>This DID method applies to any identity management implementation that meets the following two
+            requirements:</p>
+        <ul>
+            <li><em>Generation Algorithm</em> -- The DIDs are created using the <a href="#namespace-specific-identifier-nsi">
+                algorithm described below</a>, endowing them with properties vital to trust between peers that is not
+                dependent on a central source of truth.
+            </li>
+            <li>
+                <em>Protocol</em> -- The metadata for DIDs (what would be stored in an on-chain DID Doc in other methods)
+                is communicated and maintained as described in the <a href="#protocols">Protocols</a> section.
+            </li>
+        </ul>
+    </section>
+    <section>
+        <h3>Namespace Specific Identifier (NSI)</h3>
+        <p>The Peer DID scheme is defined by the following <a href="https://tools.ietf.org/html/rfc5234">ABNF</a>:<br>
+            <br>
+            <code>
+                peer-did = "did:peer:" version "-" idstring<br>
+                version = "1"<br>
+                idstring = multibase multihash<br>
+                multibase = "F"</code> <span style="color:green"># See hex in
+                <a target="_blank" href="https://github.com/multiformats/multibase">multibase spec</a></span><br>
+            <code>multihash = "1220" restofhash</code> <span style="color:green"># See sha256+hex in
+                <a target="_blank" href="https://github.com/multiformats/multihash">multihash</a> spec</span>
+        </p>
+        <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the
+            source of their uniqueness. This version of the spec (<code>version</code>
+            == <code>1</code>) generates the numeric basis from a hash of the initial content
+            of a DID Doc (see next section). Subsequent versions of the spec may describe
+            additional generation methods as needed.</p>
+        <p>This <em>numeric basis</em> is encoded as a hash using the
+            <a target="_blank" href="https://github.com/multiformats/multihash">multihash</a> prefix
+            for sha256+hex: "1220". Although this prefix is redundant today, a multihash prefix is used
+            so that a different digest or encoding may be selected in the future.</p>
+        <p>The multihash value is preceded by a <a target="_blank"
+                href="https://github.com/multiformats/multibase">multibase prefix</a> that tells how to
+            interpret the multihash that follows. Since the multihash value is hex in
+            this version of the spec, <code>multibase</code> is always "F" today; if the
+            multihash variant changes in the future, <code>multibase</code> may, too.
+        <p>
+        <p>Peer DIDs must be compared according to whatever case-sensitivity is implied by the
+            hash encoding they use. Hex is not case-sensitive, but if a future version of the spec
+            uses base58 or base64 encoding, values will be case sensitive. Therefore, it is required
+            that routines that handle peer DIDs not normalize case unless they take into account the
+            specific hash encoding.</p>
+    </section>
+    <section>
+        <h3>Namestring Generation Method</h3>
+        <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
+        <ul>
+            <li>Create a <dfn>genesis version</dfn> of the DID Doc for the DID. The genesis version must include at
+                least one verification key.
+            </li>
+            <li>Remove the main <code>id</code> field (the one that would normally contain the DID value) from the DID
+                Doc. This creates a variant of the peer DID doc known as the <dfn>stored variant</dfn>, as opposed to
+                the <dfn>resolved variant</dfn> that would have an actual DID value in the <code>id</code> field.
+            </li>
+            <li>Calculate the SHA256 hash of the bytes of the stored variant of the DID Doc, and assign it
+                as the DID's numeric basis.
+            </li>
+        </ul>
+        <p>By basing the numeric value of the DID on the genesis version of the DID Doc, the DID can begin its
+            lifecycle with any number of keys and endpoints, and when the doc is signed or auth-encrypted by one
+            of the keys, the recipient can know it has not been modified since creation. This guarantees the
+            initial integrity of the DID's chain of custody.</p>
+        <p>By hashing the stored variant, we avoid the circular problem of
+            including the DID in the data that's being hashed. This means that a peer DID doc must be resolved by
+            converting the stored variant into a resolved variant by inserting the
+            value of the DID being resolved, during resolution.</p>
+    </section>
+    <section>
+        <h3>Examples</h3>
+        <p>A convenient regex to match <code>peer</code> DIDs is: <br><br>
+            <code>^did:peer:1-F1220[a-fA-F0-9]{8,40}$</code>.
+        </p>
+        <p>A valid <code>peer</code> DID might be:
+            <code>did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe</code>.
+        </p>
+    </section>
+</section>
+<section>
+    <h2>Protocols</h2>
+    <section>
+        <h3>Roles and Agents</h3>
 
-            <p>We call this the "peer" DID method because it enables peers--parties with no relative hierarchy--to
-                exchange DIDs without recourse to a central authority. Thus, we expect only one role in our
-                protocol: <code>peer</code>. And this is the case, at a high level.</p>
+        <p>As described in the introduction, we call this the "peer" DID method because it enables peers to exchange
+            DIDs without recourse to a central authority. Thus, we expect all participants in the protocol to play the
+            same <code>peer</code> role, and to operate by exactly the same rules. And this is the case, at a high
+            level.
+        </p>
 
-            <p>However, at another level of detail, each peer may interact through various pieces of software
-                and hardware that proxy them. They may need to reveal a modest amount of information about such agents to
-                achieve cooperative security. For example, Alice may control 3 devices and may wish to protect
-                herself from hacking by saying that at least 2 of her existing devices must agree before a new
-                device can be added or an existing device can be revoked. This requires her to share her M-of-N
-                policy with Bob, with enough information about agent keys that he can validate a multi-party
-                digital signature. Thus, our protocol must occasionally contemplate details about this more
-                granular level of each peer's <a target="_blank"
-                href="https://docs.google.com/document/d/1gfIz5TT0cNp2kxGMLFXr19x1uoZsruUe_0glHst2fZ8/edit#heading=h.pufsrf9ucjvv">
-                sovereign domain</a>.</p>
+        <p>However, at another level of detail, each peer may interact through various pieces of software
+            and hardware that proxy them. They may need to reveal a modest amount of information about such <a
+            target="aries" href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0004-agents/README.md">
+            agents</a> to achieve cooperative security. For example, Alice may control 3 devices and may wish to protect
+            herself from hacking by saying that at least 2 of her existing devices must agree before a new
+            device can be added or an existing device can be revoked. This requires her to share her M-of-N
+            policy with Bob, with enough information about agent keys that he can validate a multi-party
+            digital signature. Thus, our protocol must occasionally contemplate details about this more
+            granular level of each peer's <a target="_blank"
+                    href="https://docs.google.com/document/d/1gfIz5TT0cNp2kxGMLFXr19x1uoZsruUe_0glHst2fZ8/edit#heading=h.pufsrf9ucjvv">
+                sovereign domain</a>.
+        </p>
+    </section>
 
-        </section>
-
-        <section>
-            <h3>Messages</h3>
-
-            <p><em>Peers interact via messages</em>. This is a more general claim than saying that peers expose an API
+    <section>
+        <h3>Messages</h3>
+        <dl>
+            <dt>Peers interact via messages.</dt>
+            <dd>This is a more general claim than saying that peers expose an API
                 because it doesn't assume that peers are directly callable by each other. It must be possible to
                 exchange DIDs in this method in a very asynchronous fashion (e.g., one party sends a message while the
-                other party is offline; a response is returned when the original sender may not be actively listening).</p>
-            <p><em>Message transmission is transport-agnostic</em>. That is, the messages can flow over any combination
-                of HTTP, Bluetooth, NFC, email, AMPRNet (TCP/IP over ham radio), snail mail, sneakernet, intermediaries,
-                or future protocols we have not yet invented.</p>
-            <p><em>Messages are <a target="_blank" href="https://tools.ietf.org/html/rfc8259">JSON</a></em>. They are
-                compatible with <a target="_blank" href="https://w3c.github.io/json-ld-syntax/#basic-concepts">basic
-                concepts of JSON-LD</a>, but <a target="_blank"
-                href="https://github.com/hyperledger/indy-hipe/blob/64e16d3b/text/json-ld-compatibility/README.md">no
-                deep knowledge of JSON-LD is required to understand them, and no dependency
-                on JSON-LD libraries is necessary</a>. The specifics of JSON format are discussed below.</p>
-            <p><em>Messages are serialized and encrypted</em> in a standard way for transport. This method associates
-                security guarantees with the message envelope rather than the transport, and is aligned philosophically with
-                the approach of <a target="_blank" href="https://datatracker.ietf.org/wg/mls/about/">IETF's Message
-                Level Security initiative</a>. However, the first version of this spec predates MLS's maturity, so
-                the wire format uses <a target="_blank" href="https://www.rfc-editor.org/rfc/rfc7516.txt">JWEs</a>
-                with some extensions, instead. The extensions allow the same message to be encrypted once for multiple
-                recipients and sent to them all in an efficient manner:</p>
-            <img src="multiplex.png"/>
-            <p>These extensions are under review by the
-                maintainers of JWE/JWT and are likely to be mainstreamed eventually.
-                The particulars are detailed in <a target="_blank"
-                href="https://github.com/hyperledger/indy-hipe/blob/master/text/0028-wire-message-format/README.md">
-                a doc</a> that explains how agents in the Hyperledger Indy ecosystem have implemented the format -
-                but the format is easy to implement without any Indy dependencies, and its design has no
-                connection to the Indy blockchain. See <a target="_blank"
-                href="https://github.com/dbluhm/indy-pack-unpack-js/blob/db9d83e4/index.js">this implementation
-                in pure javascript</a>, and <a target="_blank" href="https://github.com/bcgov/indy-catalyst/blob/bba2ef5c/agent/indy_catalyst_agent/wallet/crypto.py#L402">
-                this one in pure python</a>, in addition to
-                <a target="_blank" href="https://github.com/hyperledger/indy-sdk/blob/fbad7422/libindy/src/api/crypto.rs#L634">
-                Indy's C-callable implementation in Rust</a>.
+                other party is offline; a response is returned when the original sender may not be actively listening).
+            </dd>
+            <dt>Message transmission is transport-agnostic.</dt>
+            <dd>That is, the messages can flow over any combination of HTTP, Bluetooth, NFC, email, AMPRNet (TCP/IP over
+                ham radio), snail mail, sneakernet, intermediaries, or future protocols we have not yet imagined.
+            </dd>
+            <dt>Messages are <a target="_blank" href="https://tools.ietf.org/html/rfc8259">JSON</a>.</dt>
+            <dd>They are compatible with <a target="_blank" href="https://w3c.github.io/json-ld-syntax/#basic-concepts">
+                basic concepts of JSON-LD</a>, but <a target="_blank"
+                    href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0047-json-ld-compatibility/README.md">
+                no deep knowledge of JSON-LD is required to understand them, and no dependency
+                on JSON-LD libraries is necessary</a>. The specifics of the JSON format are discussed below.
+            </dd>
+            <dt>Messages are serialized and encrypted in a standard way for transport.</dt>
+            <dd>
+                <p>This method associates security guarantees with the message envelope rather than the transport, and is
+                aligned philosophically with the approach of <a href="https://datatracker.ietf.org/wg/mls/about/"
+                target="_blank">IETF's Message Level Security initiative</a>. However, the first version of this spec
+                predates MLS's maturity, so the wire format uses <a href="https://www.rfc-editor.org/rfc/rfc7516.txt"
+                target="_blank">JWEs</a> with some extensions, instead. The extensions allow the same message to be
+                encrypted once for multiple recipients and sent to them all in an efficient manner:
                 </p>
+                <img src="multiplex.png"/>
+                <p>These extensions are under review by the maintainers of JWE/JWT and are likely to be mainstreamed
+                    eventually. The particulars are detailed in <a target="_blank"
+                    href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0019-encryption-envelope/README.md">
+                    a doc</a> that explains how agents in the Hyperledger Aries ecosystem have implemented the format -
+                    but the format is easy to implement without any Aries dependencies, and its design has no connection
+                    to any particular blockchain. See <a href="https://github.com/dbluhm/indy-pack-unpack-js/blob/db9d83e4/index.js"
+                    target="_blank">this implementation in pure javascript</a>, and
+                    <a href="https://github.com/bcgov/indy-catalyst/blob/bba2ef5c/agent/indy_catalyst_agent/wallet/crypto.py#L402"
+                    target="_blank">this one in pure python</a>, in addition to
+                    <a target="_blank" href="https://github.com/hyperledger/indy-sdk/blob/fbad7422/libindy/src/api/crypto.rs#L634">
+                    Indy's C-callable implementation in Rust</a>.
+                </p>
+            </dd>
+        </dl>
+    </section>
 
-            <p>All JSON messages in this protocol are part of a "message family" named <code>connections</code>. This
-            family is identified by the following <a target="_blank" href="https://w3c-ccg.github.io/did-spec/#the-generic-did-scheme">DID
-                reference</a>:</p>
-
-            <pre>did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0</pre>
-
-            <p>Of course, subsequent evolutions of the message family will replace `1.0` with
-                an appropriate update per <a target="_blank" href="https://semver.org">semver</a> rules.</p>
-
+    <section>
+        <h3>CRUD Operations</h3>
+        <section>
+            <h4>Create (Register)</h4>
+            <p>Although the work of <em>creating</em> a peer DID and its genesis DID Doc can be done at any time and
+                does not require a message,<em>registering</em> a peer DID with the other party or parties in a
+                relationship involves a specific sequence of messages known as the <dfn>DID Exchange protocol</dfn>.
+                The protocol is <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0023-did-exchange/README.md">
+                    formally documented in Aries RFC 0023</a>; only a summary is offered here. It has 3 steps:</p>
+            <ol>
+                <li>One of the parties (the <dfn>inviter</dfn>) sends an <dfn>invitation</dfn> to connect. The
+                    invitation is NOT encrypted, and it does NOT require the recipient (the <dfn>invitee</dfn>) to
+                    have special software that understands this protocol. Instead, it is a specially formatted URI
+                    that can be a deep link, helping the invitee to learn about SSI, get an SSI-capable app, and
+                    otherwise onboard into the ecosystem. If the invitee already has SSI-aware software, the URI
+                    can be recognized by a registered handler, short-circuiting the URI fetch and the onboarding/
+                    learning process. This invitation URI may be transmitted by email, SMS, QR code, or any other
+                    convenient method. If it is important to the inviter that it be secured, the inviter can share
+                    the invitation on a secure channel.
+                </li>
+                <li>The invitee sends an encrypted <dfn>connection request</dfn> back to the inviter, using the
+                    endpoint that the inviter supplied in the invitation. This connection request includes the
+                    invitee's genesis DID Doc, DID, and keys.
+                </li>
+                <li>The inviter sends an encrypted <dfn>connection response</dfn> the other direction. This response
+                    includes the inviter's genesis DID Doc, DID, and keys.
+                </li>
+            </ol>
+            <p>These three steps have been carefully defined to achieve a number of important goals:</p>
+            <ul>
+                <li>Because the invitation can be sent to someone who does not know about DIDs or SSI at all,
+                    and because it can be sent over insecure channels, establishing DID relationships has an
+                    extremely low bar. This is vital to the virality of SSI.
+                </li>
+                <li>The invitation identifies an endpoint over which the connection can occur, but it does not
+                    communicate peer keys or a peer DID from the inviter, and the endpoint that the inviter uses (as
+                    well as the inviter's DID and keys) are only transmitted once security and privacy are guaranteed.
+                </li>
+                <li>The protocol can be used by parties using any DID method. One of the parties can be using
+                    a peer DID, both can, or neither can.
+                </li>
+                <li>The invitation can be sent by a third party, allow introductions (Alice introduces Carol to Bob).
+                    However, an introducer is prevented from seeing the secure and private connection built by the
+                    two parties.
+                </li>
+            </ul>
+            <p>Additional security against man-in-the-middle attacks may be achieved by signing an invitation, if it is
+                public. If the public invitation includes an anywise DID, then the invitee should verify that a
+                signature the inviation matches with an active verification key for the associated anywise DID. If the
+                public invitation includes a verification key, then the invitee can verify that the signature on the
+                invitation matches with the verification key. Once the pair of Peer DID is established, the invitee can
+                ask the inviter for proof-of-control of that initial verification key. In any case, further action is
+                advisable to build deeper trust about the identity of other side. This likely includes mutual exchange
+                of <a href="https://w3c.github.io/vc-data-model/">verifiable credentials</a>.
+            </p>
         </section>
 
         <section>
-            <h3>CRUD Operations</h3>
-            <section>
-            <h4>Create (Register)</h4>
-            <p>Although the cryptographic operation of <em>creating</em> a peer DID and its first keypair can be done at
-            any time and does not require a message, <em>registering</em> a peer DID with the other party or parties in a
-            relationship involves a specific sequence of messages known as the <em>connection protocol</em>. The
-            protocol is <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/b3f5c388/text/connection-protocol/README.md">
-            formally documented in a HIPE</a>; only a summary is offered here. It has 3 steps:</p>
-                <ol>
-                    <li>One of the parties (the <em>inviter</em>) sends an <em>invitation</em> to connect. The
-                        invitation is NOT encrypted, and it does NOT require the recipient (the <em>invitee</em>) to
-                        have special software that understands this protocol. Instead, it is a specially formatted URI
-                        that can be a deep link, helping the invitee to learn about SSI, get an SSI-capable app, and
-                        otherwise onboard into the ecosystem. If the invitee already has SSI-aware software, the URI
-                        can be recognized by a registered handler, short-circuiting the URI fetch and the onboarding/
-                        learning process. This invitation URI may be transmitted by email, SMS, QR code, or any other
-                        convenient method. If it is important to the inviter that it be secured, the inviter can share
-                        the invitation on a secure channel.</li>
-                    <li>The invitee sends an encrypted <em>connection request</em> back to the inviter, using the
-                        endpoint that the inviter supplied in the invitation. This connection request includes the
-                        invitee's DID Doc, DID, and keys.</li>
-                    <li>The inviter sends an encrypted <em>connection response</em> the other direction. This response
-                        includes the inviter's DID Doc, DID, and keys.</li>
-                </ol>
-            <p>These three steps have been carefully defined to achieve a number of important goals:</p>
-                <ul>
-                    <li>Because the invitation can be sent to someone who does not know about DIDs or SSI at all,
-                    and because it can be sent over insecure channels, establishing DID relationships has an
-                    extremely low bar. This is vital to the virality of SSI.</li>
-                    <li>The invitation identifies an endpoint over which the
-                        connection can occur, but it does not communicate peer keys or a peer DID from the inviter,
-                        and the endpoint that the inviter uses (as well as the inviter's DID and keys) are only
-                        transmitted once security and privacy are guaranteed.</li>
-                    <li>The protocol can be used by parties using any DID method. One of the parties can be using
-                        a peer DID, both can, or neither can.</li>
-                    <li>The invitation can be sent by a third party, allow introductions (Alice introduces Carol to Bob).
-                        However, an introducer is prevented from seeing the secure and private connection built by the
-                        two parties.</li>
-                </ul>
-            <p>Additional security against man-in-the-middle attacks may be achieved by signing of 
-                the public invitation.</p>
-                <ul>
-                    <li>If the public invitation includes a publicly-resolvable DID, then the invitee can verify 
-                        that the signature on the invitation matches with an active verification key for that 
-                        DID.</li>
-                    <li>If the public invitation includes a verification key, then the invitee can verify that the signature
-                        on the invitation matches with the verification key. Once the pair of Peer DID is established,
-                        the invitee can ask the invitor for proof-of-control of that initial verification key.</li>
-                    <li>In any case, further action is advisable to build deeper trust about the identity of other 
-                        side. This likely includes mutual exchange of verifiable credentials.</li>
-                </ul>
-            </section>
-
-            <section>
             <h4>Read (Resolve)</h4>
-            <blockquote><p>(This operation, as well as Update and Delete, are documented in greater detail in
-                a <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/19e22644/text/conn-mgmt-protocols/README.md">HIPE about connection management protocols</a>. Here, we offer only a summary.)</p></blockquote>
-            <p>A peer DID can be resolved to a DID Document by sending a <a
-                    href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#state_request">state_request
-            </a> message from one peer to another:</p>
+            <p>This operation, as well as Update and Delete, are documented in greater detail in
+                <a href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md"
+                target="aries">Aries RFC 0030</a>. Here, we offer only a summary.
+            </p>
+            <p>A peer DID can be resolved to a DID Document by sending a <a target="aries"
+            href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md#state_request">
+            state_request</a> message from one peer to another:</p>
             <pre>
 {
-  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0/state_request",
+  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/state_request",
   "@id": "6a4986dd-f50e-4ed5-a389-718e61517207",
   "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
   "as_of_time": "2019-07-23 18:05:06.123Z"
 }
             </pre>
             <p>The <code>as_of_time</code> property is optional and often omitted; if so, the DID Doc at
-            the current time is returned.</p>
-            <p>A <a href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#state_response">state_response
-            </a> message is returned. It includes a DID Doc and some additional metadata, and looks like this:
+                the current time is returned.</p>
+            <p>A
+                <a href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#state_response"
+                target="aries">state_response</a> message is returned. It includes a DID Doc and some additional
+                metadata, and looks like this:
             </p>
             <pre>
 {
-  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/state_response",
+  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/state_response",
   "@id": "1517207d-f50e-4ed5-a389-6a4986d718e6",
   "~thread": { "thid": "6a4986dd-f50e-4ed5-a389-718e61517207" },
   "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
@@ -546,24 +534,26 @@
       ]
   },
   "as_of_time": "2019-07-23 18:05:06.123Z"
-}        </pre>
-                <p>Note the use of <code>~thread</code> in the response, with <code>thid</code> equal to the
+}
+            </pre>
+            <p>Note the use of <code>~thread</code> in the response, with <code>thid</code> equal to the
                 <code>@id</code> property of the previous request, to connect the two messages. This is a
-                <a target="_blank" href="https://github.com/hyperledger/indy-hipe/tree/master/text/0027-message-id-and-threading#threaded-messages">
-                    standard message threading feature of DID Communication</a>, and also shows up in other
+                <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0008-message-id-and-threading#threaded-messages">
+                standard message threading feature of DID Communication</a>, and also shows up in other
                 message interactions described here.</p>
-            </section>
+        </section>
 
-            <section>
-                <h4>Update</h4>
-                <p>The owner of a peer DID can update their associated DID Document with anyone who knows the
-                    DID--one or more agents of the peer, or agents of the owner itself--by sending a <a
-                        href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#sync_state">sync_state
-                </a> message to another peer. An example of this type of message is:</p>
+        <section>
+            <h4>Update</h4>
+            <p>The subject of a peer DID can update their associated DID Document with anyone who knows the
+                DID--one or more agents of the peer, or agents of the owner itself--by sending a <a target="aries"
+                href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#state_response">
+                sync_state</a> message to another peer. An example of this type of message is:</p>
 
-                <pre>
+            <pre>
 {
-  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/relmgmt/1.0/sync_state",
+  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/sync_state",
   "@id": "e61586dd-f50e-4ed5-a389-716a49817207",
   "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
   "base_hash": "d48f058771956a305e12a3b062a3ac81bd8653d7b1a88dd07db8f663f37bf8e0",
@@ -596,101 +586,109 @@
   ]
 }
                 </pre>
-                <p>This message does not follow a simple request~response pattern, and does not have "update"
-                    in its name, because either party
-                may know details that the other party lacks. The sender picks a point in time, <code>delta_time</code>,
-                where it believes it and the receiver were probably in sync; it then describes the <a target="_blank"
-                href="https://github.com/hyperledger/indy-hipe/blob/d014879d/text/conn-mgmt-protocols/README.md#did-doc-deltas">deltas</a>
-                that it knows about, that have happened since.</p>
-                <p>If the recipient already has the same state, it replies with an <a target="_blank"
-                href="https://github.com/hyperledger/indy-hipe/blob/518b5a9a/text/acks/README.md">ACK</a>.</p>
-                <p>If the recipient knew about a subset of the delta, but not all of it, it applies what is left of the
-                delta, and sends an ACK.</p>
-                <p>If the recipient has a more evolved state, the recipient sends a reply
-                that is a new <code>sync_state</code> message informing the sender of hitherto unknown information. As with
-                the ACKs, this new message is known to be a reply to the original <code>sync_state</code> because its
-                <a target="_blank" href="https://github.com/hyperledger/indy-hipe/tree/master/text/0027-message-id-and-threading#threaded-messages">
-                    <code>~thread</code> decorator identifies the previous message's <code>@id</code> as its <code>thid</code></a>.</p>
-                <p>If the recipient does not recognize the base_hash, it selects a hash from a point in time earlier than
-                    <code>base_hash_time</code> and sends back a new <code>sync_state</code> message with that earlier base.</p>
-                <p>If the recipient detects a conflict, it attempts to merge states. If the merge is successful, it sends a
-                    new <code>sync_state</code> that shows the merge. If the merge is not successful, then a merge
-                    conflict exists, and the merge conflict policy for the sovereign domain of the associated DID is
-                    invoked. See <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/d014879d/text/conn-mgmt-protocols/README.md#merges-and-merge-conflicts">"Merges and Merge Conflicts"</a>.
-                </p>
-            </section>
+            <p>This message does not follow a simple request~response pattern, and does not have "update" in its name,
+                because either party may know details that the other party lacks. This is especially likely when some
+                agents of either party have been offline. The sender picks a point in time, <code>delta_time</code>,
+                where it believes it and the receiver were probably in sync; it then describes the <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0030-sync-connection#did-doc-deltas">
+                deltas</a> that it knows about, that have happened since.
+            </p>
+            <p>If the recipient already has the same state, it replies with an <a target="aries"
+                    href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0015-acks/README.md">ACK</a>.
+            </p>
+            <p>If the recipient knew about a subset of the delta, but not all of it, it applies what is left of the
+                delta, and sends an ACK.
+            </p>
+            <p>If the recipient has a more evolved state, the recipient sends a reply that is a new <code>sync_state
+            </code> message informing the sender of hitherto unknown information. As with the ACKs, this new message is
+                known to be a reply to the original <code>sync_state</code> because its <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0008-message-id-and-threading#threaded-messages">
+                <code>~thread</code> decorator identifies the previous message's <code>@id</code> as its <code>thid
+                </code></a>.
+            </p>
+            <p>If the recipient does not recognize the base_hash, it selects a hash from a point in time earlier than
+                <code>base_hash_time</code> and sends back a new <code>sync_state</code> message with that earlier base.
+            </p>
+            <p>If the recipient detects a conflict, it attempts to merge states. If the merge is successful, it sends a
+                new <code>sync_state</code> that shows the merge. If the merge is not successful, then a merge
+                conflict exists, and the merge conflict policy for the sovereign domain of the associated DID is
+                invoked. See <a target="aries"
+                href="ttps://github.com/hyperledger/aries-rfcs/tree/master/features/0030-sync-connectiong#merges-and-merge-conflicts">
+                    "Merges and Merge Conflicts"</a>.
+            </p>
+        </section>
 
-            <section>
-                <h4>Delete</h4>
-                <p>In a self-sovereign paradigm, abandoning a relationship can be done unilaterally, and does not
-                    require formal announcement; one party can simply stop communicating with the other. Since there
-                    is no public record of the relationship to delete, no further action is strictly required.
-                    Indeed, sometimes a formal announcement is impossible, if one of the parties
-                    is offline.</p>
+        <section>
+            <h4>Delete</h4>
+            <p>In a self-sovereign paradigm, abandoning a relationship can be done unilaterally, and does not
+                require formal announcement; one party can simply stop communicating with the other. Since there
+                is no public record of the relationship to delete, no further action is strictly required.
+                Indeed, sometimes a formal announcement is impossible, if one of the parties
+                is offline.</p>
 
-                <p>However, it is best practice to announce that the relationship is being abandoned. This
-                    should cause the other party to clean up by removing the DID, DID Doc, and associated metadata from its
-                    local cache. It should also prevent the other party from trying to communicate in the future.
-                    Formally terminating a connection happens by sending a
-                    <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/d014879d/text/conn-mgmt-protocols/README.md#leave"><code>leave</code>
-                        message</a> to a peer:</p>
-                <pre>
+            <p>However, it is best practice to announce that the relationship is being abandoned. This
+                should cause the other party to clean up by removing the DID, DID Doc, and associated metadata from its
+                local cache. It should also prevent the other party from trying to communicate in the future.
+                Formally terminating a connection happens by sending a <a target="aries"
+                href="ttps://github.com/hyperledger/aries-rfcs/tree/master/features/0030-sync-connection#leave"><code>
+                leave</code> message</a> to a peer:</p>
+            <pre>
 {
-  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connection/1.0/leave",
+  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/leave",
   "@id": "c17147d2-ada6-4d3c-a489-dc1e1bf778ab",
   "~please_ack": {}
 }
-                </pre>
-                <p>If Bob receives a message like this, he should assume that Alice no longer considers
+            </pre>
+            <p>If Bob receives a message like this, he should assume that Alice no longer considers
                 herself connected, and take appropriate action. This could include destroying
                 data about Alice that he has accumulated over the course of their relationship,
                 removing her peer DID and its public key(s) and endpoints from his wallet, and so
                 forth. The nature of the relationship, the need for a historical audit trail, regulatory
                 requirements, and many other factors may influence what's appropriate; the protocol
-                    simply requires that the message be understood to have permanent termination semantics.</p>
+                simply requires that the message be understood to have permanent termination semantics.
+            </p>
 
-                <p>The <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/518b5a9a/text/acks/README.md#requesting-an-ack-please_ack">
-                    <code>~please_ack</code> decorator</a> is optional. It asks the receiver to
-                send an acknowledgement that it has processed the message. If used, the receiver
-                should send an ACK that looks like this:</p>
+            <p>The <a target="aries" href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0015-acks/README.md#requesting-an-ack-please_ack">
+                <code>~please_ack</code> decorator</a> is optional. It asks the receiver to send an acknowledgement that
+                it has processed the message. If used, the receiver should send an ACK that looks like this:</p>
 
-<pre>
+            <pre>
 {
-"@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0/ack",
+"@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/ack",
 "@thread": { "thid": "c17147d2-ada6-4d3c-a489-dc1e1bf778ab" }
 }
 </pre>
-            </section>
         </section>
     </section>
+</section>
 
+<section>
+    <h2>Security Considerations</h2>
     <section>
-        <h2>Security Considerations</h2>
-        <section>
-            <h3>Secure communication</h3>
-            <p>All the messages in this protocol (except for a connection invitation that requires no security, by design)
-                must be sent encrypted, using the encryption format
-                specified in <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/master/text/0028-wire-message-format/README.md">DIDComm's wire format</a>.
-                This gives strong guarantees about the confidentiality and integrity of exchanged
-                data, regardless of the transport mechanism used to transmit the messages.</p>
-        </section>
-        <section>
-            <h3>Cryptonyms</h3>
-            <p>Because peer DIDs are generated from an algorithm that includes the values of their initial public key(s)
+        <h3>Secure communication</h3>
+        <p>All the messages in this protocol (except for a connection invitation that requires no security, by design)
+            must be sent encrypted, using the encryption format specified in <a target="aries"
+            href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0019-encryption-envelope/README.md">
+            DIDComm's encryption envelope</a>. This gives strong guarantees about the confidentiality and integrity of
+            exchanged data, regardless of the transport mechanism used to transmit the messages.</p>
+    </section>
+    <section>
+        <h3>Cryptonyms</h3>
+        <p>Because peer DIDs are generated from an algorithm that includes the values of their initial public key(s)
             as input, they cannot be created without the creator controlling them. As mentioned earlier, this prevents
             man-in-the-middle attacks at the time of creation.
             Since keys must be created from keys generated by a secure random number generator, they are guaranteed
             to be unpredictable and globally unique at creation time.</p>
-        </section>
-        <section>
-            <h3>Key Authorizations</h3>
-            <p>The keys authorized to participate in a peer relationship may not all have the same
+    </section>
+    <section>
+        <h3>Key Authorizations</h3>
+        <p>The keys authorized to participate in a peer relationship may not all have the same
             privileges. All keys have the privilege of rotating themselves. Keys that have the privilege
             of adding keys can only add keys with equal or lesser privileges than themselves. All other
-                authorizations on keys must be specified in the <code>authorization</code> section of a peer DID doc.
-                Its structure is:</p>
+            authorizations on keys must be specified in the <code>authorization</code> section of a peer DID doc.
+            Its structure is:</p>
 
-            <p>
+        <p>
             “authorization”: [ list of <b>grant</b>s ]<br/>
             <b>grant</b> = { "let": <b>recipient</b> , “do”: <b>privs</b> }<br/>
             <b>recipient block</b> = one of the following:<br/>
@@ -700,95 +698,99 @@
             &nbsp;&nbsp;&nbsp;&nbsp;“or”: [ list of recipient block ]<br/>
             &nbsp;&nbsp;&nbsp;&nbsp;“m_of_n”: {“m”: number, “n”: [ list of recipient block ]}<br/>
             <b>privs</b> = a string that enumerates the privileges being granted.
-                This string is list-like but is not modeled using a JSON list or dict
-                because of some specialized syntax that conflicts with canonicalization
-                requirements. Its format is a space-delimited list of privileges in string form, where each
-                privilege is an op code name. The list must be sorted in ascending
-                alphabetical order to aid normalization.
-            </p>
+            This string is list-like but is not modeled using a JSON list or dict
+            because of some specialized syntax that conflicts with canonicalization
+            requirements. Its format is a space-delimited list of privileges in string form, where each
+            privilege is an op code name. The list must be sorted in ascending
+            alphabetical order to aid normalization.
+        </p>
 
-            <p>Basically, authorizations are a series of grants. Grants identify the recipient, which is either a key or a combination of keys, and the privileges that the recipient is receiving.</p>
+        <p>Basically, authorizations are a series of grants. Grants identify the recipient, which is either a key or a combination of keys, and the privileges that the recipient is receiving.</p>
 
-            <p>An example might be:</p>
+        <p>An example might be:</p>
 
-            <img src="authorization.png"/>
+        <img src="authorization.png"/>
 
-            <p>What this says is:</p>
+        <p>What this says is:</p>
 
-            <ul>
-                <li>Key #1 ("let":"#1") can add keys, add key references to the authentication section, remove keys, remove keys from the authentication section, and remove any authorization from any key or group of keys.</li>
+        <ul>
+            <li>Key #1 ("let":"#1") can add keys, add key references to the authentication section, remove keys, remove keys from the authentication section, and remove any authorization from any key or group of keys.</li>
 
             <li>Adding authorizations to a key can be done in either ("let":{"or"...) of the following ways:<br/>
 
-                <ul><li>Key #1 and one other key can approve the change.</li>
+                <ul>
+                    <li>Key #1 and one other key can approve the change.</li>
                     <li>Any three ("m_of_n":{"m":3...) of keys #2-#5 can approve the change.</li>
                 </ul>
             </li>
-            </ul>
-        </section>
-        <section>
-            <h3>Key Management</h3>
-            <p>Keys used to control peer DIDs, or keys authorized to communicate and update the DID Docs
-            for peer DIDs, should be managed according to best practices for DKMS, as described in
-                <a target="_blank" href="https://github.com/hyperledger/indy-hipe/blob/9223b7fe/text/dkms/dkms-v4.md">the DKMS spec</a>.</p>
-        </section>
+        </ul>
     </section>
-
     <section>
-        <h2>Privacy Considerations</h2>
-        <p>Peer DIDs should remain pairwise or n-wise, not being reused across relationships. This
+        <h3>Key Management</h3>
+        <p>Keys used to control peer DIDs, or keys authorized to communicate and update the DID Docs
+            for peer DIDs, should be managed according to best practices for DKMS, as described in
+            <a target="aries" href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0051-dkms/dkms-v4.md">
+            the DKMS spec</a>.
+        </p>
+    </section>
+</section>
+
+<section>
+    <h2>Privacy Considerations</h2>
+    <p>Peer DIDs should remain pairwise or n-wise, not being reused across relationships. This
         allows proper isolation to defeat correlation. It also enables granular exercise of sovereignty in a
         robust, <a target="_blank" href="https://medium.com/evernym/three-dimensions-of-identity-bc06ae4aec1c">
-                multidimensional identity</a>.</p>
-        <img src="pairwise.png"/>
-    </section>
+            multidimensional identity</a>.</p>
+    <img src="pairwise.png"/>
+</section>
 
-    <section>
-        <h2>Grafting Peer DIDs Into Another DID Method Namespace</h2>
-        <p>Because peer DIDs are globally unique at the moment of creation,
-            their <em>numeric basis</em> will not exist on any other blockchain unless someone
-            copies it there. Blockchain-based DID methods
-            can register a peer DID Doc using their own method. As the DID value, they can either
-            combine their own method prefix with peer DID's NSI ("did:peer:1-F1220abcd1234" --> "did:xyz:1-F1220abcd1234"),
-            or they can create a child namespace for peer DIDs beneath their own ("did:peer:1-F1220abcd1234" -->
-            did:xyz:peer:1-F1220abcd1234").</p>
-        <p>If a peer DID is registered and grafted into another DID namespace, using either method,
-            the result is two DIDs with different namespaces, one peer and one anchored, each with
-            its own DID Doc. A decision must be made about which DID is normative for the relationship,
-            or whether both should continue to be used. If both will be used, it should be understood that
-            the two DID Docs hold keys and other data for two different DIDs, regardless of the shared
-            history of those DIDs. Ideally, there would be no difference between the DID Docs stored in each place,
-            but even with the best intentions of the DID controller, differences may arise.</p>
-        <p>One reason why this grafting and cross-registering feature is interesting is that peer DIDs
-            could be supported by existing DID tools (e.g., the universal resolver) that require a
-            blockchain, without any retooling.</p>
-    </section>
+<section>
+    <h2>Grafting Peer DIDs Into Another DID Method Namespace</h2>
+    <p>Because peer DIDs are globally unique at the moment of creation,
+        their <em>numeric basis</em> will not exist on any other blockchain unless someone
+        copies it there. Blockchain-based DID methods
+        can register a peer DID Doc using their own method. As the DID value, they can either
+        combine their own method prefix with peer DID's NSI ("did:peer:1-F1220abcd1234" --> "did:xyz:1-F1220abcd1234"),
+        or they can create a child namespace for peer DIDs beneath their own ("did:peer:1-F1220abcd1234" -->
+        did:xyz:peer:1-F1220abcd1234").</p>
+    <p>If a peer DID is registered and grafted into another DID namespace, using either method,
+        the result is two DIDs with different namespaces, one peer and one anchored, each with
+        its own DID Doc. A decision must be made about which DID is normative for the relationship,
+        or whether both should continue to be used. If both will be used, it should be understood that
+        the two DID Docs hold keys and other data for two different DIDs, regardless of the shared
+        history of those DIDs. Ideally, there would be no difference between the DID Docs stored in each place,
+        but even with the best intentions of the DID controller, differences may arise.</p>
+    <p>One reason why this grafting and cross-registering feature is interesting is that peer DIDs
+        could be supported by existing DID tools (e.g., the universal resolver) that require a
+        blockchain, without any retooling.</p>
+</section>
 
-    <section>
-        <h2>Reference Implementations</h2>
-        <p>The wire format for DID Communication encryption has three independent implementations--one in
-            <a target="_blank" href="https://github.com/hyperledger/indy-sdk/blob/fbad7422/libindy/src/api/crypto.rs#L634">
-                libindy</a>, one in
-            <a target="_blank" href="https://github.com/bcgov/indy-catalyst/blob/bba2ef5c/agent/indy_catalyst_agent/wallet/crypto.py#L402">
-                python with no Indy dependencies</a>, and one in
-            <a target="_blank" href="https://github.com/dbluhm/indy-pack-unpack-js/blob/db9d83e4/index.js">
-                javascript with no Indy dependencies</a>.</p>
-        <p>The connection protocol that creates and registers peer DIDs, including support for DID resolution
-            after forming a connection, has been fully implemented by
+<section>
+    <h2>Reference Implementations</h2>
+    <p>The encryption envelop for DID Communication has three independent implementations--one in
+        <a target="_blank" href="https://github.com/hyperledger/indy-sdk/blob/fbad7422/libindy/src/api/crypto.rs#L634">
+            libindy</a>, one in
+        <a target="_blank" href="https://github.com/bcgov/indy-catalyst/blob/bba2ef5c/agent/indy_catalyst_agent/wallet/crypto.py#L402">
+            python with no Indy dependencies</a>, and one in
+        <a target="_blank" href="https://github.com/dbluhm/indy-pack-unpack-js/blob/db9d83e4/index.js">
+            javascript with no Indy dependencies</a>.</p>
+    <p>The connection protocol that creates and registers peer DIDs, including support for DID resolution
+        after forming a connection, has been fully implemented by
         half a dozen different organizations, as of March 2019. One of these organizations did not use
         libindy. The connection management protocols that allow update of DIDs are in various states of
         implementation. An up-to-date summary of implementation status, including links to the implementations,
-            can be found in the <a target="_blank" href="https://github.com/hyperledger/indy-agent">indy-agent repo on github</a>.</p>
-        <p>There is a formal test suite for the protocols as well, in the same github repo.</p>
-    </section>
+        can be found in the
+        <a target="_blank" href="https://github.com/hyperledger/indy-agent">indy-agent repo on github</a>.</p>
+    <p>There is a formal test suite for the protocols as well, in the same github repo.</p>
+</section>
 
-    <section>
-        <h2>Resources</h2>
-        <p>Developers maintaining this spec and its reference implementations are often found on RocketChat at
-            chat.hyperledger.org, #indy, #indy-sdk, and #aries. You might also connect with them via the Hyperledger Indy
-            mailing list at indy@lists.hyperledger.org, the Hyperledger Aries mailing list at aries@lists.hyperledger.org,
-            in Hyperledger and W3C working groups, or at the semi-annual Internet Identity Workshop conferences.</p>
-    </section>
+<section>
+    <h2>Resources</h2>
+    <p>Developers maintaining this spec and its reference implementations are often found on RocketChat at
+        chat.hyperledger.org, #aries. You might also connect with them via the Hyperledger Aries mailing list at
+        aries@lists.hyperledger.org, in Hyperledger and W3C working groups, or at the semi-annual Internet Identity
+        Workshop conferences.</p>
+</section>
 
-  </body>
+</body>
 </html>

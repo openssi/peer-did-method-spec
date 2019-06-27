@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>Peer DIDs: N-Wise Semantics</title>
+    <style>
+        #instructions {
+          border: dashed 1px black;
+          padding: 1em;
+          background-color:#d0d0d0;
+        }
+        .replace-me {
+          font-style:italic;
+          color:magenta
+        }
+    
+    </style>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common' class='remove'></script>
+    <script class='remove'>
+      var respecConfig = {
+        specStatus: "ED",
+        editors: [
+          {
+            name: "Daniel Hardman",
+            url: "https://github.com/dhh1128",
+            company: "Hyperledger Aries Project / Sovrin Foundation / Evernym",
+            companyURL: "https://github.com/hyperledger/aries",
+            mailto: "daniel.hardman@gmail.com"
+          },
+          {
+            name: "Drummond Reed",
+            url: "https://github.com/talltree",
+            company: "Hyperledger Aries Project / Sovrin Foundation / Evernym",
+            companyURL: "https://github.com/hyperledger/aries"
+          }
+        ],
+        processVersion: 2017,
+        edDraftURI: "https://github.com/openssi/peer-did-method-spec",
+        shortName: "peer-did-method",
+        subtitle: "How n-wise DIDs contrast with anywise and pairwise",
+        github: "https://github.com/openssi/peer-did-method-spec",
+        wg: "greater SSI community",
+        noTOC: true
+      };
+
+    
+    </script>
+</head>
+<body>
+<section id='abstract'>
+    <p>Pairwise usage tends to be obvious--so obvious, in fact, that sometimes people wonder why we can't just model all
+        relationships as combinations of pairs. For example, in a business partnership involving Alice, Bob, and Carol,
+        couldn't we just handle it with the 3 pairwise relationships Alice:Bob, Bob:Carol, and Alice:Carol?
+    </p>
+    <p>The answer is yes--but in doing so we'd give up some characteristics that we sometimes want, and we'd also be
+        departing from a mental model that humans naturally use. This document explores that assertion in greater
+        detail.
+    </p>
+</section>
+<section id='sotd'>
+    <p>
+    </p>
+</section>
+<section>
+    <h1>N-Wise Semantics</h1>
+    <p>
+    <p>N-wise groups often exist alongside pairwise relationships. For example, a 3-wise business
+        partnership between Alice, Bob, and Carol is probably preceded by pairwise relationships between
+        each of the parties. When the business is founded, a new 3-wise relationship is created, with the
+        parties allocating new DIDs, keys, and DID Docs to this relationship independent of the ones
+        they use in their pairwise friendships. This keeps business and personal relationships separate.
+        If a new partner is added, the 3-wise relationship can become 4-wise; if a partner dies, the
+        partnership can lose an active participant, but continue to recognize that party in the
+        relationship history. This shows the close affinity but also the separation between pairwise and
+        n-wise. For more details, see <a target="_blank"
+                href="https://docs.google.com/document/d/1BjYdivGQ9GxIz9CJ2ymNvMA68uHZm8bFOTyCHDmziOU/edit">this
+            exploratory doc</a>.
+    </p>
+    <section>
+        <h2>Features that N-Wise Provides</h2>
+        <dl>
+            <dt>Single signature</dt>
+            <dd>Group member X can sign something once, and all members of the group (plus outside parties who learn X's
+                public key) will agree that DID X signed it. In pairwise, you would have to sign once for each pairwise
+                DID that will have to inspect the signature. Alternatively, you could solve this with a public (non-peer)
+                DID. You could also solve this with a hub-and-spoke model, where each party has a pairwise relationship
+                to the hub, and the hub attests to the validity of the signature. However, that requires all the group
+                members to trust the hub. It is a form of centralization that is contrary to the ethos of peers.
+            </dd>
+            <dt>Multiplexed authenticated encryption</dt>
+            <dd>
+                Group member X can encrypt only once, and all members of the group can decrypt it, can know that X was
+                the sender, and can know that it hasn't been tampered with. Note that this is distinct from signing, and
+                is usually used instead of signing. It is repudiable outside the group, meaning that although the group
+                knows the sender, it cannot prove to an outside auditor that X was the sender. In pairwise, you would
+                have to encrypt once for each pairwise DID. For small messages, this would not be terrible, but if the
+                message includes a massive payload or if the transport is expensive (e.g. dead drop on a blockchain or
+                physically painted on a public wall), it would be unfortunate. This problem cannot be solved with an
+                anywise DID, because an anywise DID only lets the world encrypt to you (inbound); it doesn't let you
+                encrypt to the world (outbound). A weak form of this can be done in the hub-and-spoke model of groups.
+                You encrypt for the hub and ask the hub to re-encrypt for all other parties. However, the hub sees the
+                message as plaintext, which is a security problem.
+            </dd>
+            <dt>Multicast</dt>
+            <dd>Once multiplex-encrypted, message can be broadcast or left at a shared location instead of transmitting
+                point-to-point. Not possible in pairwise; each transmission uses a separate channel. Not possible with
+                anywise. In hub-and-spoke groups, the sender doesn't have to worry about the rebroadcast, but the hub
+                still has to send to each recipient individually. There is no true multicast.
+            </dd>
+            <dt>Ease of reference</dt>
+            <dd>All parties in the relationship can refer to the other parties in the relationship by the same DID.
+                If the group is modeled only as a mesh of pairwise relationships, this becomes a genuine problem. It is
+                challenging for Alice and Bob to refer to Carol in a way that both talkers are guaranteed to understand
+                without coordination. (To be precise, although it may be easy for humans to use fuzzy labels, it is
+                challenging for software agents to do so. When agents for such people engage in protocols, they need
+                precision as they refer to one another, index databases by one another's identifiers, route messages,
+                and so forth.) Correlation can be done via credentials, but there is no guarantee that such credentials
+                have been shared in the same way with all other parties--and even if they have, the correlating data may
+                be packaged in an infinite variety of ways, requiring arbitrary storage complexity. By providing a
+                handle by which all members of the group refer to Carol in the same terse way, Carol is allowed to prove
+                whatever she wants, when she wants, to whoever she wants--but still to be recognized simply within the
+                group as the same person.
+            </dd>
+        </dl>
+    </section>
+    <section>
+        <a name="sweet-spot"></a>
+        <h2>Sweet Spot for N-Wise</h2>
+        <p>
+            Flat (not strongly hierarchical) groups with a small, enumerated set of members, and without a centralizing
+            party that must act as coordinator and dispatcher. Many of the members probably have pairwise relationships
+            with one another, separate from the group relationship--but the group has important coordination needs as a
+            group, as well. Members of the group want to be correlated the same way to all other members in that group
+            context.
+        </p>
+
+        <p>Examples:</p>
+        <ul>
+            <li>Families (parents and siblings to one another)</li>
+            <li>A book group</li>
+            <li>A small unit of military commandos on a special mission</li>
+            <li>A group of threatened journalists</li>
+            <li>A corporate board</li>
+            <li>A business partnership</li>
+            <li>A team of lawyers defending a single client</li>
+            <li>Investigators jointly assigned to a case</li>
+            <li>Academic researchers collaborating to publish an article</li>
+            <li>Drones coordinating to lift a heavy object together</li>
+            <li>Doctor + hospital + patient trying to arrange a procedure involving all 3</li>
+            <li>An appellate court with 5 or 7 judges</li>
+            <li>Study groups in college</li>
+            <li>Developers collaborating on a codebase</li>
+            <li>The cast of a play</li>
+            <li>A string quintet</li>
+        </ul>
+
+    </section>
+    <section>
+        <h2>Situations Where N-Wise Is Not Useful</h2>
+        <p>Large groups. Groups with a centralizing party that always or almost always acts as coordinator and
+            dispatcher. Groups where most members do not know one another and would rarely interact except with the
+            group as a whole. Groups where members don't want to be known to one another.
+        </p>
+
+        <p>Examples:</p>
+        <ul>
+            <li>A teacher and a class of 100 students (too many; teacher centralizes; most interactions are between
+                teacher and student, not between students)</li>
+            <li>An auction with sealed bids (auctioneer centralizes; parties wish to remain anonymous to one another)</li>
+            <li>A gamer in an online game with N other players (easier to centralize than to have gamers communicate
+                directly to one another, and need for security isn't high)</li>
+            <li>A captain in the military to several lieutenants and the various units they each command (hierarchical;
+                too many)</li>
+            <li>A global fan club for a major celebrity</li>
+            <li>The hacker group "anonymous" (n-wise discloses too much; they'd prefer to limit how much is known about
+                the group by any one person, so they want just a network of pairwise)</li>
+        </ul>
+    </section>
+</section>
+</body>
+</html>
