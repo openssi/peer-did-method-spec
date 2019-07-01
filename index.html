@@ -591,8 +591,8 @@
             </code> message informing the sender of hitherto unknown information. As with the ACKs, this new message is
                 known to be a reply to the original <code>sync_state</code> because its <a target="aries"
                 href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0008-message-id-and-threading#threaded-messages">
-                <code>~thread</code> decorator identifies the previous message's <code>@id</code> as its <code>thid
-                </code></a>.
+                <code>~thread</code> decorator identifies the previous message's <code>@id</code> as its
+                <code>thid</code></a>.
             </p>
             <p>If the recipient does not recognize the base_hash, it selects a hash from a point in time earlier than
                 <code>base_hash_time</code> and sends back a new <code>sync_state</code> message with that earlier base.
@@ -711,6 +711,7 @@
         </p>
     </section>
     <section>
+        <a name="authorization"></a>
         <h3>Authorization</h3>
         <p>The keys authorized to participate in a peer relationship should probably not all have the same
             privileges. For example, keys held on paper and locked in a safe are probably more secure than keys stored
