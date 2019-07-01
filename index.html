@@ -329,7 +329,7 @@
         <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
         <ul>
             <li>Create a <dfn>genesis version</dfn> of the DID Doc for the DID. The genesis version must include at
-                least 1 public key that is authorized to <a target="#authentication">authenticate</a> section, because
+                least 1 public key that is authorized to <a href="#authentication">authenticate</a>, because
                 possession of this key is used to eliminate man-in-the-middle attacks during initial DID exchange.
             </li>
             <li>Suppress the root <code>id</code> key and value from the DID document. This creates a variant of the peer
@@ -740,7 +740,7 @@
             privileges, and the concomitant trust, are different. Only the highest-level officials should be signing
             binding international treaties.
         </p>
-        <p>The <a target="authorization"><code>authorization</code> section</a> of peer DID Docs, described next, is
+        <p>The <a href="#authorization"><code>authorization</code> section</a> of peer DID Docs, described next, is
             where fine-grained privileges are described. The <code>authentication</code> section is a blunt instrument,
             incapable of distinguishing between these levels of trust, and incapable of associating trust to anything
             more complex than a single key. It is supported for historical reasons, and because most so-called "DID
@@ -878,7 +878,8 @@
             <a target="aries" href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0051-dkms/dkms-v4.md">
             the DKMS spec</a>.
         </p>
-        <p><a target="sgl">SGL rules</a> are powerful and flexible, and should be used to implement best practices.</p>
+        <p><a target="sgl" href="https://evernym.github.io/sgl/docs/reference.html#rules">SGL rules</a> are powerful and
+            flexible, and should be used to implement best practices.</p>
     </section>
 </section>
 
