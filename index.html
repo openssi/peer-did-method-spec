@@ -336,7 +336,7 @@
                 DID doc known as the <dfn>stored variant</dfn>, as opposed to the <dfn>resolved variant</dfn> that would
                 have an actual DID value in the root <code>id</code> property. (Anywhere else that the DID value would
                 appear, it should appear as a relative reference rather than an absolute value. For example, each
-                <a href="#publicKey"<code>controller</code> property of a publicKey that is owned by this DID would say
+                <code>controller</code> property of a <a href="#publickey">publicKey that is owned by this DID would say
                 <code>"controller": "#id"</code></a>. This is true in both stored and resolved variants of the doc.)
             </li>
             <li>Calculate the SHA256 hash of the bytes of the stored variant of the DID Doc, and assign it
@@ -760,7 +760,7 @@
         </p>
         <p>The second sequence contains <a href="https://evernym.github.io/sgl" target="_blank">SGL</a> rules that grant
             privileges according to named roles. Here is an example that assumes keys with numeric IDs have been defined
-            in a preceding <a href="#publicKey"><code>publicKey</code></a> section:
+            in a preceding <a href="#publickey"><code>publicKey</code></a> section:
         </p>
 
         <pre class="example" title="Sample authorization section">
@@ -839,7 +839,7 @@
                 </p></dd>
 
                 <dt><code>key_admin</code></dt>
-                <dd>The holder of this privilege can add or remove other keys from a peer DID Doc's <a href="#publicKey">
+                <dd>The holder of this privilege can add or remove other keys from a peer DID Doc's <a href="#publickey">
                     <code>publicKey</code> section</a>, <a href="#authentication"><code>authentication</code> section</a>,
                     or <code>authorization.profiles</code> list. Typically this privilege is held only by very privileged
                     keys, or by combinations of keys, to prevent hackers who co-opt one device from adding new, malicious
@@ -847,7 +847,7 @@
                 </dd>
 
                 <dt><code>se_admin</code></dt>
-                <dd><p>The holder of this privilege can add or remove items from a peer DID Doc's <a href="#serviceEndpoint">
+                <dd><p>The holder of this privilege can add or remove items from a peer DID Doc's <a href="#serviceendpoint">
                     <code>serviceEndpoint</code> section</a>.</p>
                 </dd>
 
@@ -864,6 +864,11 @@
                     specify otherwise.
                 </dd>
             </dl>
+        </section>
+        <section>
+            <h3><code><dfn>serviceEndpoint</dfn></code></h3>
+            <p>This section matches the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#service-endpoints">
+                general description in the DID Spec</a>.</p>
         </section>
     </section>
     <section>
