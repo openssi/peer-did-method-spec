@@ -292,17 +292,17 @@
     </section>
     <section>
         <h3>Namespace Specific Identifier (NSI)</h3>
-        <p>The Peer DID scheme is defined by the following <a href="https://tools.ietf.org/html/rfc5234">ABNF</a>:<br>
-            <br>
-            <code>
-                peer-did = "did:peer:" version "-" idstring<br>
-                version = "1"<br>
-                idstring = multibase multihash<br>
-                multibase = "F"</code> <span style="color:green"># See hex in
+        <p>The Peer DID scheme is defined by the following <a href="https://tools.ietf.org/html/rfc5234">ABNF</a>:</p>
+<blockquote>
+    <code>
+        peer-did = "did:peer:" version "-" idstring<br>
+        version = "1"<br>
+        idstring = multibase multihash<br>
+        multibase = "F"</code> <span style="color:green"># See hex in
                 <a target="_blank" href="https://github.com/multiformats/multibase">multibase spec</a></span><br>
-            <code>multihash = "1220" restofhash</code> <span style="color:green"># See sha256+hex in
+    <code>multihash = "1220" restofhash</code> <span style="color:green"># See sha256+hex in
                 <a target="_blank" href="https://github.com/multiformats/multihash">multihash</a> spec</span>
-        </p>
+</blockquote>
         <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the
             source of their uniqueness. This version of the spec (<code>version</code>
             == <code>1</code>) generates the numeric basis from a hash of the initial content
@@ -350,12 +350,14 @@
     </section>
     <section>
         <h3>Examples</h3>
-        <p>A convenient regex to match <code>peer</code> DIDs is: <br><br>
-            <code>^did:peer:1-F1220[a-fA-F0-9]{8,40}$</code>.
-        </p>
-        <p>A valid <code>peer</code> DID might be:
-            <code>did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe</code>.
-        </p>
+        <p>A convenient regex to match <code>peer</code> DIDs is:</p>
+        <blockquote>
+            <code>^did:peer:1-F1220[a-fA-F0-9]{8,40}$</code>
+        </blockquote>
+        <p>A valid <code>peer</code> DID might be:</p>
+        <blockquote>
+            <code>did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe</code>
+        </blockquote>
     </section>
 </section>
 <section>
@@ -496,7 +498,7 @@
             <p>A peer DID can be resolved to a DID Document by sending a <a target="aries"
             href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md#state_request">
             state_request</a> message from one peer to another:</p>
-            <pre>
+            <pre class="example" title="Sample state_request message">
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/state_request",
   "@id": "6a4986dd-f50e-4ed5-a389-718e61517207",
@@ -511,7 +513,7 @@
                 target="aries">state_response</a> message is returned. It includes a DID Doc and some additional
                 metadata, and looks like this:
             </p>
-            <pre>
+            <pre class="example" title="Sample state_response message">
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/state_response",
   "@id": "1517207d-f50e-4ed5-a389-6a4986d718e6",
