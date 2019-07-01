@@ -329,11 +329,15 @@
         <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
         <ul>
             <li>Create a <dfn>genesis version</dfn> of the DID Doc for the DID. The genesis version must include at
-                least one verification key.
+                least 1 public key that is authorized to <a target="#authentication">authenticate</a> section, because
+                possession of this key is used to eliminate man-in-the-middle attacks during initial DID exchange.
             </li>
-            <li>Remove the main <code>id</code> field (the one that would normally contain the DID value) from the DID
-                Doc. This creates a variant of the peer DID doc known as the <dfn>stored variant</dfn>, as opposed to
-                the <dfn>resolved variant</dfn> that would have an actual DID value in the <code>id</code> field.
+            <li>Suppress the root <code>id</code> key and value from the DID document. This creates a variant of the peer
+                DID doc known as the <dfn>stored variant</dfn>, as opposed to the <dfn>resolved variant</dfn> that would
+                have an actual DID value in the root <code>id</code> property. (Anywhere else that the DID value would
+                appear, it should appear as a relative reference rather than an absolute value. For example, each
+                <a href="#publicKey"<code>controller</code> property of a publicKey that is owned by this DID would say
+                <code>"controller": "#id"</code></a>. This is true in both stored and resolved variants of the doc.)
             </li>
             <li>Calculate the SHA256 hash of the bytes of the stored variant of the DID Doc, and assign it
                 as the DID's numeric basis.
@@ -520,7 +524,7 @@
   "@id": "1517207d-f50e-4ed5-a389-6a4986d718e6",
   "~thread": { "thid": "6a4986dd-f50e-4ed5-a389-718e61517207" },
   "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
-  "did_doc": { ...full content of DID Doc... },
+  "did_doc": { ...full content of either the resolved variant of DID Doc... },
   "as_of_time": "2019-07-23 18:05:06.123Z"
 }
             </pre>
@@ -677,7 +681,17 @@
 <section>
     <h2>Sample DID Doc</h2>
     <section>
-        <h3><code><dfn>publicKeys</dfn></code></h3>
+        <h3><code><dfn>publicKey</dfn></code></h3>
+        <p>The <code>publicKey</code> section of a peer DID document is as you would expect from a reading of the
+            <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#authentication">DID spec</a>. However, because
+            peer DIDs usually operate independent of global registries, it will probably be rare to see external
+            references (where <code>controller</code> is not <code>#id</code>).
+        </p>
+        <p>The DID spec allows keys to be defined here, as well as inline in the <code>authentication</code> and
+            <code>authorization</code> sections of a DID Doc. However, peer DID Docs MUST do all of their key definition
+            here. This helps with <a href="https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type"
+            target="_blank">CRDT</a> semantics.
+        </p>
         <pre class="example" title="Sample publicKey section">
 {
     ...
@@ -685,17 +699,17 @@
         {
             "id": "1",
             "type": "RsaVerificationKey2018",
-            "controller": "did:example:123456789abcdefghi",
+            "controller": "#id",
             "publicKeyPem": "-----BEGIN PUBLIC KEY...END PUBLIC KEY-----\r\n"
         }, {
             "id": "2",
             "type": "Ed25519VerificationKey2018",
-            "controller": "did:example:pqrstuvwxyz0987654321",
+            "controller": "#id",
             "publicKeyBase58": "H3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV"
         }, {
             "id": "3",
             "type": "Secp256k1VerificationKey2018",
-            "controller": "did:example:123456789abcdefghi",
+            "controller": "#id",
             "publicKeyHex": "02b97c30de767f084ce3080168ee293053ba33b235d7116a3263d29f1450936b71"
         }
     ],
@@ -706,53 +720,151 @@
     <section>
         <h3><code><dfn>authentication</dfn></code></h3>
         <p>The <code>authentication</code> section of a peer DID document conforms to <a target="didspec"
-            href="https://w3c-ccg.github.io/did-spec/#authentication">standard practice described in the DID spec</a>.
-
+            href="https://w3c-ccg.github.io/did-spec/#authentication">standard practice described in the DID spec</a>
+            -- with the constraint that only references, not inline key definitions, are allowed. Any keys referenced
+            here may be used to authenticate or login as the DID.
         </p>
+        <p>However, the meaning of "authenticate" or "login" deserves comment, because there is a tendency in DID
+            circles to reference too many keys in this section, and because heavy use of this section is discouraged
+            with peer DIDs.
+        </p>
+        <p>A sovereign domain (the scope of things under the control of a single, sovereign identity owner) may include
+            keys that represent the identity owner with greater or lesser degrees of trust. For example, the
+            identity owner may hold one key on paper, locked in a safe; she may hold another key on a mobile device's
+            secure enclave, protected by a biometric; she may hold a third on a server in a config file protected
+            only by an ACL. These keys may all be legitimate evidence that the DID subject is interacting, but
+            they are not equally strong evidence. Only the strongest forms of evidence should be accepted as a
+            basis for authentication when stakes are high.</p>
+        <p>This is not unlike what happens on the political landscape. A low-level diplomat and the president / premier
+            / prime minister of a nation are both authentic representatives of their people--but the scope of their
+            privileges, and the concomitant trust, are different. Only the highest-level officials should be signing
+            binding international treaties.
+        </p>
+        <p>The <a target="authorization"><code>authorization</code> section</a> of peer DID Docs, described next, is
+            where fine-grained privileges are described. The <code>authentication</code> section is a blunt instrument,
+            incapable of distinguishing between these levels of trust, and incapable of associating trust to anything
+            more complex than a single key. It is supported for historical reasons, and because most so-called "DID
+            Authentication" use cases assume it will be populated. With peer DIDs, the strong recommendation is that
+            only keys held by the most trusted proxies should be referenced here. Only list the equivalent of your
+            president / premier / prime minister keys in this section, not the equivalent of keys for your low-level
+            diplomats. This will prevent impersonation by less trusted keys when stakes are high.
+        </p>
+
     </section>
     <section>
         <h3><code><dfn>authorization</dfn></code></h3>
-        <p>The keys authorized to participate in a peer relationship should probably not all have the same
-            privileges. For example, keys held on paper and locked in a safe are probably more secure than keys stored
-            in a config file on a server operating freely on the internet.
+        <p>Peer DID docs organize their <code>authorization</code> section into two sequences. The first, <code>profiles
+            </code>, gives a <dfn>trust profile</dfn> for each key, as expressed by named roles the key holds. These
+            named roles are arbitrary strings chosen by the implementer; their meaning in normal language need not
+            be understood by a party wishing to understand the semantics.
         </p>
-        <p>To cope with this issue, peer DID docs organize their <code>authorization</code> section into two
-            lists. The first describes the <dfn>role</dfn>(s) assigned to each key. The second uses<a target="_blank"
-            href="https://evernym.github.io/sgl">SGL</a> rules that govern privileges for roles. Here is a simple
-            example that assumes keys with numeric IDs like <code>1</code>, <code>2</code>, and <code>3</code> have
-            been defined previously, in the
-            of this section might be:</p>
+        <p>The second sequence contains <a href="https://evernym.github.io/sgl" target="_blank">SGL</a> rules that grant
+            privileges according to named roles. Here is an example that assumes keys with numeric IDs have been defined
+            in a preceding <a href="#publicKey"><code>publicKey</code></a> section:
+        </p>
 
         <pre class="example" title="Sample authorization section">
 “authorization”: {
-    "roles": [
-        {"id": "#1", "roles", ["edge"]},
-        {"id": "#2", "roles", ["cloud"]},
+    "profiles": [
+        {"id": "#1", "roles", ["edge"]},              // key #1 is an "edge" key
+        {"id": "#2", "roles", ["edge", "biometric"]}, // key #2 is an "edge" and a "biometric" key
+        {"id": "#3", "roles", ["cloud"]},             // key #3 is a "cloud" key
+        {"id": "#4", "roles", ["offline"]},           // key #4 is an "offline" key
     ],
     "rules": [
+        { "grant": ["route", "authcrypt"], "when": {"roles": "cloud"} },
+        { "grant": ["authcrypt", "plaintext", "sign"], "when": {"roles": "edge"} },
+        {
+            "grant": ["key_admin", "se_admin", "rules_admin"],
+            "when": {
+                "any": [{"roles": "offline"}, {"roles": "biometric"}],
+                "n": 2
+            }
+        }
     ]
 }
         </pre>
-
-        <p>Basically, authorizations are a series of grants. Grants identify the recipient, which is either a key or a combination of keys, and the privileges that the recipient is receiving.</p>
-
-        <p>An example might be:</p>
-
-        <img src="authorization.png"/>
-
-        <p>What this says is:</p>
-
+        <p>In plain english, these rules say:</p>
         <ul>
-            <li>Key #1 ("let":"#1") can add keys, add key references to the authentication section, remove keys, remove keys from the authentication section, and remove any authorization from any key or group of keys.</li>
-
-            <li>Adding authorizations to a key can be done in either ("let":{"or"...) of the following ways:<br/>
-
-                <ul>
-                    <li>Key #1 and one other key can approve the change.</li>
-                    <li>Any three ("m_of_n":{"m":3...) of keys #2-#5 can approve the change.</li>
-                </ul>
-            </li>
+            <li>Let a key have the "route" and "encrypt" privileges if its set of roles contains "cloud".</li>
+            <li>Let a key have the "encrypt" and "decrypt" privileges if its set of roles contains "edge".</li>
+            <li>Let any 2 keys, acting together, have the "kadmin" and "eadmin" privileges if their roles each contain
+            either "offline" or "biometric".</li>
         </ul>
+
+        <section>
+            <h4>Privilege Inventory</h4>
+            <p>Unlike role names, the privileges named in these rules DO need to be understood by code that parses peer
+                DID Docs; it is these privileges that others in a relationship should enforce. Possible values include:</p>
+            <dl>
+                <dt><code>route</code></dt>
+                <dd>The holder of this privilege is allowed to receive and decrypt <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0094-cross-domain-messaging#required-mediators-process-forward-messages">
+                DIDComm <code>forward</code> messages</a> encrypted for itself, and to forward the contained
+                <a href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0019-encryption-envelope/README.md"
+                target="aries">DIDComm encryption envelope</a> to another key. Holders of these keys thus become aware
+                of the timing and size of some incoming messages for the recipient (though not of the messages' senders
+                or content). This privilege is required and appropriate for any cloud agent or <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0046-mediators-and-relays/README.md">
+                mediator</a> that exposes a service endpoint on behalf of mobile devices or other agents behind a
+                firewall.</dd>
+
+                <dt><code>authcrypt</code></dt>
+                <dd>The holder of this privilege is allowed to create messages and send them with <a target="_blank"
+                        href="https://en.wikipedia.org/wiki/Authenticated_encryption">authenticated encryption</a>
+                that reveals the identity of the sender to the reciever. Most agents are likely to have this privilege,
+                but one designed for passive reception only (e.g., on an IoT sensor) might have it removed; doing so
+                would prevent a hacker from co-opting such a key into sending in a trusted way. Messages that are
+                authcrypted by a key that lacks this privilege should be rejected as illegal.</dd>
+
+                <dt><code>plaintext</code></dt>
+                <dd>The holder of this privilege can see <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0044-didcomm-file-and-mime-types#didcomm-messages-dm">
+                plaintext DIDComm messages</a> intended for an identity owner engaged in a <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0003-protocols/README.md">protocol
+                </a>. External parties sending to the owner of a given DIDDoc should multiplex encrypt for all keys that
+                hold this privilege, except in special circumstances.</dd>
+
+                <dt><code>sign</code></dt>
+                <dd><p>The holder of this privilege can incur binding, contractual obligations on behalf of the DID subject.
+                This may actually be a better test for login or authentication, in many cases, than whether a key appears
+                in the <a href="#authentication"><code>authentication</code> section</a> of the DID Doc; it depends on
+                    what trust is imputed after login.</p>
+                <p>Note that any key holder can sign a DIDComm message; doing so gives non-repudiation to the message.
+                    However, remember our <a href="#authentication">earlier discussion</a> about low-level diplomats
+                    versus the president or prime minister of a country--both are authentic officials, but only the
+                    president or prime minister's signature is binding on an international treaty. This privilege makes
+                    explicit that sort of binding status; any other signatures serve to prove origin with a specific
+                    agent but not the endorsement of the DID subject.
+                </p></dd>
+
+                <dt><code>key_admin</code></dt>
+                <dd>The holder of this privilege can add or remove other keys from a peer DID Doc's <a href="#publicKey">
+                    <code>publicKey</code> section</a>, <a href="#authentication"><code>authentication</code> section</a>,
+                    or <code>authorization.profiles</code> list. Typically this privilege is held only by very privileged
+                    keys, or by combinations of keys, to prevent hackers who co-opt one device from adding new, malicious
+                    keys to the inventory.
+                </dd>
+
+                <dt><code>se_admin</code></dt>
+                <dd><p>The holder of this privilege can add or remove items from a peer DID Doc's <a href="#serviceEndpoint">
+                    <code>serviceEndpoint</code> section</a>.</p>
+                </dd>
+
+                <dt><code>rules_admin</code></dt>
+                <dd><p>The holder of this privilege can add or remove rules from a peer DID Doc's <code>authorization.rules
+                </code> list. Typically this privilege is held only by very privileged keys, or by combinations of keys.</p>
+                </dd>
+
+                <dt><code>rotate</code></dt>
+                <dd>The holder of this privilege can replace its associated key definition, and all references to that
+                    key throughout a DID Doc, with a new key definition and references. If key #2 has this privilege and
+                    exercises it, the result is that key #2 is revoked from the doc, but a new key (perhaps key #7)
+                    appears with exactly the same profile. This privilege is assumed to be held by all keys unless rules
+                    specify otherwise.
+                </dd>
+            </dl>
+        </section>
     </section>
     <section>
         <h3>Key Management</h3>
@@ -761,6 +873,7 @@
             <a target="aries" href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0051-dkms/dkms-v4.md">
             the DKMS spec</a>.
         </p>
+        <p><a target="sgl">SGL rules</a> are powerful and flexible, and should be used to implement best practices.</p>
     </section>
 </section>
 
