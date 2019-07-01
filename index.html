@@ -208,7 +208,7 @@
         <h3>Applicability in Group Relationships</h3>
         <p>Most of this doc is framed by a pairwise Alice:Bob context. This sort of pair (no matter whether its
             members are people, IoT devices, or institutions) will be the most common peer relationship in the SSI
-            landscape. Groups larger than 2 can also have a peer-style relationship--but not all groups will be
+            landscape. Groups larger than 2 can also have a peer-style relationship&mdash;but not all groups will be
             modeled that way. Therefore, applying this method to groups should be done thoughtfully.</p>
         <p>Some groups, such as a doctor, a hospital, and a patient participating in a medical procedure together, are
             <a href="nwise.html#sweet-spot">clearly n-wise</a>. Each party can enumerate all the other parties, and each
@@ -231,7 +231,7 @@
         <h3>Enforcement</h3>
 
         <p>In centralized systems, security is enforced at the center. This is so obvious that we take it for
-            granted--you can't access a database unless you log in first, and it's the database that enforces this.</p>
+            granted&mdash;you can't access a database unless you log in first, and it's the database that enforces this.</p>
 
         <p>Despite their other decentralized features, blockchains are no different in this respect. If a
             blockchain accepts updates to a DID Doc, then the blockchain must guarantee that those updates are
@@ -242,7 +242,7 @@
             inversion of responsibility that must be understood: Bob enforces Alice's <a href="#authorization">
             authorization policy</a>, and Alice enforces Bob's.</p>
 
-        <p>This might seem wrong--shouldn't Alice enforce her own security? But it is quite rational. Who cares
+        <p>This might seem wrong&mdash;shouldn't Alice enforce her own security? But it is quite rational. Who cares
             whether the agents he is dealing with truly belong to Alice and are authorized by her? Bob does.
             And if one of Alice's agents gets hacked and attempts to subvert the Alice:Bob relationship,
             who is the uncontaminated party that can refuse to cooperate with the rogue agent? Bob is.</p>
@@ -280,12 +280,12 @@
         <p>This DID method applies to any identity management implementation that meets the following two
             requirements:</p>
         <ul>
-            <li><em>Generation Algorithm</em> -- The DIDs are created using the <a href="#namespace-specific-identifier-nsi">
+            <li><em>Generation Algorithm</em> &mdash; The DIDs are created using the <a href="#namespace-specific-identifier-nsi">
                 algorithm described below</a>, endowing them with properties vital to trust between peers that is not
                 dependent on a central source of truth.
             </li>
             <li>
-                <em>Protocol</em> -- The metadata for DIDs (what would be stored in an on-chain DID Doc in other methods)
+                <em>Protocol</em> &mdash; The metadata for DIDs (what would be stored in an on-chain DID Doc in other methods)
                 is communicated and maintained as described in the <a href="#protocols">Protocols</a> section.
             </li>
         </ul>
@@ -542,7 +542,7 @@
         <section>
             <h4>Update</h4>
             <p>The subject of a peer DID can update their associated DID Document with anyone who knows the
-                DID--one or more agents of the peer, or agents of the owner itself--by sending a <a target="aries"
+                DID&mdash;one or more agents of the peer, or agents of the owner itself&mdash;by sending a <a target="aries"
                 href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#state_response">
                 sync_state</a> message to another peer. An example of this type of message is:</p>
 
@@ -679,7 +679,7 @@
             "id": "1",
             "type": "RsaVerificationKey2018",
             "controller": "#id",
-            "publicKeyPem": "-----BEGIN PUBLIC KEY...END PUBLIC KEY-----\r\n"
+            "publicKeyPem": "&mdash;&mdash;-BEGIN PUBLIC KEY...END PUBLIC KEY&mdash;&mdash;-\r\n"
         }, {
             "id": "2",
             "type": "Ed25519VerificationKey2018",
@@ -700,7 +700,7 @@
         <h3><code><dfn>authentication</dfn></code></h3>
         <p>The <code>authentication</code> section of a peer DID document conforms to <a target="didspec"
                 href="https://w3c-ccg.github.io/did-spec/#authentication">standard practice described in the DID spec</a>
-            -- with the constraint that only references, not inline key definitions, are allowed. Any keys referenced
+            &mdash; with the constraint that only references, not inline key definitions, are allowed. Any keys referenced
             here may be used to authenticate or login as the DID.
         </p>
         <p>However, the meaning of "authenticate" or "login" deserves comment, because there is a tendency in DID
@@ -715,7 +715,7 @@
             they are not equally strong evidence. Only the strongest forms of evidence should be accepted as a
             basis for authentication when stakes are high.</p>
         <p>This is not unlike what happens on the political landscape. A low-level diplomat and the president / premier
-            / prime minister of a nation are both authentic representatives of their people--but the scope of their
+            / prime minister of a nation are both authentic representatives of their people&mdash;but the scope of their
             privileges, and the concomitant trust, are different. Only the highest-level officials should be signing
             binding international treaties.
         </p>
@@ -811,7 +811,7 @@
                     what trust is imputed after login.</p>
                     <p>Note that any key holder can sign a DIDComm message; doing so gives non-repudiation to the message.
                         However, remember our <a href="#authentication">earlier discussion</a> about low-level diplomats
-                        versus the president or prime minister of a country--both are authentic officials, but only the
+                        versus the president or prime minister of a country&mdash;both are authentic officials, but only the
                         president or prime minister's signature is binding on an international treaty. This privilege makes
                         explicit that sort of binding status; any other signatures serve to prove origin with a specific
                         agent but not the endorsement of the DID subject.
@@ -907,8 +907,8 @@
         target="_blank">DIF's Universal Resolver</a>), or in other circumstances where a peer DID needs some form
         of partially public reference.</p>
     <p>Grafting can be done either by combining another DID method's prefix with peer DID's NSI (<code>
-        "did:peer:1-F1220abcd1234" --> "did:xyz:1-F1220abcd1234"</code>), or by creating a child namespace for peer
-        DIDs beneath another method (<code>"did:peer:1-F1220abcd1234" --> did:xyz:peer:1-F1220abcd1234"</code>).</p>
+        "did:peer:1-F1220abcd1234" &mdash;> "did:xyz:1-F1220abcd1234"</code>), or by creating a child namespace for peer
+        DIDs beneath another method (<code>"did:peer:1-F1220abcd1234" &mdash;> did:xyz:peer:1-F1220abcd1234"</code>).</p>
     <p>If a peer DID is registered and grafted into another DID namespace, using either method,
         the result is two DIDs with different namespaces, one peer and one anchored, each with
         its own DID Doc. A decision must be made about which DID is normative for the relationship,
@@ -920,7 +920,7 @@
 
 <section>
     <h2>Reference Implementations</h2>
-    <p>The encryption envelop for DID Communication has three independent implementations--one in
+    <p>The encryption envelop for DID Communication has three independent implementations&mdash;one in
         <a target="_blank" href="https://github.com/hyperledger/indy-sdk/blob/fbad7422/libindy/src/api/crypto.rs#L634">
             libindy</a>, one in
         <a target="_blank" href="https://github.com/bcgov/indy-catalyst/blob/bba2ef5c/agent/indy_catalyst_agent/wallet/crypto.py#L402">
