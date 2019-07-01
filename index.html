@@ -104,7 +104,7 @@
     </p>
 </section>
 
-<section>
+<section id="intro">
     <h1>Introduction</h1>
 
     <p>Most documentation about DIDs describes them as identifiers that are rooted in a public source of truth like a
@@ -140,8 +140,10 @@
         <h3>Guarantees</h3>
         <p>This spec uses a <a target="aries"
         href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0003-protocols/README.md#what-is-a-protocol">
-            protocol</a>, rather than a public oracle, as the root of trust. It is worthy of trust because it guarantees
-            the following properties:
+            protocol</a>, rather than a public oracle, as the root of trust. This protocol reliably communicates data
+            about peer DIDs and peer DID Docs; peers must persist that data into a local cache or database that functions
+            as the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#dfn-dir">Decentralized Identifier
+            Registry</a> for the method. The method is worthy of trust because it guarantees the following properties:
         </p>
         <dl>
             <dt>DIDs are associated with a key pair at the moment of creation.</dt>
@@ -237,8 +239,8 @@
             authorization section of a DID Doc, and rejecting mischief from hackers.</p>
 
         <p>However, in a peer relationship, there IS no centralized authority. This leads to an interesting
-            inversion of responsibility that must be understood: Bob enforces Alice's authorization policy,
-            and Alice enforces Bob's.</p>
+            inversion of responsibility that must be understood: Bob enforces Alice's <a href="#authorization">
+            authorization policy</a>, and Alice enforces Bob's.</p>
 
         <p>This might seem wrong--shouldn't Alice enforce her own security? But it is quite rational. Who cares
             whether the agents he is dealing with truly belong to Alice and are authorized by her? Bob does.
@@ -251,7 +253,7 @@
     </section>
 </section>
 
-<section>
+<section id="core">
     <h2>Core Characteristics</h2>
     <section>
         <h3>Namestring</h3>
@@ -290,17 +292,17 @@
     </section>
     <section>
         <h3>Namespace Specific Identifier (NSI)</h3>
-        <p>The Peer DID scheme is defined by the following <a href="https://tools.ietf.org/html/rfc5234">ABNF</a>:<br>
-            <br>
-            <code>
-                peer-did = "did:peer:" version "-" idstring<br>
-                version = "1"<br>
-                idstring = multibase multihash<br>
-                multibase = "F"</code> <span style="color:green"># See hex in
+        <p>The Peer DID scheme is defined by the following <a href="https://tools.ietf.org/html/rfc5234">ABNF</a>:</p>
+<blockquote>
+    <code>
+        peer-did = "did:peer:" version "-" idstring<br>
+        version = "1"<br>
+        idstring = multibase multihash<br>
+        multibase = "F"</code> <span style="color:green"># See hex in
                 <a target="_blank" href="https://github.com/multiformats/multibase">multibase spec</a></span><br>
-            <code>multihash = "1220" restofhash</code> <span style="color:green"># See sha256+hex in
-                <a target="_blank" href="https://github.com/multiformats/multihash">multihash</a> spec</span>
-        </p>
+    <code>multihash = "1220" restofhash</code> <span style="color:green"># See sha256+hex in
+                <a target="_blank" href="https://github.com/multiformats/multihash">multihash spec</a></span>
+</blockquote>
         <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the
             source of their uniqueness. This version of the spec (<code>version</code>
             == <code>1</code>) generates the numeric basis from a hash of the initial content
@@ -348,15 +350,18 @@
     </section>
     <section>
         <h3>Examples</h3>
-        <p>A convenient regex to match <code>peer</code> DIDs is: <br><br>
-            <code>^did:peer:1-F1220[a-fA-F0-9]{8,40}$</code>.
-        </p>
-        <p>A valid <code>peer</code> DID might be:
-            <code>did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe</code>.
-        </p>
+        <p>A convenient regex to match <code>peer</code> DIDs is:</p>
+        <blockquote>
+            <code>^did:peer:1-F1220[a-fA-F0-9]{8,40}$</code>
+        </blockquote>
+        <p>A valid <code>peer</code> DID might be:</p>
+        <blockquote>
+            <code>did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe</code>
+        </blockquote>
     </section>
 </section>
-<section>
+
+<section id="protocols">
     <h2>Protocols</h2>
     <section>
         <h3>Roles and Agents</h3>
@@ -494,7 +499,7 @@
             <p>A peer DID can be resolved to a DID Document by sending a <a target="aries"
             href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md#state_request">
             state_request</a> message from one peer to another:</p>
-            <pre>
+            <pre class="example" title="Sample state_request message">
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/state_request",
   "@id": "6a4986dd-f50e-4ed5-a389-718e61517207",
@@ -509,30 +514,13 @@
                 target="aries">state_response</a> message is returned. It includes a DID Doc and some additional
                 metadata, and looks like this:
             </p>
-            <pre>
+            <pre class="example" title="Sample state_response message">
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/state_response",
   "@id": "1517207d-f50e-4ed5-a389-6a4986d718e6",
   "~thread": { "thid": "6a4986dd-f50e-4ed5-a389-718e61517207" },
   "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
-  "did_doc": {
-      "@context": "https://w3id.org/did/v1",
-      "id": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
-      "publicKey": [
-        {"id": "routing", "type": "Ed25519Verkey2018",  "owner":
-                "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
-                "publicKey": "4x6qAfCNrqQqEB3nS7Zfu7K8HH5gYEeNc3z7PYXmd54d"},
-        {"id": "1", "type": "Ed25519Verkey2018",  "owner":
-                "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
-                "publicKey": "Ar5P8bBr3vXMguTw3U14S6mN2rxrDsYV8Tt75FZ2ZTu4"}
-      ],
-      "authentication": [
-        {"type": "Ed25519Verkey2018", "publicKey": "#1"}
-      ],
-      "service": [
-        {"type": "Agency", "serviceEndpoint": "did:sov:Av1e1Cpu2MavT6QN8nuLJ4" }
-      ]
-  },
+  "did_doc": { ...full content of DID Doc... },
   "as_of_time": "2019-07-23 18:05:06.123Z"
 }
             </pre>
@@ -551,7 +539,7 @@
                 href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#state_response">
                 sync_state</a> message to another peer. An example of this type of message is:</p>
 
-            <pre>
+            <pre class="example" title="Sample sync_state message">
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/sync_state",
   "@id": "e61586dd-f50e-4ed5-a389-716a49817207",
@@ -603,8 +591,8 @@
             </code> message informing the sender of hitherto unknown information. As with the ACKs, this new message is
                 known to be a reply to the original <code>sync_state</code> because its <a target="aries"
                 href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0008-message-id-and-threading#threaded-messages">
-                <code>~thread</code> decorator identifies the previous message's <code>@id</code> as its <code>thid
-                </code></a>.
+                <code>~thread</code> decorator identifies the previous message's <code>@id</code> as its
+                <code>thid</code></a>.
             </p>
             <p>If the recipient does not recognize the base_hash, it selects a hash from a point in time earlier than
                 <code>base_hash_time</code> and sends back a new <code>sync_state</code> message with that earlier base.
@@ -632,7 +620,7 @@
                 Formally terminating a connection happens by sending a <a target="aries"
                 href="ttps://github.com/hyperledger/aries-rfcs/tree/master/features/0030-sync-connection#leave"><code>
                 leave</code> message</a> to a peer:</p>
-            <pre>
+            <pre class="example" title="Sample leave message">
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/leave",
   "@id": "c17147d2-ada6-4d3c-a489-dc1e1bf778ab",
@@ -652,7 +640,7 @@
                 <code>~please_ack</code> decorator</a> is optional. It asks the receiver to send an acknowledgement that
                 it has processed the message. If used, the receiver should send an ACK that looks like this:</p>
 
-            <pre>
+            <pre class="example" title="Sample ACK">
 {
 "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/ack",
 "@thread": { "thid": "c17147d2-ada6-4d3c-a489-dc1e1bf778ab" }
@@ -673,37 +661,78 @@
             exchanged data, regardless of the transport mechanism used to transmit the messages.</p>
     </section>
     <section>
-        <h3>Cryptonyms</h3>
+        <h3>Proof of Control</h3>
         <p>Because peer DIDs are generated from an algorithm that includes the values of their initial public key(s)
             as input, they cannot be created without the creator controlling them. As mentioned earlier, this prevents
             man-in-the-middle attacks at the time of creation.
+        </p>
+    </section>
+    <section>
+        <h3>Entropy</h3>
+        <p>
             Since keys must be created from keys generated by a secure random number generator, they are guaranteed
             to be unpredictable and globally unique at creation time.</p>
     </section>
+</section>
+<section>
+    <h2>Sample DID Doc</h2>
     <section>
-        <h3>Key Authorizations</h3>
-        <p>The keys authorized to participate in a peer relationship may not all have the same
-            privileges. All keys have the privilege of rotating themselves. Keys that have the privilege
-            of adding keys can only add keys with equal or lesser privileges than themselves. All other
-            authorizations on keys must be specified in the <code>authorization</code> section of a peer DID doc.
-            Its structure is:</p>
+        <h3><code><dfn>publicKeys</dfn></code></h3>
+        <pre class="example" title="Sample publicKey section">
+{
+    ...
+    "publicKey": [
+        {
+            "id": "1",
+            "type": "RsaVerificationKey2018",
+            "controller": "did:example:123456789abcdefghi",
+            "publicKeyPem": "-----BEGIN PUBLIC KEY...END PUBLIC KEY-----\r\n"
+        }, {
+            "id": "2",
+            "type": "Ed25519VerificationKey2018",
+            "controller": "did:example:pqrstuvwxyz0987654321",
+            "publicKeyBase58": "H3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV"
+        }, {
+            "id": "3",
+            "type": "Secp256k1VerificationKey2018",
+            "controller": "did:example:123456789abcdefghi",
+            "publicKeyHex": "02b97c30de767f084ce3080168ee293053ba33b235d7116a3263d29f1450936b71"
+        }
+    ],
+    ...
+}
+        </pre>
+    </section>
+    <section>
+        <h3><code><dfn>authentication</dfn></code></h3>
+        <p>The <code>authentication</code> section of a peer DID document conforms to <a target="didspec"
+            href="https://w3c-ccg.github.io/did-spec/#authentication">standard practice described in the DID spec</a>.
 
-        <p>
-            “authorization”: [ list of <b>grant</b>s ]<br/>
-            <b>grant</b> = { "let": <b>recipient</b> , “do”: <b>privs</b> }<br/>
-            <b>recipient block</b> = one of the following:<br/>
-            &nbsp;&nbsp;&nbsp;&nbsp;“key”: keyref, e.g., “#1”<br/>
-            &nbsp;&nbsp;&nbsp;&nbsp;"group":<br/>
-            &nbsp;&nbsp;&nbsp;&nbsp;“and”: [ list of recipient block ]<br/>
-            &nbsp;&nbsp;&nbsp;&nbsp;“or”: [ list of recipient block ]<br/>
-            &nbsp;&nbsp;&nbsp;&nbsp;“m_of_n”: {“m”: number, “n”: [ list of recipient block ]}<br/>
-            <b>privs</b> = a string that enumerates the privileges being granted.
-            This string is list-like but is not modeled using a JSON list or dict
-            because of some specialized syntax that conflicts with canonicalization
-            requirements. Its format is a space-delimited list of privileges in string form, where each
-            privilege is an op code name. The list must be sorted in ascending
-            alphabetical order to aid normalization.
         </p>
+    </section>
+    <section>
+        <h3><code><dfn>authorization</dfn></code></h3>
+        <p>The keys authorized to participate in a peer relationship should probably not all have the same
+            privileges. For example, keys held on paper and locked in a safe are probably more secure than keys stored
+            in a config file on a server operating freely on the internet.
+        </p>
+        <p>To cope with this issue, peer DID docs organize their <code>authorization</code> section into two
+            lists. The first describes the <dfn>role</dfn>(s) assigned to each key. The second uses<a target="_blank"
+            href="https://evernym.github.io/sgl">SGL</a> rules that govern privileges for roles. Here is a simple
+            example that assumes keys with numeric IDs like <code>1</code>, <code>2</code>, and <code>3</code> have
+            been defined previously, in the
+            of this section might be:</p>
+
+        <pre class="example" title="Sample authorization section">
+“authorization”: {
+    "roles": [
+        {"id": "#1", "roles", ["edge"]},
+        {"id": "#2", "roles", ["cloud"]},
+    ],
+    "rules": [
+    ]
+}
+        </pre>
 
         <p>Basically, authorizations are a series of grants. Grants identify the recipient, which is either a key or a combination of keys, and the privileges that the recipient is receiving.</p>
 
