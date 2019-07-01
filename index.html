@@ -104,7 +104,7 @@
     </p>
 </section>
 
-<section>
+<section id="intro">
     <h1>Introduction</h1>
 
     <p>Most documentation about DIDs describes them as identifiers that are rooted in a public source of truth like a
@@ -253,7 +253,7 @@
     </section>
 </section>
 
-<section>
+<section id="core">
     <h2>Core Characteristics</h2>
     <section>
         <h3>Namestring</h3>
@@ -301,7 +301,7 @@
         multibase = "F"</code> <span style="color:green"># See hex in
                 <a target="_blank" href="https://github.com/multiformats/multibase">multibase spec</a></span><br>
     <code>multihash = "1220" restofhash</code> <span style="color:green"># See sha256+hex in
-                <a target="_blank" href="https://github.com/multiformats/multihash">multihash</a> spec</span>
+                <a target="_blank" href="https://github.com/multiformats/multihash">multihash spec</a></span>
 </blockquote>
         <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the
             source of their uniqueness. This version of the spec (<code>version</code>
@@ -360,7 +360,8 @@
         </blockquote>
     </section>
 </section>
-<section>
+
+<section id="protocols">
     <h2>Protocols</h2>
     <section>
         <h3>Roles and Agents</h3>
@@ -519,24 +520,7 @@
   "@id": "1517207d-f50e-4ed5-a389-6a4986d718e6",
   "~thread": { "thid": "6a4986dd-f50e-4ed5-a389-718e61517207" },
   "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
-  "did_doc": {
-      "@context": "https://w3id.org/did/v1",
-      "id": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
-      "publicKey": [
-        {"id": "routing", "type": "Ed25519Verkey2018",  "owner":
-                "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
-                "publicKey": "4x6qAfCNrqQqEB3nS7Zfu7K8HH5gYEeNc3z7PYXmd54d"},
-        {"id": "1", "type": "Ed25519Verkey2018",  "owner":
-                "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
-                "publicKey": "Ar5P8bBr3vXMguTw3U14S6mN2rxrDsYV8Tt75FZ2ZTu4"}
-      ],
-      "authentication": [
-        {"type": "Ed25519Verkey2018", "publicKey": "#1"}
-      ],
-      "service": [
-        {"type": "Agency", "serviceEndpoint": "did:sov:Av1e1Cpu2MavT6QN8nuLJ4" }
-      ]
-  },
+  "did_doc": { ...full content of DID Doc... },
   "as_of_time": "2019-07-23 18:05:06.123Z"
 }
             </pre>
