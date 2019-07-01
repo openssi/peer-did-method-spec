@@ -302,7 +302,7 @@
         multibase = "F"</code> <span style="color:green"># See hex in
                 <a target="multibase" href="https://github.com/multiformats/multibase">multibase spec</a></span><br>
     <code>multihash = "1220" restofhash</code> <span style="color:green"># See sha256+hex in
-                <a target="multihash" href="https://github.com/multiformats/multihash">multihash spec</a></span>
+                <a target="multihash" href="https://multiformats.io/multihash/">multihash spec</a></span>
 </blockquote>
         <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the
             source of their uniqueness. This version of the spec (<code>version</code>
@@ -310,7 +310,7 @@
             of a DID Doc (see next section). Subsequent versions of the spec may describe
             additional generation methods as needed.</p>
         <p>This <em>numeric basis</em> is encoded as a hash using the
-            <a target="multihash" href="https://github.com/multiformats/multihash">multihash</a> prefix
+            <a target="multihash" href="https://multiformats.io/multihash/">multihash</a> prefix
             for sha256+hex: "1220". Although this prefix is redundant today, a multihash prefix is used
             so that a different digest or encoding may be selected in the future.</p>
         <p>The multihash value is preceded by a <a target="multibase"
@@ -329,16 +329,17 @@
         <h3>Namestring Generation Method</h3>
         <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
         <ul>
-            <li>Create a <dfn>genesis version</dfn> of the DID Doc for the DID. The genesis version must include at
+            <li>Create a <dfn>genesis version</dfn> of the DID Doc for the DID. The genesis version MUST include at
                 least 1 public key that is authorized to <a href="#authentication">authenticate</a>, because
                 possession of this key is used to eliminate man-in-the-middle attacks during initial DID exchange.
-            </li>
-            <li>Suppress the root <code>id</code> key and value from the DID document. This creates a variant of the peer
-                DID doc known as the <dfn>stored variant</dfn>, as opposed to the <dfn>resolved variant</dfn> that would
-                have an actual DID value in the root <code>id</code> property. (Anywhere else that the DID value would
+                It MUST NOT include DID value itself (the root <code>id</code> key and value of the DID document). This
+                lets the doc be created without knowing the DID's value in advance, solving a chicken-and-egg problem.
+                It creates a variant of the peer DID doc known as the <dfn>stored variant</dfn>, as opposed to the
+                <dfn>resolved variant</dfn> that would have an actual DID value in the root <code>id</code> property.
+                (In either the stored or resolved variant of the doc, anywhere else that the DID value would
                 appear, it should appear as a relative reference rather than an absolute value. For example, each
                 <code>controller</code> property of a <a href="#publickey">publicKey that is owned by this DID would say
-                <code>"controller": "#id"</code></a>. This is true in both stored and resolved variants of the doc.)
+                <code>"controller": "#id"</code></a>.)
             </li>
             <li>Calculate the SHA256 hash of the bytes of the stored variant of the DID Doc, and assign it
                 as the DID's numeric basis.
@@ -363,6 +364,7 @@
         <blockquote>
             <code>did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe</code>
         </blockquote>
+        <p>Examples of a DID Doc for this method are explored in greater detail <a href="did-doc-structure">below</a>.</p>
     </section>
 </section>
 
@@ -381,13 +383,13 @@
             and hardware that proxy them. They may need to reveal a modest amount of information about such <a
             target="aries" href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0004-agents/README.md">
             agents</a> to achieve cooperative security. For example, Alice may control 3 devices and may wish to protect
-            herself from hacking by saying that at least 2 of her existing devices must agree before a new
-            device can be added or an existing device can be revoked. This requires her to share her M-of-N
-            policy with Bob, with enough information about agent keys that he can validate a multi-party
-            digital signature. Thus, our protocol must occasionally contemplate details about this more
-            granular level of each peer's <a target="glossary"
-                    href="https://docs.google.com/document/d/1gfIz5TT0cNp2kxGMLFXr19x1uoZsruUe_0glHst2fZ8/edit#heading=h.pufsrf9ucjvv">
-                sovereign domain</a>.
+            herself from hacking by saying that at least 2 of her existing devices must agree before a new device can be
+            added or an existing device can be revoked. This requires her to share her M-of-N <a href="#authorization">
+            authorization policy</a> with Bob, with enough information about agent keys that he can validate a multi-party
+            digital signature. Thus, our protocol must occasionally contemplate details about this more granular level
+            of each peer's <a target="glossary"
+            href="https://docs.google.com/document/d/1gfIz5TT0cNp2kxGMLFXr19x1uoZsruUe_0glHst2fZ8/edit#heading=h.pufsrf9ucjvv">
+            sovereign domain</a>.
         </p>
     </section>
 
