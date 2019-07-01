@@ -539,7 +539,7 @@
                 href="https://github.com/hyperledger/indy-hipe/blob/826ce818/text/conn-mgmt-protocols/README.md#state_response">
                 sync_state</a> message to another peer. An example of this type of message is:</p>
 
-            <pre>
+            <pre class="example" title="Sample sync_state message">
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/sync_state",
   "@id": "e61586dd-f50e-4ed5-a389-716a49817207",
@@ -620,7 +620,7 @@
                 Formally terminating a connection happens by sending a <a target="aries"
                 href="ttps://github.com/hyperledger/aries-rfcs/tree/master/features/0030-sync-connection#leave"><code>
                 leave</code> message</a> to a peer:</p>
-            <pre>
+            <pre class="example" title="Sample leave message">
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/leave",
   "@id": "c17147d2-ada6-4d3c-a489-dc1e1bf778ab",
@@ -640,7 +640,7 @@
                 <code>~please_ack</code> decorator</a> is optional. It asks the receiver to send an acknowledgement that
                 it has processed the message. If used, the receiver should send an ACK that looks like this:</p>
 
-            <pre>
+            <pre class="example" title="Sample ACK">
 {
 "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync_connection/1.0/ack",
 "@thread": { "thid": "c17147d2-ada6-4d3c-a489-dc1e1bf778ab" }
