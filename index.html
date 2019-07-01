@@ -687,10 +687,10 @@
             peer DIDs usually operate independent of global registries, it will probably be rare to see external
             references (where <code>controller</code> is not <code>#id</code>).
         </p>
-        <p>The DID spec allows keys to be defined here, as well as inline in the <code>authentication</code> and
-            <code>authorization</code> sections of a DID Doc. However, peer DID Docs MUST do all of their key definition
-            here. This helps with <a href="https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type"
-            target="_blank">CRDT</a> semantics.
+        <p>Peer DID Docs MUST do all of their key definition in this section, even though the DID spec says it is
+            permissible for DID methods to allow inline definitions in the <code>authentication</code> and
+            <code>authorization</code> sections of a DID Doc. This helps with <a target="blank"
+            href="https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type">CRDT</a> semantics.
         </p>
         <pre class="example" title="Sample publicKey section">
 {
