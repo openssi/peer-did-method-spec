@@ -91,12 +91,12 @@
 <body>
 
 <section id='abstract'>
-    <p>This document defines a "peer" <a href="https://w3c-ccg.github.io/did-spec/#specific-did-method-schemes">
-        DID Method</a> that conforms to the <a href="https://w3c-ccg.github.io/did-spec/">DID Spec</a>. The method
-        can be used independent of any central source of truth, and is intended to be cheap,
-        fast, scalable, and secure. It is suitable for most private relationships between people, organizations, and
-        things. We expect that peer-to-peer relationships in every blockchain ecosystem can benefit by offloading
-        pairwise and n-wise relationships to peer DIDs.</p>
+    <p>This document defines a "peer" <a href="https://w3c-ccg.github.io/did-spec/#specific-did-method-schemes"
+        target="didspec">DID Method</a> that conforms to the <a href="https://w3c-ccg.github.io/did-spec/"
+        target="didspec">DID Spec</a>. The method can be used independent of any central source of truth, and is
+        intended to be cheap, fast, scalable, and secure. It is suitable for most private relationships between people,
+        organizations, and things. We expect that peer-to-peer relationships in every blockchain ecosystem can benefit
+        by offloading pairwise and n-wise relationships to peer DIDs.</p>
 </section>
 
 <section id='sotd'>
@@ -215,8 +215,8 @@
             party uses the same identifier in all directions within the group:
         </p>
         <img src="n-wise.png"/>
-        <p>(See <a target="aries" href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0006-ssi-notation/README.md">
-            Aries RFC 0006</a> for help with the notation used in the diagram.)</p>
+        <p>(See <a href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0006-ssi-notation/README.md"
+            target="aries">Aries RFC 0006</a> for help with the notation used in the diagram.)</p>
         <p>But groups can also be modeled with a hub-and-spoke model. That model is commonly used in group chats,
             for example: each member of the group chat sends and receives via a central service, which in turn
             broadcasts to all other members of the group. This hub-and-spoke model is actually just a pairwise
@@ -272,7 +272,7 @@
             a dead drop on blockchain 1, then change to blockchain 2, then change to blockchains 3 and 4 at
             the same time. Therefore, "peer" belongs at the top of the DID namespace. How this method may be
             used in conjunction with various blockchains is discussed <a
-            href="#grafting-peer-dids-into-another-did-method-namespace">later</a>.
+            href="#grafting">later</a>.
         </p>
     </section>
     <section>
@@ -292,16 +292,17 @@
     </section>
     <section>
         <h3>Namespace Specific Identifier (NSI)</h3>
-        <p>The Peer DID scheme is defined by the following <a href="https://tools.ietf.org/html/rfc5234">ABNF</a>:</p>
+        <p>The Peer DID scheme is defined by the following <a target="rfc" href="https://tools.ietf.org/html/rfc5234">
+            ABNF</a>:</p>
 <blockquote>
     <code>
         peer-did = "did:peer:" version "-" idstring<br>
         version = "1"<br>
         idstring = multibase multihash<br>
         multibase = "F"</code> <span style="color:green"># See hex in
-                <a target="_blank" href="https://github.com/multiformats/multibase">multibase spec</a></span><br>
+                <a target="multibase" href="https://github.com/multiformats/multibase">multibase spec</a></span><br>
     <code>multihash = "1220" restofhash</code> <span style="color:green"># See sha256+hex in
-                <a target="_blank" href="https://github.com/multiformats/multihash">multihash spec</a></span>
+                <a target="multihash" href="https://github.com/multiformats/multihash">multihash spec</a></span>
 </blockquote>
         <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the
             source of their uniqueness. This version of the spec (<code>version</code>
@@ -309,10 +310,10 @@
             of a DID Doc (see next section). Subsequent versions of the spec may describe
             additional generation methods as needed.</p>
         <p>This <em>numeric basis</em> is encoded as a hash using the
-            <a target="_blank" href="https://github.com/multiformats/multihash">multihash</a> prefix
+            <a target="multihash" href="https://github.com/multiformats/multihash">multihash</a> prefix
             for sha256+hex: "1220". Although this prefix is redundant today, a multihash prefix is used
             so that a different digest or encoding may be selected in the future.</p>
-        <p>The multihash value is preceded by a <a target="_blank"
+        <p>The multihash value is preceded by a <a target="multibase"
                 href="https://github.com/multiformats/multibase">multibase prefix</a> that tells how to
             interpret the multihash that follows. Since the multihash value is hex in
             this version of the spec, <code>multibase</code> is always "F" today; if the
@@ -384,7 +385,7 @@
             device can be added or an existing device can be revoked. This requires her to share her M-of-N
             policy with Bob, with enough information about agent keys that he can validate a multi-party
             digital signature. Thus, our protocol must occasionally contemplate details about this more
-            granular level of each peer's <a target="_blank"
+            granular level of each peer's <a target="glossary"
                     href="https://docs.google.com/document/d/1gfIz5TT0cNp2kxGMLFXr19x1uoZsruUe_0glHst2fZ8/edit#heading=h.pufsrf9ucjvv">
                 sovereign domain</a>.
         </p>
@@ -403,9 +404,9 @@
             <dd>That is, the messages can flow over any combination of HTTP, Bluetooth, NFC, email, AMPRNet (TCP/IP over
                 ham radio), snail mail, sneakernet, intermediaries, or future protocols we have not yet imagined.
             </dd>
-            <dt>Messages are <a target="_blank" href="https://tools.ietf.org/html/rfc8259">JSON</a>.</dt>
-            <dd>They are compatible with <a target="_blank" href="https://w3c.github.io/json-ld-syntax/#basic-concepts">
-                basic concepts of JSON-LD</a>, but <a target="_blank"
+            <dt>Messages are <a target="rfc" href="https://tools.ietf.org/html/rfc8259">JSON</a>.</dt>
+            <dd>They are compatible with <a target="jsonld" href="https://w3c.github.io/json-ld-syntax/#basic-concepts">
+                basic concepts of JSON-LD</a>, but <a target="jsonld"
                     href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0047-json-ld-compatibility/README.md">
                 no deep knowledge of JSON-LD is required to understand them, and no dependency
                 on JSON-LD libraries is necessary</a>. The specifics of the JSON format are discussed below.
@@ -414,14 +415,14 @@
             <dd>
                 <p>This method associates security guarantees with the message envelope rather than the transport, and is
                 aligned philosophically with the approach of <a href="https://datatracker.ietf.org/wg/mls/about/"
-                target="_blank">IETF's Message Level Security initiative</a>. However, the first version of this spec
+                target="rfc">IETF's Message Level Security initiative</a>. However, the first version of this spec
                 predates MLS's maturity, so the wire format uses <a href="https://www.rfc-editor.org/rfc/rfc7516.txt"
-                target="_blank">JWEs</a> with some extensions, instead. The extensions allow the same message to be
+                target="rfc">JWEs</a> with some extensions, instead. The extensions allow the same message to be
                 encrypted once for multiple recipients and sent to them all in an efficient manner:
                 </p>
                 <img src="multiplex.png"/>
                 <p>These extensions are under review by the maintainers of JWE/JWT and are likely to be mainstreamed
-                    eventually. The particulars are detailed in <a target="_blank"
+                    eventually. The particulars are detailed in <a target="aries"
                     href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0019-encryption-envelope/README.md">
                     a doc</a> that explains how agents in the Hyperledger Aries ecosystem have implemented the format -
                     but the format is easy to implement without any Aries dependencies, and its design has no connection
@@ -490,7 +491,7 @@
                 invitation matches with the verification key. Once the pair of Peer DID is established, the invitee can
                 ask the inviter for proof-of-control of that initial verification key. In any case, further action is
                 advisable to build deeper trust about the identity of other side. This likely includes mutual exchange
-                of <a href="https://w3c.github.io/vc-data-model/">verifiable credentials</a>.
+                of <a target="vcspec" href="https://w3c.github.io/vc-data-model/">verifiable credentials</a>.
             </p>
         </section>
 
@@ -689,7 +690,7 @@
         </p>
         <p>Peer DID Docs MUST do all of their key definition in this section, even though the DID spec says it is
             permissible for DID methods to allow inline definitions in the <code>authentication</code> and
-            <code>authorization</code> sections of a DID Doc. This helps with <a target="blank"
+            <code>authorization</code> sections of a DID Doc. This helps with <a target="wikipedia"
             href="https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type">CRDT</a> semantics.
         </p>
         <pre class="example" title="Sample publicKey section">
@@ -758,7 +759,7 @@
             named roles are arbitrary strings chosen by the implementer; their meaning in normal language need not
             be understood by a party wishing to understand the semantics.
         </p>
-        <p>The second sequence contains <a href="https://evernym.github.io/sgl" target="_blank">SGL</a> rules that grant
+        <p>The second sequence contains <a href="https://evernym.github.io/sgl" target="sgl">SGL</a> rules that grant
             privileges according to named roles. Here is an example that assumes keys with numeric IDs have been defined
             in a preceding <a href="#publickey"><code>publicKey</code></a> section:
         </p>
@@ -810,7 +811,7 @@
                 firewall.</dd>
 
                 <dt><code>authcrypt</code></dt>
-                <dd>The holder of this privilege is allowed to create messages and send them with <a target="_blank"
+                <dd>The holder of this privilege is allowed to create messages and send them with <a target="wikipedia"
                         href="https://en.wikipedia.org/wiki/Authenticated_encryption">authenticated encryption</a>
                 that reveals the identity of the sender to the reciever. Most agents are likely to have this privilege,
                 but one designed for passive reception only (e.g., on an IoT sensor) might have it removed; doing so
