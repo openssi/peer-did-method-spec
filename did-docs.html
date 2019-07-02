@@ -48,9 +48,8 @@
             with a <code>publicKeyPem</code> property that begins, after its <code>-----BEGIN PUBLIC KEY</code>
             delimiter, with the value <code>izfrNTmQ</code>, would have an <code>id</code> of <code>izfrNTmQ</code>.
         </li>
-        <li>A <a target="rfc" href="https://tools.ietf.org/html/rfc4122">standard 128-bit UUID of type 1, 2, 3, 4,
-            or 5</a>, rendered with hyphens and in lower case (as required by the UUID RFC), may be used as the
-            <code>id</code> instead.</li>
+        <li>A standard 128-bit UUID of type 1, 2, 3, 4, or 5 (see [[!RFC4122]]), rendered with hyphens and in lower
+            case (as required by the UUID RFC), may be used as the<code>id</code> instead.</li>
     </ul>
     <p class="note">All IDs in DID Docs, including these, should be considered case-sensitive. Ignoring case will result
         in invalid comparisons for key <code>id</code>s based on encodings that are not hex.

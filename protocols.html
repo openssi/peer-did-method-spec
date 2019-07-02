@@ -35,7 +35,7 @@
         <dd>That is, the messages can flow over any combination of HTTP, Bluetooth, NFC, email, AMPRNet (TCP/IP over
             ham radio), snail mail, sneakernet, intermediaries, or future protocols we have not yet imagined.
         </dd>
-        <dt>Messages are <a target="rfc" href="https://tools.ietf.org/html/rfc8259">JSON</a>.</dt>
+        <dt>Messages are JSON ([[RFC8259]]).</dt>
         <dd>They are compatible with <a target="jsonld" href="https://w3c.github.io/json-ld-syntax/#basic-concepts">
             basic concepts of JSON-LD</a>, but <a target="jsonld"
                 href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0047-json-ld-compatibility/README.md">
@@ -47,8 +47,8 @@
             <p>This method associates security guarantees with the message envelope rather than the transport, and is
                 aligned philosophically with the approach of <a href="https://datatracker.ietf.org/wg/mls/about/"
                         target="rfc">IETF's Message Level Security initiative</a>. However, the first version of this spec
-                predates MLS's maturity, so the wire format uses <a href="https://www.rfc-editor.org/rfc/rfc7516.txt"
-                        target="rfc">JWEs</a> with <a href="https://github.com/openssi/peer-did-method-spec/issues/14#issuecomment-493626810"
+                predates MLS's maturity, so the wire format uses JWEs ([[RFC7516]]) with
+                <a href="https://github.com/openssi/peer-did-method-spec/issues/14#issuecomment-493626810"
                         target="_blank">some extensions</a>, instead. The extensions allow the same message to be
                 encrypted once for multiple recipients and sent to them all in an efficient manner:
             </p>
