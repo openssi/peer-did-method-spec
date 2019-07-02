@@ -83,7 +83,8 @@
         shortName: "peer-did-method",
         subtitle: "A blockchain-agnostic decentralized identifier method",
         github: "https://github.com/openssi/peer-did-method-spec",
-        wg: "greater SSI community"
+        wg: "greater SSI community",
+        pluralize: true
       };
 
     </script>
@@ -532,7 +533,7 @@
   "as_of_time": "2019-07-23 18:05:06.123Z"
 }
             </pre>
-            <p>Note the use of <code>~thread</code> in the response, with <code>thid</code> equal to the
+            <p class="note">Note the use of <code>~thread</code> in the response, with <code>thid</code> equal to the
                 <code>@id</code> property of the previous request, to connect the two messages. This is a
                 <a target="aries"
                 href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0008-message-id-and-threading#threaded-messages">
@@ -713,7 +714,7 @@
                 or 5</a>, rendered with hyphens and in lower case (as required by the UUID RFC), may be used as the
                 <code>id</code> instead.</li>
         </ul>
-        <p>Note that all IDs in DID Docs, including these, should be considered case-sensitive. Ignoring case will result
+        <p class="note">All IDs in DID Docs, including these, should be considered case-sensitive. Ignoring case will result
             in invalid comparisons for key <code>id</code>s based on encodings that are not hex.
         </p>
         <p>Because peer DIDs usually operate independent of global registries, external references (where <code>controller</code>
@@ -893,7 +894,7 @@
                     This may actually be a better test for login or authentication, in many cases, than whether a key appears
                     in the <a href="#authentication"><code>authentication</code> section</a> of the DID Doc; it depends on
                     what trust is imputed after login.</p>
-                    <p>Note that any key holder can sign a DIDComm message; doing so gives non-repudiation to the message.
+                    <p class="note">Any key holder can sign a DIDComm message; doing so gives non-repudiation to the message.
                         However, remember our <a href="#authentication">earlier discussion</a> about low-level diplomats
                         versus the president or prime minister of a country&mdash;both are authentic officials, but only the
                         president or prime minister's signature is binding on an international treaty. This privilege makes
@@ -930,13 +931,13 @@
         </section>
         <section>
             <h4><code>rules~deleted</code></h4>
-            <p>Notice in the example above that each rule has an <code>id</code> property. This property can be assigned
-            in any way that an implementation likes, as long as the values are unique within the document. This property
-            is used to maintain a <a href="#deletion-list">deletion list</a> for the rules. The <code>authorization.rules
-            </code> array is paired with a <code>rules~deleted</code> list, which is a sibling to <code>rules</code> below
-                <code>authorization</code>. This list of strings enumerates the <code>id</code>s of all rules that have
-                been removed from the <code>authorization.rules</code> list. An example of a <code>rules~deleted</code>
-                list might be:
+            <p>Notice that in the example above, each rule has an <code>id</code> property. This property can be
+                assigned in any way that an implementation likes, as long as the values are unique within the document.
+                This property is used to maintain a <a>deletion list</a> for the rules. The <code>authorization.rules
+                </code> array is paired with a <code>rules~deleted</code> list, which is a sibling to <code>rules</code>
+                below <code>authorization</code>. This list of strings enumerates the <code>id</code>s of all rules that
+                have been removed from the <code>authorization.rules</code> list. An example of a <code>rules~deleted
+                </code> list might be:
             </p>
             <pre class="example" title="Sample authorization.rules~deleted section">
 {
@@ -950,7 +951,7 @@
     ...
 }
             </pre>
-            <p>The <code>authorization.profiles</code> section does not have a <a href="#deletion-list">deletion list</a>.
+            <p class="note">The <code>authorization.profiles</code> section does not have a <a>deletion list</a>.
                 This is because the profile of a key is immutable&mdash;it cannot change for the lifetime of a key. Once
                 a key is deleted, it is automatically removed from the profiles list (or treated as if it were removed).
             </p>
@@ -964,7 +965,7 @@
             <h4><code>serviceEndpoint~deleted</code></h4>
             <p>Each service endpoint has a unique <code>id</code>. The <code>serviceEndpoint~deleted
             </code> list is thus a list of <code>id</code>s that have been deleted from the <code>serviceEndpoint</code>
-            section of the doc, functioning in the same way as other <a href="#deletion-list">deletion lists</a>.</p>
+            section of the doc, functioning in the same way as other <a>deletion lists</a>.</p>
         </section>
     </section>
 </section>
@@ -1027,7 +1028,7 @@
 
     <section>
         <h3>Grafting</h3>
-        <p>Because peer DIDs are globally unique at the moment of creation, their <a href="#numeric-basis">numeric basis</a>
+        <p>Because peer DIDs are globally unique at the moment of creation, their <a>numeric basis</a>
             will not exist on any other blockchain unless someone copies it there. Blockchain-based DID methods can
             therefore (redundantly) register a peer DID Doc using their own method. We call this process <dfn>grafting</dfn>.
             Grafting might be useful when a peer DID needs to be accepted as the submitter or target of a transaction on a
