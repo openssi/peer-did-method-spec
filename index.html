@@ -105,157 +105,7 @@
     </p>
 </section>
 
-<section id="intro">
-    <h1>Introduction</h1>
-
-    <p>Most documentation about DIDs describes them as identifiers that are rooted in a public source of truth like a
-        blockchain, a database, a distributed filesystem, or similar. This publicness lets arbitrary parties <a
-                target="_blank" href="https://w3c-ccg.github.io/did-resolution/">resolve</a> the DIDs to an endpoint and
-        keys. It is an important feature for many use cases.</p>
-
-    <p>However, the vast majority of relationships between people, organizations, and things have simpler requirements.
-        When Alice<code>(</code>Corp<code>|</code>Device<code>)</code> and Bob want to interact, there are exactly and
-        only 2 parties in the world who should care: Alice and Bob. Instead of arbitrary parties needing to resolve
-        their DIDs, only Alice and Bob do.</p>
-
-    <p>Some formal terminology may make the application of this insight to DIDs clearer:</p>
-
-    <dl>
-        <dt><dfn>Anywise</dfn> DID</dt><dd>A DID intended for use with an unknowable number of parties (e.g., the global public
-            or some subset thereof).</dd>
-        <dt><dfn>Pairwise</dfn> DID</dt><dd>A DID intended to be known by its subject and exactly one other party (e.g., one
-            usable in the Alice and Bob example just above).</dd>
-        <dt><dfn>N-wise</dfn> DID</dt><dd>A DID intended to be known by exactly <em>N</em> enumerated parties including
-            its subject. A business partnership with 3 members might be a modeled with n-wise DIDs. Pairwise DIDs are
-            just a special case of an N-wise DID (<em>N</em> = 2). For more on n-wise DIDs, see <a href="nwise.html">
-            N-Wise Semantics</a>.</dd>
-    </dl>
-
-    <p>Generally, an anywise DID needs to be resolvable by strangers. These strangers can use the DID to reference its
-        subject without establishing a relationship. On the other hand, pairwise and n-wise DIDs only need to be
-        resolvable by the parties in the relationship, and <em>each</em> party in the relationship has to contribute a
-        DID to make the relationship work. Because of the reciprocal nature of DID usage in enumerated relationships
-        like this, we call the parties "peers", and it is this dynamic that gives our DID method its name.
-    </p>
-
-    <section>
-        <h3>Guarantees</h3>
-        <p>This spec uses a <a target="aries"
-        href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0003-protocols/README.md#what-is-a-protocol">
-            protocol</a>, rather than a public oracle, as the root of trust. This protocol reliably communicates data
-            about peer DIDs and peer DID Docs; peers must persist that data into a local cache or database that functions
-            as the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#dfn-dir">Decentralized Identifier
-            Registry</a> for the method. The method is worthy of trust because it guarantees the following properties:
-        </p>
-        <dl>
-            <dt>DIDs are associated with at least one key pair at the moment of creation.</dt>
-            <dd>This prevents a category of man-in-the-middle attacks where an attacker could rotate a DID's keys
-                at the outset of a relationship, unbeknownst to peers.
-            </dd>
-            <dt>DIDs have an acceptable level of uniqueness.</dt>
-            <dd>This is NOT a guarantee that DIDs will never be reused by their owner, NOR is it a guarantee that
-                collusion cannot subvert uniqueness. Thus, it is not a uniqueness upon which deep trust can be based.
-                Rather, it is a guarantee that good behavior will not produce accidental collisions. In this
-                sense, it is a bit like the uniqueness offered by NATing mechanisms in IPv4. It provides
-                enough uniqueness that a DID can be used as an index in a database or as a routing target
-                in DID communication. It also makes it possible for blockchains to <a href="#grafting">graft</a> a peer
-                DID by mapping it into their namespace, without incurring the risk of ambiguity. Any time a peer
-                DID is discovered to be less than unique, a true problem exists and systems can fairly
-                raise an exception.
-            </dd>
-            <dt>The values of DIDs are securely random.</dt>
-            <dd>This prevents attackers from discovering patterns in DIDs that might undermine privacy.
-            </dd>
-            <dt>Parties to a relationship can prove the orderly and authorized evolution of their
-                keys to one another.</dt>
-        </dl>
-    </section>
-    <section>
-        <h3>Advantages</h3>
-        <p>Peer DIDs are not suitable for <a>anywise</a> use cases, which are usually public by intent. However, peer
-            DIDs have certain virtues that make them desirable for private relationships between a small number of
-            enumerable parties:</p>
-        <ul>
-            <li>They have no transaction costs, making them essentially free to create, store, and maintain.</li>
-            <li>They scale and perform entirely as a function of participants, not with any central system's capacity.</li>
-            <li>Because they are not persisted in any central system, there is no trove to protect.</li>
-            <li>Because only the parties to a given relationship know them, there is no concern about personal data and
-                privacy regulations due to third-party data controllers or processors.
-            </li>
-            <li>Because they are not beholden to any particular blockchain, they have minimal political or technical
-                baggage.
-            </li>
-            <li>They can be mapped into the namespaces of other DID ecosystems, allowing a peer DID to have
-                predictable meaning in 1 or more other blockchains. This solves a problem with blockchain forks
-                fighting over the ownership of a DID and promotes interoperability.
-            </li>
-        </ul>
-    </section>
-    <section>
-        <h3>Comparison to Other DID Methods</h3>
-        <p>We could certainly build peer relationships with <a>anywise</a> DIDs based on a public ledger or a similar
-            source of truth. However, in the same way that a company doesn't want the public to resolve private host
-            names inside its corporate intranet, letting others resolve <a>pairwise</a> and <a>n-wise</a> DIDs is
-            unnecessary, and it represents a privacy and security risk as well as a problem of cost, scale, and
-            performance. We strongly recommend that peer DIDs be used for peer relationships.
-        </p>
-        <p>In a similar vein, peer DIDs could be used, hypothetically, for <a>anywise</a> scenarios. The main
-            disadvantage would be the lack of a formal publication mechanism. Nothing would prevent a user from
-            publishing a peer DID and its associated DID Document on some website, but such publication would be hard to
-            discover, maintain as DID Docs evolved, and integrate into interoperable applications. DID methods that use
-            a public ledger or a similar source of truth are a better choice here, because they have authoratitive
-            answers to the publication problem.
-        </p>
-    </section>
-    <section>
-        <h3>Applicability in Group Relationships</h3>
-        <p>Most of this doc is framed by a <a>pairwise</a> Alice:Bob context. This sort of pair (no matter whether its
-            members are people, IoT devices, or institutions) will be the most common peer relationship in the SSI
-            landscape. Groups larger than 2 can also have a peer-style relationship&mdash;but not all groups will be
-            modeled that way. Therefore, applying this method to groups should be done thoughtfully.</p>
-        <p>Some groups, such as a doctor, a hospital, and a patient participating in a medical procedure together, are
-            <a href="nwise.html#sweet-spot">clearly n-wise</a>. Each party can enumerate all the other parties, and each
-            party uses the same identifier in all directions within the group:
-        </p>
-        <img src="n-wise.png"/>
-        <p>(See <a href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0006-ssi-notation/README.md"
-            target="aries">Aries RFC 0006</a> for help with the notation used in the diagram.)</p>
-        <p>But groups can also be modeled with a hub-and-spoke model. That model is commonly used in group chats,
-            for example: each member of the group chat sends and receives via a central service, which in turn
-            broadcasts to all other members of the group. This hub-and-spoke model is actually just a <a>pairwise</a>
-            variant, because the relationship is between a member and the hub; all other relationships are only
-            indirect:</p>
-        <img src="hub-wise.png"/>
-        <p>Use of peer DIDs with <a>n-wise</a> groups is explicitly supported and documented below. We do not cover
-            hub-and-spoke groups in the same way. They are compatible with this method, if reanalyzed as
-            <a>pairwise</a>. Otherwise, the protocol described here may need adaptation.</p>
-    </section>
-    <section>
-        <h3>Enforcement</h3>
-
-        <p>In centralized systems, security is enforced at the center. This is so obvious that we take it for
-            granted&mdash;you can't access a database unless you log in first, and it's the database that enforces
-            this.
-        </p>
-        <p>Despite their other decentralized features, blockchains are no different in this respect. If a
-            blockchain accepts updates to a DID Doc, then the blockchain must guarantee that those updates are
-            only made by authorized parties. Thus, most DID methods imagine a blockchain parsing the
-            authorization section of a DID Doc, and rejecting mischief from hackers.
-        </p>
-        <p>However, in a peer relationship, there IS no centralized authority. This leads to an interesting
-            inversion of responsibility that must be understood: Bob enforces Alice's <a href="#authorization">
-            authorization policy</a>, and Alice enforces Bob's.
-        </p>
-        <p>This might seem wrong&mdash;shouldn't Alice enforce her own security? But it is quite rational. Who cares
-            whether the agents he is dealing with truly belong to Alice and are authorized by her? Bob does.
-            And if one of Alice's agents gets hacked and attempts to subvert the Alice:Bob relationship,
-            who is the uncontaminated party that can refuse to cooperate with the rogue agent? Bob is.
-        </p>
-        <p>Another way to think about this is that, within the Alice:Bob relationship, Bob acts as a substitute
-            for a centralized resource that Alice's agents try to access. In such a mental model, of course, Bob
-            would be a logical place to enforce access rules for Alice.
-        </p>
-    </section>
+<section id="intro" class="informative" data-include="intro.html">
 </section>
 
 <section id="core">
@@ -324,7 +174,7 @@
             this version of the spec, <code>multibase</code> is always "F" today; if the
             multihash variant changes in the future, <code>multibase</code> may, too.
         <p>
-        <p>Peer DIDs must be compared according to whatever case-sensitivity is implied by the
+        <p>Peer DIDs MUST be compared according to whatever case-sensitivity is implied by the
             hash encoding they use. Hex is not case-sensitive, but if a future version of the spec
             uses base58 or base64 encoding, values will be case sensitive. Therefore, it is required
             that routines that handle peer DIDs not normalize case unless they take into account the
@@ -375,7 +225,7 @@
 
 <section id="protocols">
     <h2>Protocols</h2>
-    <section>
+    <section class="informative">
         <h3>Roles and Agents</h3>
 
         <p>As described in the introduction, we call this the "peer" DID method because it enables peers to exchange
@@ -398,7 +248,7 @@
         </p>
     </section>
 
-    <section>
+    <section class="informative">
         <h3>Messages</h3>
         <dl>
             <dt>Peers interact via messages.</dt>
@@ -978,7 +828,7 @@
 
 <section class="appendix">
     <h2>Appendix</h2>
-    <section>
+    <section class="informative">
         <h3>Security Considerations</h3>
         <section>
             <h4>Secure communication</h4>
@@ -1013,7 +863,7 @@
         </section>
     </section>
 
-    <section>
+    <section class="informative">
         <h3>Privacy Considerations</h3>
         <p>Peer DIDs should remain <a>pairwise</a> or <a>n-wise</a>, not be reused across relationships. This
             allows proper isolation to defeat correlation. It also enables granular exercise of sovereignty in a
@@ -1057,7 +907,7 @@
             but even with the best intentions of the DID controller, differences may arise.</p>
     </section>
 
-    <section>
+    <section class="informative">
         <h3>Reference Implementations</h3>
         <p>The encryption envelop for DID Communication has three independent implementations&mdash;one in
             <a target="_blank" href="https://github.com/hyperledger/indy-sdk/blob/fbad7422/libindy/src/api/crypto.rs#L634">
@@ -1076,7 +926,7 @@
         <p>There is a formal test suite for the protocols as well, in the same github repo.</p>
     </section>
 
-    <section>
+    <section class="informative">
         <h3>Resources</h3>
         <p>Developers maintaining this spec and its reference implementations are often found on RocketChat at
             chat.hyperledger.org, #aries. You might also connect with them via the Hyperledger Aries mailing list at
