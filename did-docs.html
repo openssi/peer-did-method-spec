@@ -59,7 +59,29 @@
                 href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0046-mediators-and-relays/README.md">
             mediator</a> keys that have the <a>route</a> privilege.
     </p>
-    <pre class="example" title="Sample publicKey section" data-include="sample-publicKey-section.json">
+    <pre class="example" title="Sample publicKey section">
+{
+  ...
+  "publicKey": [
+    {
+      "id": "H3C2AVvL",
+      "type": "Ed25519VerificationKey2018",
+      "controller": "#id",
+      "publicKeyBase58": "H3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV"
+    }, {
+      "id": "02b97c30",
+      "type": "Secp256k1VerificationKey2018",
+      "controller": "#id",
+      "publicKeyHex": "02b97c30de767f084ce3080168ee293053ba33b235d7116a3263d29f1450936b71"
+    }, {
+      "id": "izfrNTmQ",
+      "type": "RsaVerificationKey2018",
+      "controller": "#id",
+      "publicKeyPem": "-----BEGIN PUBLIC KEY\r\nizfrNTmQ...END PUBLIC KEY-----\r\n"
+    }
+  ]
+  ...
+}
     </pre>
     <p>Elliptic curve keys (Ed25519, Secp256) are preferred because the keys are smaller, the number
         of bits of security are greater, and the computations more efficient, than RSA key types.</p>
