@@ -335,8 +335,8 @@
         <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
         <ul>
             <li>Create a <dfn>genesis version</dfn> of the DID Doc for the DID. The genesis version MUST include
-                enough initial state that the initial version of the doc can be signed, to prevent man-in-the-middle
-                attacks during initial DID exchange. It SHOULD also include enough initial state that subsequent
+                enough state that the genesis version of the doc can be signed, to prevent man-in-the-middle
+                attacks during initial DID exchange. It SHOULD also include enough state that subsequent
                 evolutions to the doc are authorized; otherwise, the doc is a dead end.
                 It MUST NOT include DID value itself (the root <code>id</code> key and value of the DID document). This
                 lets the doc be created without knowing the DID's value in advance, solving a chicken-and-egg problem.
@@ -369,7 +369,7 @@
         <blockquote>
             <code>did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe</code>
         </blockquote>
-        <p>Examples of a DID Doc for this method are explored in greater detail <a href="did-doc-structure">below</a>.</p>
+        <p>Examples of a DID Doc for this method are explored in greater detail <a href="#did-doc-structure">below</a>.</p>
     </section>
 </section>
 
@@ -858,6 +858,8 @@
             <li>Let any 2 keys, acting together, have the "kadmin" and "eadmin" privileges when their roles each contain
                 either "offline" or "biometric".</li>
         </ul>
+        <p>Far more elaborate rules could be constructed. See the <a target="sgl" href="https://evernym.github.io/sgl">
+            SGL documentation</a> for details.</p>
 
         <section>
             <h4>Privilege Inventory</h4>
@@ -897,12 +899,12 @@
                     This may actually be a better test for login or authentication, in many cases, than whether a key appears
                     in the <a href="#authentication"><code>authentication</code> section</a> of the DID Doc; it depends on
                     what trust is imputed after login.</p>
-                    <p class="note">Any key holder can sign a DIDComm message; doing so gives non-repudiation to the message.
-                        However, remember our <a href="#authentication">earlier discussion</a> about low-level diplomats
-                        versus the president or prime minister of a country&mdash;both are authentic officials, but only the
-                        president or prime minister's signature is binding on an international treaty. This privilege makes
-                        explicit that sort of binding status; any other signatures serve to prove origin with a specific
-                        agent but not the endorsement of the DID subject.
+                    <p class="note">Any key holder can sign a DIDComm message; doing so gives non-repudiation to the
+                        message. However, remember our <a href="#authentication">earlier discussion</a> about low-level
+                        diplomats versus the president or prime minister of a country&mdash;both are authentic officials,
+                        but only the president or prime minister's signature is binding on an international treaty. This
+                        privilege makes explicit that sort of special binding-the-owner status; any other signatures
+                        serve to prove origin with a specific agent but not the endorsement of the DID subject.
                     </p></dd>
 
                 <dt><dfn>key_admin</dfn></dt>
@@ -925,10 +927,10 @@
 
                 <dt><code>rotate</code></dt>
                 <dd>The holder of this privilege can replace its associated key definition, and all references to that
-                    key throughout a DID Doc, with a new key definition and references. If key #2 has this privilege and
-                    exercises it, the result is that key #2 is revoked from the doc, but a new key (perhaps key #7)
-                    appears with exactly the same profile. This privilege is assumed to be held by all keys unless rules
-                    specify otherwise.
+                    key throughout a DID Doc, with a new key definition and references, in a single delete-and-add
+                    operation. If key #2 has this privilege and exercises it, the result is that key #2 is revoked from
+                    the doc, but a new key (perhaps key #7) appears with exactly the same profile. This privilege is
+                    assumed to be held by all keys unless rules specify otherwise.
                 </dd>
             </dl>
         </section>
