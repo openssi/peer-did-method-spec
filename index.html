@@ -125,10 +125,10 @@
             or some subset thereof).</dd>
         <dt><dfn>Pairwise</dfn> DID</dt><dd>A DID intended to be known by its subject and exactly one other party (e.g., one
             usable in the Alice and Bob example just above).</dd>
-        <dt><dfn>N-wise</dfn> DID</dt><dd>A DID intended to be known by its subject and exactly <em>N</em> enumerated parties.
-            A business partnership with 3 members might be a modeled with n-wise DIDs. Pairwise DIDs are just a special
-            case of an N-wise DID (<em>N</em> = 2). For more on n-wise DIDs, see <a href="nwise.html">N-Wise
-            Semantics</a>.</dd>
+        <dt><dfn>N-wise</dfn> DID</dt><dd>A DID intended to be known by exactly <em>N</em> enumerated parties including
+            its subject. A business partnership with 3 members might be a modeled with n-wise DIDs. Pairwise DIDs are
+            just a special case of an N-wise DID (<em>N</em> = 2). For more on n-wise DIDs, see <a href="nwise.html">
+            N-Wise Semantics</a>.</dd>
     </dl>
 
     <p>Generally, an anywise DID needs to be resolvable by strangers. These strangers can use the DID to reference its
@@ -158,8 +158,8 @@
                 Rather, it is a guarantee that good behavior will not produce accidental collisions. In this
                 sense, it is a bit like the uniqueness offered by NATing mechanisms in IPv4. It provides
                 enough uniqueness that a DID can be used as an index in a database or as a routing target
-                in DID communication. It also makes it possible for blockchains to "adopt" a peer DID
-                by mapping it into their namespace, without incurring the risk of ambiguity. Any time a peer
+                in DID communication. It also makes it possible for blockchains to <a href="#grafting">graft</a> a peer
+                DID by mapping it into their namespace, without incurring the risk of ambiguity. Any time a peer
                 DID is discovered to be less than unique, a true problem exists and systems can fairly
                 raise an exception.
             </dd>
@@ -1015,21 +1015,24 @@
 
     <section>
         <h3>Privacy Considerations</h3>
-        <p>Peer DIDs should remain pairwise or n-wise, not being reused across relationships. This
+        <p>Peer DIDs should remain <a>pairwise</a> or <a>n-wise</a>, not be reused across relationships. This
             allows proper isolation to defeat correlation. It also enables granular exercise of sovereignty in a
             robust, <a target="_blank" href="https://medium.com/evernym/three-dimensions-of-identity-bc06ae4aec1c">
                 multidimensional identity</a>.</p>
         <img src="pairwise.png"/>
-        <p>The names of roles and the arrangement of rules in a peer DID doc could conceivably be used to create
-        a sort of fingerprint of a sovereign domain, in much the same way that browser fingerprinting keys off
-        individual uniqueness in combinations of browser+plugin+hardware configuration. To combat this problem, the
-        following best practices are recommended:</p>
-        <ul>
-            <li>Choose rules from a standard inventory.</li>
-            <li>Choose role names from a standard inventory.</li>
-            <li>Only define keys that are relevant to a particular relationship.</li>
-            <li>Never reuse <code>id</code>s for keys, rules, or service endpoints across DID docs.</li>
-        </ul>
+        <section>
+            <h4>Fingerprinting</h4>
+            <p>The names of roles and the arrangement of rules in a peer DID doc could conceivably be used to create
+            a sort of fingerprint of a sovereign domain, in much the same way that browser fingerprinting keys off
+            individual uniqueness in combinations of browser+plugin+hardware configuration. To combat this problem, the
+            following best practices are recommended:</p>
+            <ul>
+                <li>Choose rules from a standard inventory.</li>
+                <li>Choose role names from a standard inventory.</li>
+                <li>Only define keys that are relevant to a particular relationship.</li>
+                <li>Never reuse <code>id</code>s for keys, rules, or service endpoints across DID docs.</li>
+            </ul>
+        </section>
     </section>
 
     <section>
