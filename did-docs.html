@@ -18,18 +18,17 @@
         in this form:</p>
     <pre>
 {
-    "change": &lt;base64 encoding of a DID doc fragment showing update&gt;,
-    "by": [ {"key": &lt;id of key&gt;, "sig": &lt;more signatures over the non-base64'ed bytes of change&gt; ],
+    "change": &lt;base64 encoding of a change fragment&gt;,
+    "by": [ {"key": &lt;id of key&gt;, "sig": &lt;signature value&gt;} ... ],
     "when": &lt;ISO8601 UTC timestamp with at least second precision&gt;
 }
     </pre>
-    <p>Specific examples of deltas are provided throughout the discussion that follows. Here, we will simply note that
-        these fields in a delta answer three questions:</p>
-    <ol>
-        <li><dfn>change</dfn>: What was updated about the DID Doc content?</li>
-        <li><dfn>by</dfn>: Who authorized the changes?</li>
-        <li><dfn>when</dfn>: Approximately when did the change occur?</li>
-    </ol>
+    <p>Here, a <dfn>change fragment</dfn> is a sparse version of a DID doc that shows just the section being
+        updated. The <code>by</code> property contains one or more key+signature pairs over the raw (non-base64-encoded)
+        JSON text of the change fragment, and <code>when</code> contains a value supplied by the system clock. This
+        value is like timestamps on an email header&mdash;not guaranteed to be highly accurate, but useful for rough
+        analysis.
+    </p>
     <p>A resolved peer DID doc at any given point in time is a view or projection of the cumulative effect of all
         known deltas up to that point, with resolution adding the DID value itself to the composite <a>stored
         variant</a> of DID doc data.
@@ -94,7 +93,7 @@
             provides enough uniqueness within the document. (Global uniqueness is irrelevant.) For example, if the
             key is defined with a <code>publicKeyBase58</code> property value that begins with <code>H3C2AVvL</code>,
             then its <code>id</code> would be <code>H3C2AVvL</code>; a key with a <code>publicKeyHex</code> property
-            that begins with <code>02b97c30</code> would have an <code>id</code>of <code>02b97c30</code>, and a key
+            that begins with <code>02b97c30</code> would have an <code>id</code> of <code>02b97c30</code>, and a key
             with a <code>publicKeyPem</code> property that begins, after its <code>-----BEGIN PUBLIC KEY</code>
             delimiter, with the value <code>izfrNTmQ</code>, would have an <code>id</code> of <code>izfrNTmQ</code>.
         </li>
@@ -135,37 +134,35 @@
 }
     </pre>
 
-    <p class="note">Note: this DID method is relatively agnostic with respect to key types. However, elliptic curve
+    <p class="note">This DID method is relatively agnostic with respect to key types. However, elliptic curve
         keys (Ed25519, Secp256, etc) are generally recommended because the keys are smaller, the number
         of bits of security are greater, and the computations more efficient, than RSA key types.
     </p>
 
     <section>
-        <h4>Adding to <code>publicKey</code></h4>
+        <h4>Adding a key</h4>
 
-        <p>To add a new key with <code>id</code> = <code>Mv6gmMNa</code>to a peer DID Doc, you might create
-        a changed fragment of the DID doc that looks like this:
+        <p>To add a new key with <code>id</code> = <code>Mv6gmMNa</code> to a peer DID Doc, you might create
+        a <a>change fragment</a> of the DID doc that looks like this:
         </p>
-        <pre class="example" title="Changed fragment of a DID doc when a new key is added">
-{
+        <pre class="example" title="Change fragment that adds a new key">{
     "publicKey": [
-        <span style="color:blue">{
+        {
           "id": "Mv6gmMNa",
           "type": "Ed25519VerificationKey2018",
           "controller": "#id",
           "publicKeyBase58": "Mv6gmMNam3uVAjH3C2AVvLZZn6z3wXmqPVpfkcJCwDwn"
-        }</span>
+        }
     ]
-}
-        </pre>
+}</pre>
 
         <p>Since all deltas append data to at least one list inside the DID doc, the single entry under
         <code>publicKey</code> here is known to be a new key. The <a>delta</a> that encapsulates this update would take
         the above JSON text, base64-encode it, and assign the result to the delta's <code>change</code> property. It
         would need to be authorized by a key with the <a>key_admin</a> privilege, evidenced in the delta's <code>by
-        </code> field. The delta might look like this:
+        </code> field. The resulting delta might look like this:
         </p>
-        <pre class="example" title="Delta for adding a new key">
+        <pre class="example" title="Delta that adds a new key">
 {
     "change": "ewogICJwdWJsaWNLZXkiOiBbCiAgICB...ozd1htcVBWcGZrY0pDd0R3biIKICAgIH0KICBdCn0=",
     "by": [ {"key": "H3C2AVvL", "sig": ""if8ooA+32YZc4SQBvIDDY9tgTa...i4VvND87PUqq5/0vsNFEGIIEDA=="} ],
@@ -174,20 +171,20 @@
         </pre>
     </section>
     <section>
-        <h4>Deleting from <code>publicKey</code></h4>
+        <h4>Deleting a key</code></h4>
         <p>Any key can be deleted by appending its <code>id</code> to the <code>deleted</code> list at the root of
             the stored version of a peer DID Doc, and by removing its corresponding entry from the <code>publicKey</code>
-            section. Only the append-to-<code>deleted</code> operation needs to be represented in the changed DID doc
-            fragment; the corresponding removal from the <code>publicKey</code> section is implied. For example, to
-            delete a key with <code>id</code> = <code>izfrNTmQ</code>, your changed DID doc fragment would look like
+            section. Only the append-to-<code>deleted</code> operation needs to be represented in the <a>change
+            fragment</a>; the corresponding removal from the <code>publicKey</code> section is implied. For example, to
+            delete a key with <code>id</code> = <code>izfrNTmQ</code>, your <a>change fragment</a> would look like
             this:
         </p>
-        <pre class="example" title="Changed fragment of a DID doc when a key is deleted">
+        <pre class="example" title="Change fragment that deletes a key">
 {
     "deleted": [ "izfrNTmQ" ]
 }
         </pre>
-        <p>This fragment would be base64 encoded and signed in a corresponding delta, in much the same way that
+        <p>This fragment would be base64-encoded and signed in a corresponding delta, in much the same way that
         the fragment was handled in the example about adding a key.</p>
     </section>
 </section>

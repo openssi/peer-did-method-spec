@@ -64,7 +64,8 @@
     <p>
     <p class="note">Peer DIDs MUST be compared according to whatever case-sensitivity is implied by the
         hash encoding they use. Hex is not case-sensitive, but if a future version of the spec
-        uses base58 or base64 encoding, values will be case sensitive. Therefore, it is required
+        uses <a target="_blank" href="https://en.bitcoin.it/wiki/Base58Check_encoding">base58</a> or
+        base64 [[RFC4648]] encoding, values will be case sensitive. Therefore, it is required
         that routines that handle peer DIDs not normalize case unless they take into account the
         specific hash encoding.</p>
 </section>
