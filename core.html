@@ -74,9 +74,9 @@
     <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
     <ul>
         <li>Create a <dfn>genesis version</dfn> of JSON text of the DID Doc for the DID. The genesis version MUST
-            include enough keys and authorizations that the genesis version of the doc can be signed, to prevent
-            man-in-the-middle attacks during initial DID exchange. It SHOULD also include enough state that
-            subsequent evolutions to the doc are authorized; otherwise, the doc is a dead end.
+            include enough keys and <a target="#authorization">authorization</a> that the genesis version of the doc
+            can be signed, to prevent man-in-the-middle attacks during initial DID exchange. It SHOULD also include
+            enough state that subsequent evolutions to the doc are authorized; otherwise, the doc is a dead end.
             It MUST NOT include the DID itself (either the root <code>id</code> property or its value). This
             lets the doc be created without knowing the DID's value in advance.
             Suppressing the DID value creates a <dfn>stored variant</dfn> of peer DID doc data,

@@ -2,6 +2,7 @@
 
 <section>
     <h3>Backing Storage</h3>
+
     <p>At first glance, it might seem that parties dealing in peer DID Docs could just store the DID docs themselves.
         However, this is not the case. Any time a DID Doc evolves, proof that the evolution is authorized must be found
         in the DID Doc's previous state. If an agent is offline for an extended period (e.g., a phone is lost in the
@@ -50,9 +51,16 @@
         a signature from any key defined internally in the genesis state, and <code>when</code> is populated by the
         system clock.
     </p>
+    <p class="note">The genesis state can be authorized by <em>any</em> internally defined key, even if that key is has a very
+        limited <a>trust profile</a>. This is because the authorization for genesis state is only proving that the
+        creator of the DID doc has not been shadowed by a malicious man-in-the-middle; no other test of authorization
+        is performed.
+    </p>
 </section>
+
 <section>
     <h3>CRDTs</h3>
+
     <p>Because peer DID Docs can be updated by multiple parties at the same time (as when two agents of the same identity
         owner rotate their keys without coordinating), they have the potential for merge conflicts. Resolving these
         merge conflicts could introduce much complexity in our DID method. However, peer DID Docs use a clever
@@ -71,7 +79,7 @@
         <li>Deleting an item is accomplished by adding its <code>id</code> to a <dfn>deletion list</dfn>. This list
             is a root property of the <a>stored variant</a> of a DID doc and is named <code>deleted</code>. It is
             suppressed when generating a <a>resolved variant</a> of the DID doc, so it is only visible in the deltas
-            of <a>backing storage</a>. See <a href="#deleting-from-publickey">Deleting from <code>publicKey</code></a>
+            of <a>backing storage</a>. See <a href="#deleting-from-publickey">Deleting a key</a>
             for a clarifying example.</li>
         <li>When any party encounters two versions of a peer DID doc, one of which has an item in undeleted state and
             one of which has the item in a deleted state, the item's state should be considered deleted, regardless
@@ -81,13 +89,15 @@
     <p>Details about CRDT requirements are documented below, in the sections about individual parts of the DID Doc.
         These will make the CRDT semantics and the technique clearer.</p>
 </section>
+
 <section>
     <h3><code><dfn>publicKey</dfn></code></h3>
+
     <p>The <code>publicKey</code> section of a peer DID document, in either stored or resolved form, is as you would
         expect from a reading of the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#authentication">DID
         spec</a>. Peer DID Docs MUST define all of their internal and external keys in this section; although the DID
         spec permits inline definitions in the <code>authentication</code> and <code>authorization</code> sections of a
-        DID Doc, this DID method removes that option to simplify the possible forms of a <a>change fragment</a>.
+        DID Doc, this DID method removes that option to simplify the possible permutations of a <a>change fragment</a>.
     </p>
     <p>All <code>id</code> properties associated with a key defined internally in the DID Doc MUST be in
         relative, not absolute form (that is, "#xyz" instead of "did:peer:abc#xyz"). IDs for keys defined
@@ -145,7 +155,7 @@
     </p>
 
     <section>
-        <h4>Adding a key</h4>
+        <h4 id="adding-a-publickey">Adding a key</h4>
 
         <p>To add a new key with <code>id</code> = <code>Mv6gmMNa</code> to a peer DID Doc, you might create
         a <a>change fragment</a> of the DID doc that looks like this:
@@ -177,8 +187,10 @@
 }
         </pre>
     </section>
+
     <section>
-        <h4>Deleting a key</h4>
+        <h4 id="deleting-a-publickey">Deleting a key</h4>
+
         <p>Any key can be deleted by appending its <code>id</code> to the <code>deleted</code> list at the root of
             the stored version of a peer DID Doc, and by removing its corresponding entry from the <code>publicKey</code>
             section. Only the append-to-<code>deleted</code> operation needs to be represented in the <a>change
@@ -256,10 +268,11 @@
         privileges from a key is to remove it entirely from the DID doc. See
             <a target="#example-4-change-fragment-that-deletes-a-key">Example 4</a>.</p>
     </section>
-
 </section>
+
 <section>
     <h3><code><dfn>authorization</dfn></code></h3>
+
     <p>Peer DID docs organize their <code>authorization</code> section into two lists. The first, <code>profiles
     </code>, gives a <dfn>trust profile</dfn> for each key, as expressed by named roles the key holds. These
         named roles are arbitrary strings chosen by the implementer; since they are only used to match against
@@ -303,7 +316,7 @@
     <p>In plain english, these rules say:</p>
     <ul>
         <li>Let a key have the <a>route</a> and <a>authcrypt</a> privileges when its set of roles contains "cloud".</li>
-        <li>Let a key have the <a>authcrypt</a>, <a>plaintext</a> and <a>decrypt</a> privileges when its set of roles
+        <li>Let a key have the <a>authcrypt</a>, <a>plaintext</a> and <a>sign</a> privileges when its set of roles
             contains "edge".</li>
         <li>Let any 2 keys, acting together, have the <a>key_admin</a>, <a>se_admin</a>, and <a>rules_admin</a>
             privileges when their roles each contain either "offline" or "biometric".</li>
@@ -384,8 +397,10 @@
             </dd>
         </dl>
     </section>
+
     <section>
         <h4><code>rules~deleted</code></h4>
+
         <p>Notice that in the example above, each rule has an <code>id</code> property. This property can be
             assigned in any way that an implementation likes, as long as the values are unique within the document.
             This property is used to maintain a <a>deletion list</a> for the rules. The <code>authorization.rules
