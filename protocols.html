@@ -16,9 +16,7 @@
         added or an existing device can be revoked. This requires her to share her M-of-N <a href="#authorization">
             authorization policy</a> with Bob, with enough information about agent keys that he can validate a multi-party
         digital signature. Thus, our protocol must occasionally contemplate details about this more granular level
-        of each peer's <a target="glossary"
-                href="https://docs.google.com/document/d/1gfIz5TT0cNp2kxGMLFXr19x1uoZsruUe_0glHst2fZ8/edit#heading=h.pufsrf9ucjvv">
-            sovereign domain</a>.
+        of each peer's <a>sovereign domain</a>.
     </p>
 </section>
 
@@ -236,7 +234,7 @@
         </p>
         <p>If the recipient detects a conflict, it attempts to merge states. If the merge is successful, it sends a
             new <code>sync_state</code> that shows the merge. If the merge is not successful, then a merge
-            conflict exists, and the merge conflict policy for the sovereign domain of the associated DID is
+            conflict exists, and the merge conflict policy for the <a>sovereign domain</a> of the associated DID is
             invoked. See <a target="aries"
                     href="ttps://github.com/hyperledger/aries-rfcs/tree/master/features/0030-sync-connectiong#merges-and-merge-conflicts">
                 "Merges and Merge Conflicts"</a>.

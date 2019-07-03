@@ -29,6 +29,11 @@
         value is like timestamps on an email header&mdash;not guaranteed to be highly accurate, but useful for rough
         analysis.
     </p>
+    <p>Deltas are like database transactions, in that they may embody multiple changes that must be performed together.
+        For example, key rotation involves both a key addition and a key deletion, performed as a unit.
+        All changes in a single delta MUST share a common authorization; it is invalid to combine into one delta changes
+        requiring two different authorizations, as this makes authorization of each individual change ambiguous.
+    </p>
     <p>A resolved peer DID doc at any given point in time is a view or projection of the cumulative effect of all
         known deltas up to that point, with resolution adding the DID value itself to the composite <a>stored
         variant</a> of DID doc data.
@@ -80,9 +85,9 @@
     <h3><code><dfn>publicKey</dfn></code></h3>
     <p>The <code>publicKey</code> section of a peer DID document, in either stored or resolved form, is as you would
         expect from a reading of the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#authentication">DID
-        spec</a>. Peer DID Docs MUST define all of their keys in this section; although the DID spec permits
-        inline definitions in the <code>authentication</code> and <code>authorization</code> sections of a DID
-        Doc, this DID method removes that option.
+        spec</a>. Peer DID Docs MUST define all of their internal and external keys in this section; although the DID
+        spec permits inline definitions in the <code>authentication</code> and <code>authorization</code> sections of a
+        DID Doc, this DID method removes that option to simplify the possible forms of a <a>change fragment</a>.
     </p>
     <p>All <code>id</code> properties associated with a key defined internally in the DID Doc MUST be in
         relative, not absolute form (that is, "#xyz" instead of "did:peer:abc#xyz"). IDs for keys defined
@@ -109,7 +114,7 @@
             mediator</a> keys that have the <a>route</a> privilege.
     </p>
 
-    <pre class="example" title="Sample publicKey section">
+    <pre class="example" title="A publicKey section">
 {
   ...
   "publicKey": [
@@ -135,7 +140,7 @@
     </pre>
 
     <p class="note">This DID method is relatively agnostic with respect to key types. However, elliptic curve
-        keys (Ed25519, Secp256, etc) are generally recommended because the keys are smaller, the number
+        keys (Ed25519, Secp256, etc) are recommended because the keys are smaller, the number
         of bits of security are greater, and the computations more efficient, than RSA key types.
     </p>
 
@@ -145,7 +150,8 @@
         <p>To add a new key with <code>id</code> = <code>Mv6gmMNa</code> to a peer DID Doc, you might create
         a <a>change fragment</a> of the DID doc that looks like this:
         </p>
-        <pre class="example" title="Change fragment that adds a new key">{
+        <pre class="example" title="Change fragment that adds a new key">
+{
     "publicKey": [
         {
           "id": "Mv6gmMNa",
@@ -154,7 +160,8 @@
           "publicKeyBase58": "Mv6gmMNam3uVAjH3C2AVvLZZn6z3wXmqPVpfkcJCwDwn"
         }
     ]
-}</pre>
+}
+        </pre>
 
         <p>Since all deltas append data to at least one list inside the DID doc, the single entry under
         <code>publicKey</code> here is known to be a new key. The <a>delta</a> that encapsulates this update would take
@@ -171,7 +178,7 @@
         </pre>
     </section>
     <section>
-        <h4>Deleting a key</code></h4>
+        <h4>Deleting a key</h4>
         <p>Any key can be deleted by appending its <code>id</code> to the <code>deleted</code> list at the root of
             the stored version of a peer DID Doc, and by removing its corresponding entry from the <code>publicKey</code>
             section. Only the append-to-<code>deleted</code> operation needs to be represented in the <a>change
@@ -199,10 +206,10 @@
         circles to reference too many keys in this section, and because heavy use of this section is discouraged
         with peer DIDs.
     </p>
-    <p>A sovereign domain (the scope of things under the control of a single, sovereign identity owner) may include
-        keys that represent the identity owner with greater or lesser degrees of trust. For example, the
+    <p>A <dfn>sovereign domain</dfn> (the scope of things under the control of a single, sovereign identity owner) may
+        include keys that represent the identity owner with greater or lesser degrees of trust. For example, the
         identity owner may hold one key on paper, locked in a safe; she may hold another key on a mobile device's
-        secure enclave, protected by a biometric; she may hold a third on a server in a config file protected
+        secure enclave, protected by a biometric; she may hold a third key on a server in a config file protected
         only by an ACL. These keys may all be legitimate evidence that the DID subject is interacting, but
         they are not equally strong evidence. Only the strongest forms of evidence should be accepted as a
         basis for authentication when stakes are high.</p>
@@ -213,53 +220,75 @@
     </p>
     <p>The <a href="#authorization"><code>authorization</code> section</a> of peer DID Docs, described next, is
         where fine-grained privileges are described. The <code>authentication</code> section is a blunt instrument,
-        incapable of distinguishing between these levels of trust, and incapable of associating trust to anything
+        incapable of distinguishing between these levels of trust, and incapable of associating trust with anything
         more complex than a single key. It is supported for historical reasons, and because most so-called "DID
         Authentication" use cases assume it will be populated. With peer DIDs, the strong recommendation is that
-        only keys held by the most trusted proxies should be referenced here. Only list the equivalent of your
+        only keys held by the most trusted proxies should be referenced here&mdash;only list the equivalent of your
         president / premier / prime minister keys in this section, not the equivalent of keys for your low-level
         diplomats. This will prevent impersonation by less trusted keys when stakes are high.
     </p>
     <section>
-        <h4><code>authentication~deleted</code></h4>
-        <p>The <code>authentication</code> section is paired with a <code>authentication~deleted</code> list, which
-            is a sibling to <code>authentication</code> at the root of the document. This list of strings enumerates
-            the <code>id</code>s of all keys that have been removed from the <code>authentication</code> section of the
-            document. An example of a <code>authentication.deleted</code> list might be:
+        <h4>Adding a key</h4>
+        <p>As mentioned earlier, all objects having an <code>id</code> property in peer DID docs are immutable. This
+            means that a key cannot change its status with respect to the <code>authentication</code> section of a peer
+            DID doc during its lifetime in that doc; it must be declared as an authentication key when it is first
+            defined. A <a>change fragment</a> for adding an internally defined key and giving it status in the
+            <code>authentication</code> section at the same time might look like this:
         </p>
-        <pre class="example" title="Sample authentication.deleted section">
+        <pre class="example" title="Change fragment that adds a new key with authentication privileges">
 {
-    ...
-    "authentication.deleted": ["MNam3uVA", "32a769b4-081b-488b-8971-b4eee62f4c94"]
-    ...
+    "publicKey": [
+        {
+          "id": "Mv6gmMNa",
+          "type": "Ed25519VerificationKey2018",
+          "controller": "#id",
+          "publicKeyBase58": "Mv6gmMNam3uVAjH3C2AVvLZZn6z3wXmqPVpfkcJCwDwn"
+        }
+    ],
+    "authentication": [ "#Mv6gmMNa" ]
 }
-            </pre>
+        </pre>
+        <p class="note">Adding a key with authentication privileges can only be authorized by a key that has the
+            <a>key_admin</a> privilege.</p>
+
+        <h4>Deleting a key</h4>
+        <p>Because a key's authentication privileges are immutable, the only way to take away authentication
+        privileges from a key is to remove it entirely from the DID doc. See
+            <a target="#example-4-change-fragment-that-deletes-a-key">Example 4</a>.</p>
     </section>
 
 </section>
 <section>
     <h3><code><dfn>authorization</dfn></code></h3>
-    <p>Peer DID docs organize their <code>authorization</code> section into two sequences. The first, <code>profiles
+    <p>Peer DID docs organize their <code>authorization</code> section into two lists. The first, <code>profiles
     </code>, gives a <dfn>trust profile</dfn> for each key, as expressed by named roles the key holds. These
-        named roles are arbitrary strings chosen by the implementer; their meaning in normal language need not
-        be understood by a party wishing to understand the semantics.
+        named roles are arbitrary strings chosen by the implementer; since they are only used to match against
+        rules in the second list, their meaning in normal language does not need to be understood by a party
+        wishing to support correct semantics.
     </p>
-    <p>The second sequence contains <a href="https://evernym.github.io/sgl" target="sgl">SGL</a> rules that grant
-        privileges according to named roles. Here is an example that assumes keys with numeric IDs have been defined
-        in a preceding <a href="#publickey"><code>publicKey</code></a> section:
+    <p>The second list contains <a href="https://evernym.github.io/sgl" target="sgl">SGL</a> rules that grant
+        privileges according to named roles. Here is an example:
     </p>
 
-    <pre class="example" title="Sample authorization section">
+    <pre class="example" title="An authorization section">
 “authorization”: {
     "profiles": [
-        {"key": "#1", "roles", ["edge"]},              // key #1 is an "edge" key
-        {"key": "#2", "roles", ["edge", "biometric"]}, // key #2 is an "edge" and a "biometric" key
-        {"key": "#3", "roles", ["cloud"]},             // key #3 is a "cloud" key
-        {"key": "#4", "roles", ["offline"]},           // key #4 is an "offline" key
+        {"key": "#Mv6gmMNa", "roles", ["edge"]},              // an "edge" key
+        {"key": "#izfrNTmQ", "roles", ["edge", "biometric"]}, // an "edge" and a "biometric" key
+        {"key": "#02b97c30", "roles", ["cloud"]},             // a "cloud" key
+        {"key": "#H3C2AVvL", "roles", ["offline"]},           // an "offline" key
     ],
     "rules": [
-        { "grant": ["route", "authcrypt"], "when": {"roles": "cloud"}, "id": "98c2c9cc" },
-        { "grant": ["authcrypt", "plaintext", "sign"], "when": {"roles": "edge"}, "id": "e1e7d7bc" },
+        {
+            "grant": ["route", "authcrypt"],
+            "when": {"roles": "cloud"},
+            "id": "98c2c9cc"
+        },
+        {
+            "grant": ["authcrypt", "plaintext", "sign"],
+            "when": {"roles": "edge"},
+            "id": "e1e7d7bc"
+        },
         {
             "grant": ["key_admin", "se_admin", "rules_admin"],
             "when": {
@@ -273,12 +302,13 @@
         </pre>
     <p>In plain english, these rules say:</p>
     <ul>
-        <li>Let a key have the "route" and "encrypt" privileges when its set of roles contains "cloud".</li>
-        <li>Let a key have the "encrypt" and "decrypt" privileges when its set of roles contains "edge".</li>
-        <li>Let any 2 keys, acting together, have the "kadmin" and "eadmin" privileges when their roles each contain
-            either "offline" or "biometric".</li>
+        <li>Let a key have the <a>route</a> and <a>authcrypt</a> privileges when its set of roles contains "cloud".</li>
+        <li>Let a key have the <a>authcrypt</a>, <a>plaintext</a> and <a>decrypt</a> privileges when its set of roles
+            contains "edge".</li>
+        <li>Let any 2 keys, acting together, have the <a>key_admin</a>, <a>se_admin</a>, and <a>rules_admin</a>
+            privileges when their roles each contain either "offline" or "biometric".</li>
     </ul>
-    <p>Far more elaborate rules could be constructed. See the <a target="sgl" href="https://evernym.github.io/sgl">
+    <p>Far more elaborate rules can be constructed. See the <a target="sgl" href="https://evernym.github.io/sgl">
         SGL documentation</a> for details.</p>
 
     <section>
