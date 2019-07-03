@@ -35,7 +35,7 @@
     <p>This spec uses a <a target="aries"
             href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0003-protocols/README.md#what-is-a-protocol">
         protocol</a>, rather than a public oracle, as the root of trust. This protocol reliably communicates data
-        about peer DIDs and peer DID Docs; peers must persist that data into a local cache or database that functions
+        about peer DIDs and peer DID docs; peers must persist that data into a local cache or database that functions
         as the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#dfn-dir">Decentralized Identifier
             Registry</a> for the method. The method is worthy of trust because it guarantees the following properties:
     </p>
@@ -100,7 +100,7 @@
     </p>
     <p>In a similar vein, peer DIDs could be used, hypothetically, for <a>anywise</a> scenarios. The main
         disadvantage would be the lack of a formal publication mechanism. Nothing would prevent a user from
-        publishing a peer DID and its associated DID Document on some website, but such publication would be hard to
+        publishing a peer DID and its associated DID document on some website, but such publication would be hard to
         discover, maintain as DID docs evolved, and integrate into interoperable applications. DID methods that use
         a public ledger or a similar source of truth are a better choice here, because they have authoritative
         answers to the publication problem.
@@ -137,9 +137,9 @@
         this.
     </p>
     <p>Despite their other decentralized features, blockchains are no different in this respect. If a
-        blockchain accepts updates to a DID Doc, then the blockchain must guarantee that those updates are
+        blockchain accepts updates to a DID doc, then the blockchain must guarantee that those updates are
         only made by authorized parties. Thus, most DID methods imagine a blockchain parsing the
-        authorization section of a DID Doc, and rejecting mischief from hackers.
+        authorization section of a DID doc, and rejecting mischief from hackers.
     </p>
     <p>However, in a peer relationship, there IS no centralized authority. This leads to an interesting
         inversion of responsibility that must be understood: Bob enforces Alice's <a href="#authorization">
