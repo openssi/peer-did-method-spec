@@ -19,6 +19,7 @@
         in this form:</p>
     <pre>
 {
+    "id": &lt;a UUID&gt;,
     "change": &lt;base64 encoding of a change fragment&gt;,
     "by": [ {"key": &lt;id of key&gt;, "sig": &lt;signature value&gt;} ... ],
     "when": &lt;ISO8601 UTC timestamp with at least second precision&gt;
@@ -67,9 +68,11 @@
         technique that avoids much of the pain. The backing storage for peer DID docs is carefully defined to
         be a <a target="wikipedia" href="https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type">conflict-free
         replicated data type</a> (<dfn>CRDT</dfn>).</p>
-    <p>CRDTs are a deep subject unto themselves, and additional study on the web is recommended. Here, we will
-        simply note some key requirements that they impose on DID docs and their <a>backing storage</a>.</p>
-    <ol>
+    <p>CRDTs are a deep subject unto themselves, with a body of academic research; additional study is recommended.
+        They are behind familiar experiences like simultaneous, distributed editing of Google Docs, which never raises
+        error messages about merge conflicts. Here, we will not explain their theory; we will simply note some key
+        requirements that they impose on DID docs and their <a>backing storage</a>.</p>
+    <ol id="crdt-rules">
         <li>Core building blocks&mdash;keys, rules, and service endpoints&mdash; must be assigned
             <code>id</code> properties in a way that prevents collisions.</li>
         <li>All items with <code>id</code> properties must be immutable. They can be deleted, but they can never have
@@ -85,8 +88,11 @@
             of relative timing of the two versions. This eliminates the possibility that a malicious party could
             attempt to take advantage of differences in system clocks or sequencing.</li>
     </ol>
-    <p>Details about CRDT requirements are documented below, in the sections about individual parts of the DID Doc.
-        These will make the CRDT semantics and the technique clearer.</p>
+    <p>These rules do not guarantee that conflicting state can never exist. However, they eliminate most ordering
+        concerns, and they provide a framework that allows conflicting state to be resolved automatically. No human
+        judgment is ever required, and all non-malicious parties to a relationship will agree on the proper course of
+        action in every circumstance. Details about CRDT requirements are documented below, in the sections about
+        individual parts of the DID Doc. These will make the CRDT semantics and the technique clearer.</p>
 </section>
 
 <section>
@@ -185,6 +191,7 @@
         </p>
         <pre class="example" title="Delta that adds a new key">
 {
+    "id": "040aaa5e-1a27-40d8-8d53-13a00b82d235",
     "change": "ewogICJwdWJsaWNLZXkiOiBbCiAgICB...ozd1htcVBWcGZrY0pDd0R3biIKICAgIH0KICBdCn0=",
     "by": [ {"key": "H3C2AVvL", "sig": ""if8ooA+32YZc4SQBvIDDY9tgTa...i4VvND87PUqq5/0vsNFEGIIEDA=="} ],
     "when": "2019-07-18T15:49:22.03Z"
@@ -277,6 +284,12 @@
 
 <section>
     <h3><code><dfn>authorization</dfn></code></h3>
+
+    <p class="note">This section of a peer DID docs governs how DID docs are updated and DIDComm trust flows. It doesn't
+        contemplate custom authorization schemes such as peers might develop to give each other spending limits or
+        access to sensitive data. Those matters are better formalized with something like a verifiable credential, or a
+        simple digitally signed permission slip.
+    </p>
 
     <p>Peer DID docs organize their <code>authorization</code> section into two lists. The first, <code>profiles
     </code>, gives a <dfn>trust profile</dfn> for each key, as expressed by named roles the key holds. These
@@ -396,7 +409,7 @@
             </code> list. Typically this privilege is held only by very privileged keys, or by combinations of keys.</p>
             </dd>
 
-            <dt><code>rotate</code></dt>
+            <dt><dfn>rotate</dfn></dt>
             <dd>The holder of this privilege can replace its associated key definition, and all references to that
                 key throughout a DID Doc, with a new key definition and references, in a single delete-and-add
                 operation. If key #2 has this privilege and exercises it, the result is that key #2 is revoked from

@@ -1,0 +1,16 @@
+<h2>Reference Implementations</h2>
+<p>The encryption envelope for DID Communication has three independent implementations&mdash;one in
+    <a target="_blank" href="https://github.com/hyperledger/indy-sdk/blob/fbad7422/libindy/src/api/crypto.rs#L634">
+        libindy</a>, one in
+    <a target="_blank" href="https://github.com/bcgov/indy-catalyst/blob/bba2ef5c/agent/indy_catalyst_agent/wallet/crypto.py#L402">
+        python with no Indy dependencies</a>, and one in
+    <a target="_blank" href="https://github.com/dbluhm/indy-pack-unpack-js/blob/db9d83e4/index.js">
+        javascript with no Indy dependencies</a>.</p>
+<p>The connection protocol that creates and registers peer DIDs, including support for DID resolution
+    after forming a connection, has been fully implemented by
+    half a dozen different organizations, as of March 2019. One of these organizations did not use
+    libindy. The connection management protocols that allow update of DIDs are in various states of
+    implementation. An up-to-date summary of implementation status, including links to the implementations,
+    can be found in the
+    <a target="_blank" href="https://github.com/hyperledger/indy-agent">indy-agent repo on github</a>.</p>
+<p>There is a formal test suite for the protocols as well, in the same github repo.</p>
