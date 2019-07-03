@@ -79,8 +79,7 @@
         <li>Deleting an item is accomplished by adding its <code>id</code> to a <dfn>deletion list</dfn>. This list
             is a root property of the <a>stored variant</a> of a DID doc and is named <code>deleted</code>. It is
             suppressed when generating a <a>resolved variant</a> of the DID doc, so it is only visible in the deltas
-            of <a>backing storage</a>. See <a href="#deleting-from-publickey">Deleting a key</a>
-            for a clarifying example.</li>
+            of <a>backing storage</a>. See <a href="#deleting-a-publickey">this clarifying example</a>.</li>
         <li>When any party encounters two versions of a peer DID doc, one of which has an item in undeleted state and
             one of which has the item in a deleted state, the item's state should be considered deleted, regardless
             of relative timing of the two versions. This eliminates the possibility that a malicious party could
@@ -388,8 +387,8 @@
             </dd>
 
             <dt><dfn>se_admin</dfn></dt>
-            <dd><p>The holder of this privilege can add or remove items from a peer DID Doc's <a href="#serviceendpoint">
-                <code>serviceEndpoint</code> section</a>.</p>
+            <dd><p>The holder of this privilege can add or remove items from a peer DID Doc's <a href="#service">
+                <code>service</code> section</a>.</p>
             </dd>
 
             <dt><dfn>rules_admin</dfn></dt>
