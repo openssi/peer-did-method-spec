@@ -1,7 +1,7 @@
 <h2>DID Docs</h2>
 
 <section>
-    <h3><dfn>Backing Storage</dfn> versus DID Docs</h3>
+    <h3>Backing Storage</h3>
     <p>At first glance, it might seem that parties dealing in peer DID Docs could just store the DID docs themselves.
         However, this is not the case. Any time a DID Doc evolves, proof that the evolution is authorized must be found
         in the DID Doc's previous state. If an agent is offline for an extended period (e.g., a phone is lost in the
@@ -12,27 +12,29 @@
         </em>.
     </p>
     <p>This means that peer DID docs need to be associated with some type of <dfn>backing storage</dfn> that adds
-        metadata to the simple content of the docs themselves.
+        metadata and history to the simple content of the docs themselves.
     </p>
-    <p>The backing storage for peer DID Docs is a sequence of <dfn>deltas</dfn>. Each delta is a JSON object in this
-        form:</p>
+    <p>The backing storage for peer DID Docs is therefore a sequence of <dfn>deltas</dfn>. Each delta is a JSON object
+        in this form:</p>
     <pre>
 {
     "change": &lt;base64 encoding of a DID doc fragment showing update&gt;,
-    "by": [ one or more signatures over the change ],
+    "by": [ {"key": &lt;id of key&gt;, "sig": &lt;more signatures over the non-base64'ed bytes of change&gt; ],
     "when": &lt;ISO8601 UTC timestamp with at least second precision&gt;
 }
     </pre>
-    <p>The fields in a delta answer 3 questions:</p>
+    <p>Specific examples of deltas are provided throughout the discussion that follows. Here, we will simply note that
+        these fields in a delta answer three questions:</p>
     <ol>
         <li><dfn>change</dfn>: What was updated about the DID Doc content?</li>
         <li><dfn>by</dfn>: Who authorized the changes?</li>
         <li><dfn>when</dfn>: Approximately when did the change occur?</li>
     </ol>
-    <p>A resolved peer DID doc at any given point in time is thus a view or projection of the cumulative effect of all
-        known deltas, with resolution adding the DID value itself to the composite <a>stored variant</a> of DID doc data.
+    <p>A resolved peer DID doc at any given point in time is a view or projection of the cumulative effect of all
+        known deltas up to that point, with resolution adding the DID value itself to the composite <a>stored
+        variant</a> of DID doc data.
     </p>
-    <p class="note">Early discussions of this DID method used the term <dfn>microledger</dfn> for backing storage. This
+    <p class="note">Early explorations of this DID method used the term <dfn>microledger</dfn> for backing storage. This
         term has some resonance, in that backing storage is an append-only record of immutable transactions. However,
         we have chosen not to emphasize the term here, because it may feel intimidating to some, and because the actual
         storage mechanism in an implementation of this method could be a simple file, a database, or anything else that
@@ -40,9 +42,9 @@
     </p>
     <p>In the discussion about generating a <a>numeric basis</a> for a peer DID, the <a>genesis version</a> of a peer
         DID doc was defined. The genesis version is the one associated with the first delta committed to backing
-        storage. In the first delta, question #1 is answered by the genesis state (which is how the doc changed from
-        being empty in pre-created form). Question #2 is answered by signing the DID doc with a key defined in the
-        genesis state. And question #3 is answered by the system clock.
+        storage. In the first delta, <code>change</code> contains the genesis state of the doc, <code>by</code> holds
+        a signature from any key defined internally in the genesis state, and <code>when</code> is populated by the
+        system clock.
     </p>
 </section>
 <section>
@@ -62,9 +64,11 @@
             a different state than they were created with. The effect of modifying an item can be achieved by
             deleting an old item and replacing it with a new item that has a different <code>id</code> and updated
             properties.</li>
-        <li>Deleting an item is accomplished by adding its <code>id</code> to a <dfn>deletion list</dfn> maintained
-            in backing storage. This deletion list is a root property of the <a>stored variant</a> of a DID doc; it is
-            suppressed when generating a <a>resolved variant</a>.</li>
+        <li>Deleting an item is accomplished by adding its <code>id</code> to a <dfn>deletion list</dfn>. This list
+            is a root property of the <a>stored variant</a> of a DID doc and is named <code>deleted</code>. It is
+            suppressed when generating a <a>resolved variant</a> of the DID doc, so it is only visible in the deltas
+            of <a>backing storage</a>. See <a href="#deleting-from-publickey">Deleting from <code>publicKey</code></a>
+            for a clarifying example.</li>
         <li>When any party encounters two versions of a peer DID doc, one of which has an item in undeleted state and
             one of which has the item in a deleted state, the item's state should be considered deleted, regardless
             of relative timing of the two versions. This eliminates the possibility that a malicious party could
@@ -77,7 +81,7 @@
     <h3><code><dfn>publicKey</dfn></code></h3>
     <p>The <code>publicKey</code> section of a peer DID document, in either stored or resolved form, is as you would
         expect from a reading of the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#authentication">DID
-        spec</a>. Peer DID Docs MUST do all of their key definition in this section; although the DID spec permits
+        spec</a>. Peer DID Docs MUST define all of their keys in this section; although the DID spec permits
         inline definitions in the <code>authentication</code> and <code>authorization</code> sections of a DID
         Doc, this DID method removes that option.
     </p>
@@ -105,6 +109,7 @@
                 href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0046-mediators-and-relays/README.md">
             mediator</a> keys that have the <a>route</a> privilege.
     </p>
+
     <pre class="example" title="Sample publicKey section">
 {
   ...
@@ -129,21 +134,61 @@
   ...
 }
     </pre>
-    <p>Elliptic curve keys (Ed25519, Secp256) are preferred because the keys are smaller, the number
-        of bits of security are greater, and the computations more efficient, than RSA key types.</p>
+
+    <p class="note">Note: this DID method is relatively agnostic with respect to key types. However, elliptic curve
+        keys (Ed25519, Secp256, etc) are generally recommended because the keys are smaller, the number
+        of bits of security are greater, and the computations more efficient, than RSA key types.
+    </p>
+
+    <section>
+        <h4>Adding to <code>publicKey</code></h4>
+
+        <p>To add a new key with <code>id</code> = <code>Mv6gmMNa</code>to a peer DID Doc, you might create
+        a changed fragment of the DID doc that looks like this:
+        </p>
+        <pre class="example" title="Changed fragment of a DID doc when a new key is added">
+{
+    "publicKey": [
+        <span style="color:blue">{
+          "id": "Mv6gmMNa",
+          "type": "Ed25519VerificationKey2018",
+          "controller": "#id",
+          "publicKeyBase58": "Mv6gmMNam3uVAjH3C2AVvLZZn6z3wXmqPVpfkcJCwDwn"
+        }</span>
+    ]
+}
+        </pre>
+
+        <p>Since all deltas append data to at least one list inside the DID doc, the single entry under
+        <code>publicKey</code> here is known to be a new key. The <a>delta</a> that encapsulates this update would take
+        the above JSON text, base64-encode it, and assign the result to the delta's <code>change</code> property. It
+        would need to be authorized by a key with the <a>key_admin</a> privilege, evidenced in the delta's <code>by
+        </code> field. The delta might look like this:
+        </p>
+        <pre class="example" title="Delta for adding a new key">
+{
+    "change": "ewogICJwdWJsaWNLZXkiOiBbCiAgICB...ozd1htcVBWcGZrY0pDd0R3biIKICAgIH0KICBdCn0=",
+    "by": [ {"key": "H3C2AVvL", "sig": ""if8ooA+32YZc4SQBvIDDY9tgTa...i4VvND87PUqq5/0vsNFEGIIEDA=="} ],
+    "when": "2019-07-18T15:49:22.03Z"
+}
+        </pre>
+    </section>
     <section>
         <h4>Deleting from <code>publicKey</code></h4>
-        <p>Any key can be deleted by adding its <code>id</code> to the <code>deleted</code> list at the root of
+        <p>Any key can be deleted by appending its <code>id</code> to the <code>deleted</code> list at the root of
             the stored version of a peer DID Doc, and by removing its corresponding entry from the <code>publicKey</code>
-            section. The <a>delta</a> for such an action might look like this:
+            section. Only the append-to-<code>deleted</code> operation needs to be represented in the changed DID doc
+            fragment; the corresponding removal from the <code>publicKey</code> section is implied. For example, to
+            delete a key with <code>id</code> = <code>izfrNTmQ</code>, your changed DID doc fragment would look like
+            this:
         </p>
-        <pre class="example" title="Sample delta for deleting from publicKey">
+        <pre class="example" title="Changed fragment of a DID doc when a key is deleted">
 {
-    ...
-    "publicKey~deleted": ["izfrNTmQ", "e3080168"]
-    ...
+    "deleted": [ "izfrNTmQ" ]
 }
-            </pre>
+        </pre>
+        <p>This fragment would be base64 encoded and signed in a corresponding delta, in much the same way that
+        the fragment was handled in the example about adding a key.</p>
     </section>
 </section>
 <section>
