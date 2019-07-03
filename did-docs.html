@@ -1,11 +1,11 @@
-<h2>DID Docs</h2>
+<h2>DID docs</h2>
 
 <section>
     <h3>Backing Storage</h3>
 
-    <p>At first glance, it might seem that parties dealing in peer DID Docs could just store the DID docs themselves.
-        However, this is not the case. Any time a DID Doc evolves, proof that the evolution is authorized must be found
-        in the DID Doc's previous state. If an agent is offline for an extended period (e.g., a phone is lost in the
+    <p>At first glance, it might seem that parties dealing in peer DID docs could just store raw DID docs.
+        However, this is not the case. Any time a DID doc evolves, proof that the evolution is authorized must be found
+        in the DID doc's previous state. If an agent is offline for an extended period (e.g., a phone is lost in the
         couch cushions for a week), multiple evolutions may have occurred by the time it reconnects--and it cannot
         accept the latest state of the doc without validating the sequence of changes it underwent to get there. Agents
         must be able to prove to one another that the state they hold is correct, and they must be able to answer
@@ -15,7 +15,7 @@
     <p>This means that peer DID docs need to be associated with some type of <dfn>backing storage</dfn> that adds
         metadata and history to the simple content of the docs themselves.
     </p>
-    <p>The backing storage for peer DID Docs is therefore a sequence of <dfn>deltas</dfn>. Each delta is a JSON object
+    <p>The backing storage for peer DID docs is therefore a sequence of <dfn>deltas</dfn>. Each delta is a JSON object
         in this form:</p>
     <pre>
 {
@@ -62,9 +62,9 @@
 <section>
     <h3>CRDTs</h3>
 
-    <p>Because peer DID Docs can be updated by multiple parties at the same time (as when two agents of the same identity
+    <p>Because peer DID docs can be updated by multiple parties at the same time (as when two agents of the same identity
         owner rotate their keys without coordinating), they have the potential for merge conflicts. Resolving these
-        merge conflicts could introduce much complexity in our DID method. However, peer DID Docs use a clever
+        merge conflicts could introduce much complexity in our DID method. However, peer DID docs use a clever
         technique that avoids much of the pain. The backing storage for peer DID docs is carefully defined to
         be a <a target="wikipedia" href="https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type">conflict-free
         replicated data type</a> (<dfn>CRDT</dfn>).</p>
@@ -92,7 +92,7 @@
         concerns, and they provide a framework that allows conflicting state to be resolved automatically. No human
         judgment is ever required, and all non-malicious parties to a relationship will agree on the proper course of
         action in every circumstance. Details about CRDT requirements are documented below, in the sections about
-        individual parts of the DID Doc. These will make the CRDT semantics and the technique clearer.</p>
+        individual parts of the DID doc. These will make the CRDT semantics and the technique clearer.</p>
 </section>
 
 <section>
@@ -100,11 +100,11 @@
 
     <p>The <code>publicKey</code> section of a peer DID document, in either stored or resolved form, is as you would
         expect from a reading of the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#authentication">DID
-        spec</a>. Peer DID Docs MUST define all of their internal and external keys in this section; although the DID
+        spec</a>. Peer DID docs MUST define all of their internal and external keys in this section; although the DID
         spec permits inline definitions in the <code>authentication</code> and <code>authorization</code> sections of a
-        DID Doc, this DID method removes that option to simplify the possible permutations of a <a>change fragment</a>.
+        DID doc, this DID method removes that option to simplify the possible permutations of a <a>change fragment</a>.
     </p>
-    <p>All <code>id</code> properties associated with a key defined internally in the DID Doc MUST be in
+    <p>All <code>id</code> properties associated with a key defined internally in the DID doc MUST be in
         relative, not absolute form (that is, "#xyz" instead of "did:peer:abc#xyz"). IDs for keys defined
         interally may be generated in either of these two ways:
     </p>
@@ -120,7 +120,7 @@
         <li>A standard 128-bit UUID of type 1, 2, 3, 4, or 5 (see [[RFC4122]]), rendered with hyphens and in lower
             case, may be used as the<code>id</code> instead.</li>
     </ul>
-    <p class="note">All IDs in DID Docs, including these, should be considered case-sensitive. Ignoring case will result
+    <p class="note">All IDs in DID docs, including these, should be considered case-sensitive. Ignoring case will result
         in invalid comparisons for key <code>id</code>s based on encodings that are not hex.
     </p>
     <p>Because peer DIDs usually operate independent of global registries, external references (where <code>controller</code>
@@ -162,7 +162,7 @@
     <section>
         <h4 id="adding-a-publickey">Adding a key</h4>
 
-        <p>To add a new key with <code>id</code> = <code>Mv6gmMNa</code> to a peer DID Doc, you might create
+        <p>To add a new key with <code>id</code> = <code>Mv6gmMNa</code> to a peer DID doc, you might create
         a <a>change fragment</a> of the DID doc that looks like this:
         </p>
 
@@ -203,7 +203,7 @@
         <h4 id="deleting-a-publickey">Deleting a key</h4>
 
         <p>Any key can be deleted by appending its <code>id</code> to the <code>deleted</code> list at the root of
-            the stored version of a peer DID Doc, and by removing its corresponding entry from the <code>publicKey</code>
+            the stored version of a peer DID doc, and by removing its corresponding entry from the <code>publicKey</code>
             section. Only the append-to-<code>deleted</code> operation needs to be represented in the <a>change
             fragment</a>; the corresponding removal from the <code>publicKey</code> section is implied. For example, to
             delete a key with <code>id</code> = <code>izfrNTmQ</code>, your <a>change fragment</a> would look like
@@ -241,7 +241,7 @@
         privileges, and the concomitant trust, are different. Only the highest-level officials should be signing
         binding international treaties.
     </p>
-    <p>The <a href="#authorization"><code>authorization</code> section</a> of peer DID Docs, described next, is
+    <p>The <a href="#authorization"><code>authorization</code> section</a> of peer DID docs, described next, is
         where fine-grained privileges are described. The <code>authentication</code> section is a blunt instrument,
         incapable of distinguishing between these levels of trust, and incapable of associating trust with anything
         more complex than a single key. It is supported for historical reasons, and because most so-called "DID
@@ -348,7 +348,7 @@
         <h4>Privilege Inventory</h4>
 
         <p>Unlike role names, the privileges named in these rules DO need to be understood by code that parses peer
-            DID Docs; it is these privileges that others in a relationship should enforce. Possible values include:</p>
+            DID docs; it is these privileges that others in a relationship should enforce. Possible values include:</p>
         <dl>
             <dt><dfn>route</dfn></dt>
             <dd>The holder of this privilege is allowed to receive and decrypt <a target="aries"
@@ -381,7 +381,7 @@
             <dt><dfn>sign</dfn></dt>
             <dd><p>The holder of this privilege can incur binding, contractual obligations on behalf of the DID subject.
                 This may actually be a better test for login or authentication, in many cases, than whether a key appears
-                in the <a href="#authentication"><code>authentication</code> section</a> of the DID Doc; it depends on
+                in the <a href="#authentication"><code>authentication</code> section</a> of the DID doc; it depends on
                 what trust is imputed after login.</p>
                 <p class="note">Any key holder can sign a DIDComm message; doing so gives non-repudiation to the
                     message. However, remember our <a href="#authentication">earlier discussion</a> about low-level
@@ -392,7 +392,7 @@
                 </p></dd>
 
             <dt><dfn>key_admin</dfn></dt>
-            <dd>The holder of this privilege can add or remove other keys from a peer DID Doc's <a href="#publickey">
+            <dd>The holder of this privilege can add or remove other keys from a peer DID doc's <a href="#publickey">
                 <code>publicKey</code> section</a>, <a href="#authentication"><code>authentication</code> section</a>,
                 or <code>authorization.profiles</code> list. Typically this privilege is held only by very privileged
                 keys, or by combinations of keys, to prevent hackers who co-opt one device from adding new, malicious
@@ -400,18 +400,18 @@
             </dd>
 
             <dt><dfn>se_admin</dfn></dt>
-            <dd><p>The holder of this privilege can add or remove items from a peer DID Doc's <a href="#service">
+            <dd><p>The holder of this privilege can add or remove items from a peer DID doc's <a href="#service">
                 <code>service</code> section</a>.</p>
             </dd>
 
             <dt><dfn>rules_admin</dfn></dt>
-            <dd><p>The holder of this privilege can add or remove rules from a peer DID Doc's <code>authorization.rules
+            <dd><p>The holder of this privilege can add or remove rules from a peer DID doc's <code>authorization.rules
             </code> list. Typically this privilege is held only by very privileged keys, or by combinations of keys.</p>
             </dd>
 
             <dt><dfn>rotate</dfn></dt>
             <dd>The holder of this privilege can replace its associated key definition, and all references to that
-                key throughout a DID Doc, with a new key definition and references, in a single delete-and-add
+                key throughout a DID doc, with a new key definition and references, in a single delete-and-add
                 operation. If key #2 has this privilege and exercises it, the result is that key #2 is revoked from
                 the doc, but a new key (perhaps key #7) appears with exactly the same profile. This privilege is
                 assumed to be held by all keys unless rules specify otherwise.

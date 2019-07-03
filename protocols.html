@@ -71,7 +71,7 @@
     <h3>CRUD Operations</h3>
     <section>
         <h4>Create (Register)</h4>
-        <p>Although the work of <em>creating</em> a peer DID and the <a>genesis version</a> of its DID Doc can be
+        <p>Although the work of <em>creating</em> a peer DID and the <a>genesis version</a> of its DID doc can be
             done at any time and does not require a message, <em>registering</em> a peer DID with the other party or
             parties in a relationship involves a specific sequence of messages known as the <dfn>DID Exchange
             protocol</dfn>. The protocol is <a target="aries"
@@ -93,11 +93,11 @@
             <li>The invitee sends an encrypted <dfn>connection request</dfn> back to the inviter, using the
                 endpoint that the inviter supplied in the invitation. This connection request includes a signed
                 version of the <a>resolved variant</a> [TODO: signed variant??] of the <a>genesis version</a> of
-                the invitee's DID Doc.
+                the invitee's DID doc.
             </li>
             <li>The inviter sends an encrypted <dfn>connection response</dfn> the other direction. This response
                 includes a signed version of the <a>resolved variant</a> of the <a>genesis version</a> of the
-                inviter's DID Doc.
+                inviter's DID doc.
             </li>
         </ol>
         <p>These three steps have been carefully defined to achieve a number of important goals:</p>
@@ -135,7 +135,7 @@
             <a href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md"
                     target="aries">Aries RFC 0030</a>. Here, we offer only a summary.
         </p>
-        <p>A peer DID can be resolved to a DID Document by sending a <a target="aries"
+        <p>A peer DID can be resolved to a DID document by sending a <a target="aries"
                 href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/query-connection-state-protocol/README.md#state_request">
             state_request</a> message from one peer to another:</p>
         <pre class="example" title="A state_request message">
@@ -146,11 +146,11 @@
   "as_of_time": "2019-07-23 18:05:06.123Z"
 }
         </pre>
-        <p>The <code>as_of_time</code> property is optional and often omitted; if so, the DID Doc at
+        <p>The <code>as_of_time</code> property is optional and often omitted; if so, the DID doc at
             the current time is returned.</p>
         <p>A <a target="aries"
             href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/query-connection-state-protocol/README.md#state_response">
-            state_response</a> message is returned. It includes a DID Doc and some additional metadata, and looks like
+            state_response</a> message is returned. It includes a DID doc and some additional metadata, and looks like
             this:
         </p>
         <pre class="example" title="A state_response message">
@@ -158,9 +158,9 @@
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync-connection/1.0/state_response",
   "@id": "1517207d-f50e-4ed5-a389-6a4986d718e6",
   "~thread": { "thid": "6a4986dd-f50e-4ed5-a389-718e61517207" },
-  "for": "did:peer:rjHiqAzCbsNYhMZDTUASHg",
+  "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
   "did_doc": {
-    // full content of resolved variant of DID Doc here
+    // full content of resolved variant of DID doc here
   },
   "as_of_time": "2019-07-23 18:05:06.123Z"
 }
@@ -174,7 +174,7 @@
 
     <section>
         <h4>Update</h4>
-        <p>The subject of a peer DID can update their associated DID Document with anyone who knows the
+        <p>The subject of a peer DID can update their associated DID document with anyone who knows the
             DID&mdash;one or more agents of the peer(s), or agents of the owner&mdash;by sending a <a target="aries"
             href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md#sync_state">
             sync_state</a> message to another peer. An example of this type of message is:
@@ -237,7 +237,7 @@
             is offline.</p>
 
         <p>However, it is best practice to announce that the relationship is being abandoned. This
-            should cause the other party to clean up by removing the DID, DID Doc, and associated metadata from its
+            should cause the other party to clean up by removing the DID, DID doc, and associated metadata from its
             local cache. It should also prevent the other party from trying to communicate in the future.
             Formally terminating a connection happens by sending an <a target="aries"
             href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0030-sync-connection/abandon-connection-protocol#announce"><code>
