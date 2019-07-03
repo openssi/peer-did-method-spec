@@ -19,6 +19,7 @@
         in this form:</p>
     <pre>
 {
+    "id": &lt;a UUID&gt;,
     "change": &lt;base64 encoding of a change fragment&gt;,
     "by": [ {"key": &lt;id of key&gt;, "sig": &lt;signature value&gt;} ... ],
     "when": &lt;ISO8601 UTC timestamp with at least second precision&gt;
@@ -185,6 +186,7 @@
         </p>
         <pre class="example" title="Delta that adds a new key">
 {
+    "id": "040aaa5e-1a27-40d8-8d53-13a00b82d235",
     "change": "ewogICJwdWJsaWNLZXkiOiBbCiAgICB...ozd1htcVBWcGZrY0pDd0R3biIKICAgIH0KICBdCn0=",
     "by": [ {"key": "H3C2AVvL", "sig": ""if8ooA+32YZc4SQBvIDDY9tgTa...i4VvND87PUqq5/0vsNFEGIIEDA=="} ],
     "when": "2019-07-18T15:49:22.03Z"
