@@ -160,6 +160,7 @@
         <p>To add a new key with <code>id</code> = <code>Mv6gmMNa</code> to a peer DID Doc, you might create
         a <a>change fragment</a> of the DID doc that looks like this:
         </p>
+
         <pre class="example" title="Change fragment that adds a new key">
 {
     "publicKey": [
@@ -169,15 +170,19 @@
           "controller": "#id",
           "publicKeyBase58": "Mv6gmMNam3uVAjH3C2AVvLZZn6z3wXmqPVpfkcJCwDwn"
         }
-    ]
+    ],
+    "authorization": { "profiles": [{"key": "#Mv6gmMNa", "roles", ["edge"]} }
 }
         </pre>
 
-        <p>Since all deltas append data to at least one list inside the DID doc, the single entry under
-        <code>publicKey</code> here is known to be a new key. The <a>delta</a> that encapsulates this update would take
-        the above JSON text, base64-encode it, and assign the result to the delta's <code>change</code> property. It
-        would need to be authorized by a key with the <a>key_admin</a> privilege, evidenced in the delta's <code>by
-        </code> field. The resulting delta might look like this:
+        <p>Change fragments only show where something is <em>appended</em> to either normal lists or the <a>deletion
+            list</a>. Here, the single entries under <code>publicKey</code> and <code>authorization.profiles</code> are
+            additions, not replacements, to the lists that already contain values. (The <a>trust profile</a> embodied in
+            the<code>authorization.profiles</code> associates the new key with privileges. This must be done at creation
+            time. It is discussed under <a href="#authorization"><code>authorization</code></a>.) The <a>delta</a> that
+            encapsulates this update would take the above JSON text, base64-encode it, and assign the result to the
+            delta's <code>change</code> property. It would need to be authorized by a key with the <a>key_admin</a>
+            privilege, evidenced in the delta's <code>by</code> field. The resulting delta might look like this:
         </p>
         <pre class="example" title="Delta that adds a new key">
 {
@@ -240,7 +245,7 @@
         diplomats. This will prevent impersonation by less trusted keys when stakes are high.
     </p>
     <section>
-        <h4>Adding a key</h4>
+        <h4 id="adding-key-to-authn">Adding a key</h4>
         <p>As mentioned earlier, all objects having an <code>id</code> property in peer DID docs are immutable. This
             means that a key cannot change its status with respect to the <code>authentication</code> section of a peer
             DID doc during its lifetime in that doc; it must be declared as an authentication key when it is first
@@ -257,13 +262,14 @@
           "publicKeyBase58": "Mv6gmMNam3uVAjH3C2AVvLZZn6z3wXmqPVpfkcJCwDwn"
         }
     ],
-    "authentication": [ "#Mv6gmMNa" ]
+    "authentication": [ "#Mv6gmMNa" ],
+    "authorization": { "profiles": [{"key": "#Mv6gmMNa", "roles", ["edge"]} }
 }
         </pre>
         <p class="note">Adding a key with authentication privileges can only be authorized by a key that has the
             <a>key_admin</a> privilege.</p>
 
-        <h4>Deleting a key</h4>
+        <h4 id="deleting-key-from-authn">Deleting a key</h4>
         <p>Because a key's authentication privileges are immutable, the only way to take away authentication
         privileges from a key is to remove it entirely from the DID doc. See
             <a target="#example-4-change-fragment-that-deletes-a-key">Example 4</a>.</p>
@@ -279,6 +285,8 @@
         rules in the second list, their meaning in normal language does not need to be understood by a party
         wishing to support correct semantics.
     </p>
+    <p class="note">Changes to the <code>profiles</code> list MUST be performed when a key is added or deleted;
+    the <a>trust profile</a> of a key cannot change after it is created.</p>
     <p>The second list contains <a href="https://evernym.github.io/sgl" target="sgl">SGL</a> rules that grant
         privileges according to named roles. Here is an example:
     </p>
@@ -326,19 +334,20 @@
 
     <section>
         <h4>Privilege Inventory</h4>
+
         <p>Unlike role names, the privileges named in these rules DO need to be understood by code that parses peer
             DID Docs; it is these privileges that others in a relationship should enforce. Possible values include:</p>
         <dl>
             <dt><dfn>route</dfn></dt>
             <dd>The holder of this privilege is allowed to receive and decrypt <a target="aries"
-                    href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0094-cross-domain-messaging#required-mediators-process-forward-messages">
+                href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0094-cross-domain-messaging#required-mediators-process-forward-messages">
                 DIDComm <code>forward</code> messages</a> encrypted for itself, and to forward the contained
                 <a href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0019-encryption-envelope/README.md"
-                        target="aries">DIDComm encryption envelope</a> to another key. Holders of these keys thus become aware
+                target="aries">DIDComm encryption envelope</a> to another key. Holders of these keys thus become aware
                 of the timing and size of some incoming messages for the recipient (though not of the messages' senders
                 or content). This privilege is required and appropriate for any cloud agent or <a target="aries"
-                        href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0046-mediators-and-relays/README.md">
-                    mediator</a> that exposes a service endpoint on behalf of mobile devices or other agents behind a
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0046-mediators-and-relays/README.md">
+                mediator</a> that exposes a service endpoint on behalf of mobile devices or other agents behind a
                 firewall.</dd>
 
             <dt><dfn>authcrypt</dfn></dt>
@@ -399,42 +408,82 @@
     </section>
 
     <section>
-        <h4><code>rules~deleted</code></h4>
+        <h4>Adding a rule</h4>
 
-        <p>Notice that in the example above, each rule has an <code>id</code> property. This property can be
-            assigned in any way that an implementation likes, as long as the values are unique within the document.
-            This property is used to maintain a <a>deletion list</a> for the rules. The <code>authorization.rules
-            </code> array is paired with a <code>rules~deleted</code> list, which is a sibling to <code>rules</code>
-            below <code>authorization</code>. This list of strings enumerates the <code>id</code>s of all rules that
-            have been removed from the <code>authorization.rules</code> list. An example of a <code>rules~deleted
-            </code> list might be:
+        <p>Notice that rules have <code>id</code> properties. The IDs for these rules can be assigned by any convenient
+            method that provides collision resistance across concurrent updates.
         </p>
-        <pre class="example" title="Sample authorization.rules~deleted section">
+        <p>These <code>id</code>s give rules the same <a>CRDT</a> semantics as keys
+            and service endpoints&mdash;they can be added or removed with deltas, but never modified. A <a>change
+            fragment</a> that adds a new rule might be:
+        </p>
+
+        <pre class="example" title="Change fragment that adds a new rule">
 {
-    ...
     "authorization": {
-        ...
-        "rules": [ ... ]
-        "rules~deleted": ["rule-1", "32a769b4"]
-        ...
+        "rules": [
+            {
+                "grant": ["route", "authcrypt"],
+                "when": {"roles": "cloud"},
+                "id": "rule-7"
+            }
+        ]
     }
-    ...
 }
-            </pre>
-        <p class="note">The <code>authorization.profiles</code> section does not have a <a>deletion list</a>.
-            This is because the profile of a key is immutable&mdash;it cannot change for the lifetime of a key. Once
-            a key is deleted, it is automatically removed from the profiles list (or treated as if it were removed).
+        </pre>
+        <p class="note">Both adding and deleting a rule must be authorized by a key with the <a>key_admin</a> privilege.
+            Care should be taken to bundle additions and deletions of rules in such a way that once a full <a>delta</a>
+            is applied, the new state provides adequate privileges for all existing keys.
         </p>
+    </section>
+
+    <section>
+        <h4>Deleting a rule</h4>
+
+        <p>A <a>change fragment</a> that deletes a rule might look like this:
+        </p>
+
+        <pre class="example" title="Change fragment that deletes a rule">
+{
+    "deleted": [ "rule-7" ]
+}
+        </pre>
+        <p>See the note above, in the <a href="#adding-a-rule">Adding a rule</a> section, about privileges and
+            transactional logic when deleting rules.</p>
     </section>
 </section>
 <section>
-    <h3><code><dfn>serviceEndpoint</dfn></code></h3>
+    <h3><code><dfn>service</dfn></code></h3>
+
     <p>This section matches the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#service-endpoints">
-        general description in the DID Spec</a>.</p>
+        general description of service endpoints in the DID Spec</a>. Any changes to this section of the DID doc
+        must be authorized by a key with the <a>se_admin</a> privilege.
+    </p>
+
     <section>
-        <h4><code>serviceEndpoint~deleted</code></h4>
-        <p>Each service endpoint has a unique <code>id</code>. The <code>serviceEndpoint~deleted
-        </code> list is thus a list of <code>id</code>s that have been deleted from the <code>serviceEndpoint</code>
-            section of the doc, functioning in the same way as other <a>deletion lists</a>.</p>
+        <h4>Adding a service endpoint</h4>
+        <p>A <a>change fragment</a> that adds a service endpoint might look like this:</p>
+
+        <pre class="example" title="Change fragment that adds a service endpoint">
+{
+    "service": [
+        {
+            "id": "#agent",
+            "type": "AgentService",
+            "serviceEndpoint": "https://agents-r-us.com"
+        }
+    ]
+}
+        </pre>
+
+        <section>
+            <h4>Deleting a service endpoint</h4>
+            <p>A <a>change fragment</a> that deletes a service endpoint might look like this:</p>
+
+            <pre class="example" title="Change fragment that deletes a service endpoint">
+{
+    "deleted": [ "#agent" ]
+}
+        </pre>
     </section>
 </section>
