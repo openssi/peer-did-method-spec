@@ -1,0 +1,110 @@
+<h2>Core Characteristics</h2>
+<section>
+    <h3>Namestring</h3>
+    <p>The namestring that shall identify this DID method is: <code>peer</code></p>
+    <p>A DID that uses this method MUST begin with the following prefix: <code>did:peer:</code>.
+        Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix,
+        is the <a href="#namespace-specific-identifier-nsi">namespace specific identifier specified below</a>.
+    </p>
+    <p class="note">Early feedback on this method suggested that we embed it beneath the namespace of a particular
+        blockchain, as in <code>did:sov:peer</code> or <a target="_blank"
+        href="https://w3c-ccg.github.io/didm-veres-one/#veres-one-did-format"><code>did:v1:nym</code></a>.
+        However, this DID method is not captive to any particular blockchain, does not take its resolution rules
+        from a parent method, and does not require anchoring or reference to a blockchain to be valid.
+        Furthermore, any direct or indirect anchoring of a peer DID to a specific blockchain is driven by
+        circumstance and changeable at any time. For example, a peer DID could specify that it is using
+        a dead drop on blockchain 1, then change to blockchain 2, then change to blockchains 3 and 4 at
+        the same time. Therefore, "peer" belongs at the top of the DID namespace. How this method may be
+        used with various blockchains is discussed <a href="#grafting">later</a>.
+    </p>
+</section>
+<section>
+    <h3>Target System(s)</h3>
+    <p>This DID method applies to any identity management implementation that meets the following two
+        requirements:</p>
+    <ul>
+        <li><em>Generation Algorithm</em> &mdash; The DIDs are created using the <a href="#namespace-specific-identifier-nsi">
+            algorithm described below</a>, endowing them with properties vital to trust between peers that is not
+            dependent on a central source of truth.
+        </li>
+        <li>
+            <em>Protocol</em> &mdash; The metadata for DIDs (what would be stored in an on-chain DID doc in other methods)
+            is communicated and maintained as described in the <a href="#protocols">Protocols</a> section.
+        </li>
+    </ul>
+</section>
+<section>
+    <h3>Namespace Specific Identifier (NSI)</h3>
+    <p>The Peer DID scheme is defined by the following ABNF (see [[RFC5234]] for syntax)</a>:</p>
+    <blockquote>
+        <code>
+            peer-did = "did:peer:" version "-" idstring<br>
+            version = "1"<br>
+            idstring = multibase multihash<br>
+            multibase = "F"</code> <span style="color:green"># See hex in
+                <a target="multibase" href="https://github.com/multiformats/multibase">multibase spec</a></span><br>
+        <code>multihash = "1220" restofhash</code> <span style="color:green"># See sha256+hex in
+                <a target="multihash" href="https://multiformats.io/multihash/">multihash spec</a></span>
+    </blockquote>
+    <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the
+        source of their uniqueness. This version of the spec (<code>version</code>
+        == <code>1</code>) generates the numeric basis from a hash of the initial content
+        of a DID doc (see next section). Subsequent versions of the spec may describe
+        additional generation methods as needed.</p>
+    <p>This <em>numeric basis</em> is encoded as a hash using the
+        <a target="multihash" href="https://multiformats.io/multihash/">multihash prefix</a>
+        for sha256+hex: "1220". Although this prefix is redundant today, a multihash prefix is used
+        so that a different digest or encoding may be selected in the future.</p>
+    <p>The multihash value is preceded by a <a target="multibase"
+            href="https://github.com/multiformats/multibase">multibase prefix</a> that tells how to
+        interpret the multihash that follows. Since the multihash value is hex in
+        this version of the spec, <code>multibase</code> is always "F" today; if the
+        multihash variant changes in the future, <code>multibase</code> may change, too.
+    <p>
+    <p class="note">Peer DIDs MUST be compared according to whatever case-sensitivity is implied by the
+        hash encoding they use. Hex is not case-sensitive, but if a future version of the spec
+        uses <a target="_blank" href="https://en.bitcoin.it/wiki/Base58Check_encoding">base58</a> or
+        base64 [[RFC4648]] encoding, values will be case-sensitive. Therefore, routines that handle
+        peer DIDs MUST NOT normalize case unless they take into account the specific hash encoding.</p>
+</section>
+<section>
+    <h3>Namestring Generation Method</h3>
+    <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
+    <ul>
+        <li>Create a <dfn>genesis version</dfn> of JSON text of the DID doc for the DID. The genesis version MUST
+            include enough keys and <a target="#authorization">authorization</a> that the genesis version of the doc
+            can be signed, to prevent man-in-the-middle attacks during initial DID exchange. It SHOULD also include
+            enough state that subsequent evolutions to the doc are authorized; otherwise, the doc is a dead end.
+            It MUST NOT include the DID itself (either the root <code>id</code> property or its value). This
+            lets the doc be created without knowing the DID's value in advance.
+            Suppressing the DID value creates a <dfn>stored variant</dfn> of peer DID doc data,
+            as opposed to the <dfn>resolved variant</dfn> that would have an actual DID value in the root <code>id
+            </code> property. (In either the stored or resolved variant of the doc, anywhere else that the DID value
+            would appear, it should appear as a relative reference rather than an absolute value. For example, each
+            <code>controller</code> property of a <a href="#publickey">publicKey that is owned by this DID would say
+                <code>"controller": "#id"</code></a>.)
+        </li>
+        <li>Calculate the SHA256 hash of the bytes of the <a>stored variant</a> of the <a>genesis version</a> of the
+            DID doc, and make this value the new DID's <a>numeric basis</a>.
+        </li>
+    </ul>
+    <p>By basing the numeric value of the DID on the <a>genesis version</a> of the DID doc, the DID can begin its
+        lifecycle with any number of keys and endpoints, and when the doc is signed or auth-encrypted by one
+        of the keys, the recipient can know it has not been modified since creation. This guarantees the
+        initial integrity of the DID's chain of custody.</p>
+    <p>By hashing the stored variant, we avoid the circular problem of including the DID in the data that's being
+        hashed. This means that a peer DID doc must be resolved by converting a <a>stored variant</a> of DID doc
+        data into a <a>resolved variant</a> by inserting the value of the DID being resolved, during resolution.</p>
+</section>
+<section>
+    <h3>Examples</h3>
+    <p>A convenient regex to match <code>peer</code> DIDs is:</p>
+    <blockquote>
+        <code>^did:peer:1-F1220[a-fA-F0-9]{8,40}$</code>
+    </blockquote>
+    <p>A valid <code>peer</code> DID might be:</p>
+    <blockquote>
+        <code>did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe</code>
+    </blockquote>
+    <p>Examples of a DID doc for this method are explored in greater detail <a href="#diddocs">below</a>.</p>
+</section>
