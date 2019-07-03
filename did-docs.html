@@ -68,9 +68,11 @@
         technique that avoids much of the pain. The backing storage for peer DID docs is carefully defined to
         be a <a target="wikipedia" href="https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type">conflict-free
         replicated data type</a> (<dfn>CRDT</dfn>).</p>
-    <p>CRDTs are a deep subject unto themselves, and additional study on the web is recommended. Here, we will
-        simply note some key requirements that they impose on DID docs and their <a>backing storage</a>.</p>
-    <ol>
+    <p>CRDTs are a deep subject unto themselves, with a body of academic research; additional study is recommended.
+        They are behind familiar experiences like simultaneous, distributed editing of Google Docs, which never raises
+        error messages about merge conflicts. Here, we will not explain their theory; we will simply note some key
+        requirements that they impose on DID docs and their <a>backing storage</a>.</p>
+    <ol id="crdt-rules">
         <li>Core building blocks&mdash;keys, rules, and service endpoints&mdash; must be assigned
             <code>id</code> properties in a way that prevents collisions.</li>
         <li>All items with <code>id</code> properties must be immutable. They can be deleted, but they can never have
@@ -86,7 +88,10 @@
             of relative timing of the two versions. This eliminates the possibility that a malicious party could
             attempt to take advantage of differences in system clocks or sequencing.</li>
     </ol>
-    <p>Details about CRDT requirements are documented below, in the sections about individual parts of the DID Doc.
+    <p>These rules do not guarantee that conflicting state can never exist. However, they provide a framework
+        that allows conflicting state to be resolved automatically. No human judgment is ever required, and all
+        non-malicious parties to a relationship will agree on the proper course of action in every circumstance.
+        Details about CRDT requirements are documented below, in the sections about individual parts of the DID Doc.
         These will make the CRDT semantics and the technique clearer.</p>
 </section>
 
@@ -279,6 +284,12 @@
 
 <section>
     <h3><code><dfn>authorization</dfn></code></h3>
+
+    <p class="note">This section of a peer DID docs governs how DID docs are updated and DIDComm trust flows. It doesn't
+        contemplate custom authorization schemes such as peers might develop to give each other spending limits or
+        access to sensitive data. Those matters are better formalized with something like a verifiable credential, or a
+        simple digitally signed permission slip.
+    </p>
 
     <p>Peer DID docs organize their <code>authorization</code> section into two lists. The first, <code>profiles
     </code>, gives a <dfn>trust profile</dfn> for each key, as expressed by named roles the key holds. These
