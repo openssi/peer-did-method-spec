@@ -38,34 +38,34 @@
     <p>The Peer DID scheme is defined by the following ABNF (see [[RFC5234]] for syntax)</a>:</p>
     <blockquote>
         <code>
-            peer-did = "did:peer:" version "-" idstring<br>
-            version = "1"<br>
-            idstring = multibase multihash<br>
-            multibase = "F"</code> <span style="color:green"># See hex in
-                <a target="multibase" href="https://github.com/multiformats/multibase">multibase spec</a></span><br>
-        <code>multihash = "1220" restofhash</code> <span style="color:green"># See sha256+hex in
-                <a target="multihash" href="https://multiformats.io/multihash/">multihash spec</a></span>
+            peer-did = "did:peer:" numalgo encalgo "-" idstring<br>
+            numalgo = "1"<br>
+            encalgo = "1"<br>
+            idstring = 64*hex<br>
+            hex = digit / "a" / "b" / "c" / "d" / "e" / "f"<br>
+            digit = "0" / "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9"
     </blockquote>
     <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the
-        source of their uniqueness. This version of the spec (<code>version</code>
+        source of their uniqueness. This version of the spec (<code>numalgo</code>
         == <code>1</code>) generates the numeric basis from a hash of the initial content
         of a DID doc (see next section). Subsequent versions of the spec may describe
-        additional generation methods as needed.</p>
-    <p>This <em>numeric basis</em> is encoded as a hash using the
-        <a target="multihash" href="https://multiformats.io/multihash/">multihash prefix</a>
-        for sha256+hex: "1220". Although this prefix is redundant today, a multihash prefix is used
-        so that a different digest or encoding may be selected in the future.</p>
-    <p>The multihash value is preceded by a <a target="multibase"
-            href="https://github.com/multiformats/multibase">multibase prefix</a> that tells how to
-        interpret the multihash that follows. Since the multihash value is hex in
-        this version of the spec, <code>multibase</code> is always "F" today; if the
-        multihash variant changes in the future, <code>multibase</code> may change, too.
-    <p>
-    <p class="note">Peer DIDs MUST be compared according to whatever case-sensitivity is implied by the
-        hash encoding they use. Hex is not case-sensitive, but if a future version of the spec
-        uses <a target="_blank" href="https://en.bitcoin.it/wiki/Base58Check_encoding">base58</a> or
-        base64 [[RFC4648]] encoding, values will be case-sensitive. Therefore, routines that handle
-        peer DIDs MUST NOT normalize case unless they take into account the specific hash encoding.</p>
+        additional methods of generating the numeric basis; each new method is associated
+        with the next unused <code>numalgo</code> digit as it is defined.
+    </p>
+    <p>This <em>numeric basis</em> is transformed to text using an encoding algorithm. This version
+        of the spec (<code>encalgo</code> == <code>1</code>) encodes using hexadecimal. By convention,
+        it is always rendered in lower case. Subsequent versions of the spec may describe additional encodings;
+        each new encoding is associated with the next unused <code>encalgo</code> digit as it is
+        defined.</p>
+    <p class="note">The <code>idstring</code> portion of peer DIDs MUST be compared according to
+        whatever case-sensitivity is implied by the encoding algorithm they use. Hex is not case-sensitive,
+        so two peer DID strings using <code>encalgo</code> == <code>1</code>, that differ only in the case
+        of the <code>idstring</code> portion, are equivalent. However, if a future version of the spec
+        defines <code>encalgo</code> == <code>2</code> to be something case-sensitive, such as <a target="_blank"
+        href="https://en.bitcoin.it/wiki/Base58Check_encoding">base58</a> or base64 [[RFC4648]], comparison of
+        the <code>idstring</code>values for peer DIDs with <code>encalgo</code> == <code>2</code> will be
+        case-sensitive. Therefore, routines that handle peer DIDs MUST NOT normalize or ignore case unless they
+        take into account the encoding algorithm of each individual peer DID.</p>
 </section>
 <section>
     <h3>Namestring Generation Method</h3>
@@ -100,11 +100,11 @@
     <h3>Examples</h3>
     <p>A convenient regex to match <code>peer</code> DIDs is:</p>
     <blockquote>
-        <code>^did:peer:1-F1220[a-fA-F0-9]{8,40}$</code>
+        <code>^did:peer:11-[a-fA-F0-9]{64}$</code>
     </blockquote>
     <p>A valid <code>peer</code> DID might be:</p>
     <blockquote>
-        <code>did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe</code>
+        <code>did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe</code>
     </blockquote>
     <p>Examples of a DID doc for this method are explored in greater detail <a href="#diddocs">below</a>.</p>
 </section>
