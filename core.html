@@ -41,16 +41,14 @@
 <section>
     <h3>Namespace Specific Identifier (NSI)</h3>
 
-    <p>The Peer DID scheme is defined by the following ABNF (see [[RFC5234]] for syntax)</a>:</p>
-    <blockquote>
-        <code>
-            peer-did = "did:peer:" numalgo encalgo "-" idstring<br>
-            numalgo = "1"<br>
-            encalgo = "1"<br>
-            idstring = 64*hex<br>
-            hex = digit / "a" / "b" / "c" / "d" / "e" / "f"<br>
-            digit = "0" / "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9"
-    </blockquote>
+    <p>The peer DID scheme is defined by the following ABNF (see [[RFC5234]] for syntax):</p>
+    <pre class="example" class="ABNF">
+peer-did = "did:peer:" numalgo encalgo "-" idstring
+numalgo = "1"
+encalgo = "1"
+idstring = 64*hex
+    </pre>
+    <p>The meaning of <code>hex</code> is the traditional one for hexadecimal digits.</p>
     <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the
         source of their uniqueness. This version of the spec (<code>numalgo</code>
         == <code>1</code>) generates the numeric basis from a hash of the initial content
