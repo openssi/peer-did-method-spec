@@ -1,6 +1,8 @@
 <h2>Core Characteristics</h2>
+
 <section>
     <h3>Namestring</h3>
+
     <p>The namestring that shall identify this DID method is: <code>peer</code></p>
     <p>A DID that uses this method MUST begin with the following prefix: <code>did:peer:</code>.
         Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix,
@@ -18,8 +20,10 @@
         used with various blockchains is discussed <a href="#grafting">later</a>.
     </p>
 </section>
+
 <section>
     <h3>Target System(s)</h3>
+
     <p>This DID method applies to any identity management implementation that meets the following two
         requirements:</p>
     <ul>
@@ -33,8 +37,10 @@
         </li>
     </ul>
 </section>
+
 <section>
     <h3>Namespace Specific Identifier (NSI)</h3>
+
     <p>The Peer DID scheme is defined by the following ABNF (see [[RFC5234]] for syntax)</a>:</p>
     <blockquote>
         <code>
@@ -67,8 +73,10 @@
         case-sensitive. Therefore, routines that handle peer DIDs MUST NOT normalize or ignore case unless they
         take into account the encoding algorithm of each individual peer DID.</p>
 </section>
+
 <section>
     <h3>Namestring Generation Method</h3>
+
     <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
     <ul>
         <li>Create a <dfn>genesis version</dfn> of JSON text of the DID doc for the DID. The genesis version MUST
@@ -96,15 +104,53 @@
         hashed. This means that a peer DID doc must be resolved by converting a <a>stored variant</a> of DID doc
         data into a <a>resolved variant</a> by inserting the value of the DID being resolved, during resolution.</p>
 </section>
+
 <section>
-    <h3>Examples</h3>
-    <p>A convenient regex to match <code>peer</code> DIDs is:</p>
-    <blockquote>
-        <code>^did:peer:11-[a-fA-F0-9]{64}$</code>
-    </blockquote>
+    <h3>Recognizing and handling peer DIDs</h3>
+
     <p>A valid <code>peer</code> DID might be:</p>
-    <blockquote>
+
+    <pre class="example" title="A typical peer DID">
         <code>did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe</code>
-    </blockquote>
+    </pre>
+
+    <p>Peer DIDs consist entirely of printable ASCII characters and are exactly 76 characters long. They have no
+        whitespace, and the only punctuation they use are the characters <code>:</code> and <code>-</code>. When
+        rendering in columns with a constrained width, they could be hyphenated one or more times as needed, at any
+        position after offset 19 (the 7th hex character); the hyphens would not be confused with meaningful delimiters,
+        and the final character of the DID would be easy to find. They could also be rendered in a short form with the
+        middle of the long hex section elided, if it is not necessary to compare them with precision: <code>
+            did:peer:11-479cbc0...f3e2cbe</code>. The ellipsis should not obscure the prefix or the initial 7 or last 7
+        characters of the hex, to preserve enough info for casual distinciton. This might be a useful rendering in log
+        files, for example.
+    </p>
+
+    <p>A convenient regex to match <code>peer</code> DIDs is:</p>
+
+    <pre class="example" title="Matching regex">
+^did:peer:(1)(1)-([a-fA-F0-9]{64})$
+    </pre>
+
+    <p>A match against this regex places <code>numalgo</code> (the algorithm for choosing a numeric basis) in
+        capture group 1, <code>encalgo</code> (the algorithm for encoding) in capture group 2, and the numeric
+        basis itself, in properly encoded form, in capture group 3.</p>
+
+    <p>Pseudocode to sort two peer DIDs or test them for equality might be:</p>
+    <pre class="example" title="Pseudocode to compare two peer DIDs">
+def compare_peer_did(did_a, did_b):
+    prefix_a = did_a[:12]
+    prefix_b = did_b[:12]
+    # Compare the prefix case-sensitively.
+    n = cmp(prefix_a, prefix_b)
+    if n == 0:
+        numeric_a = did_a[12:].lower()
+        numeric_b = did_b[12:].lower()
+        # Compare the numeric portion case-insensitively.
+        n = cmp(numeric_a, numeric_b)
+    # Return < 0 if a < b, 0 if a == b, > 0 if a > b
+    return n
+    </pre>
+    <p>More efficient versons of this code could be written; this merely illustrates a correct algorithm.</p>
+
     <p>Examples of a DID doc for this method are explored in greater detail <a href="#diddocs">below</a>.</p>
 </section>
