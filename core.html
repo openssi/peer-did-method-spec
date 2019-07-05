@@ -49,22 +49,22 @@ encalgo = "1"
 idstring = 64*hex
     </pre>
     <p>The meaning of <code>hex</code> is the traditional one for hexadecimal digits.</p>
-    <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the
-        source of their uniqueness. This version of the spec (<code>numalgo</code>
-        == <code>1</code>) generates the numeric basis from a hash of the initial content
-        of a DID doc (see next section). Subsequent versions of the spec may describe
-        additional methods of generating the numeric basis; each new method is associated
-        with the next unused <code>numalgo</code> digit as it is defined.
+    <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the source of their
+        uniqueness. This version of the spec requires a 256-bit numeric basis generated from a SHA256 [[!RFC4634]] hash
+        of the initial content of a DID doc. The <a href="#namestring-generation-method">next section</a> has details.
+        The requirement about size and origin of numeric basis is represented in the DID value with <code>numalgo
+        </code>==<code>1</code>. Subsequent versions of the spec may describe additional methods of generating the
+        numeric basis; each new method is associated with the next unused <code>numalgo</code> digit as it is defined.
     </p>
-    <p>This <em>numeric basis</em> is transformed to text using an encoding algorithm. This version
-        of the spec (<code>encalgo</code> == <code>1</code>) encodes using hexadecimal. By convention,
-        it is always rendered in lower case. Subsequent versions of the spec may describe additional encodings;
-        each new encoding is associated with the next unused <code>encalgo</code> digit as it is
-        defined.</p>
-    <p class="note">The <code>idstring</code> portion of peer DIDs MUST be compared according to
+    <p>This <em>numeric basis</em> is transformed to text using an encoding algorithm. This version of the spec encodes
+        using 64 hexadecimal digits, and represents that choice in the DID value with <code>encalgo</code> == <code>1
+        </code>. Subsequent versions of the spec may describe additional encodings; each new encoding is associated with
+        the next unused <code>encalgo</code> digit as it is defined.</p>
+    <p class="note">Implementations of <code>encalgo</code> == <code>1</code> SHOULD render the numeric basis in lower
+        case. However, the <code>idstring</code> portion of peer DIDs MUST be compared according to
         whatever case-sensitivity is implied by the encoding algorithm they use. Hex is not case-sensitive,
         so two peer DID strings using <code>encalgo</code> == <code>1</code>, that differ only in the case
-        of the <code>idstring</code> portion, are equivalent. However, if a future version of the spec
+        of the <code>idstring</code> portion, are equivalent. If a future version of the spec
         defines <code>encalgo</code> == <code>2</code> to be something case-sensitive, such as <a target="_blank"
         href="https://en.bitcoin.it/wiki/Base58Check_encoding">base58</a> or base64 [[RFC4648]], comparison of
         the <code>idstring</code>values for peer DIDs with <code>encalgo</code> == <code>2</code> will be
