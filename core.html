@@ -114,11 +114,11 @@ did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe
     <p>Peer DIDs consist entirely of printable ASCII characters and are exactly 76 characters long. They have no
         whitespace, and the only punctuation they use are the characters <code>:</code> and <code>-</code>. When
         rendering in columns with a constrained width, they could be hyphenated one or more times as needed, at any
-        position after offset 19 (the 7th hex character); the hyphens would not be confused with meaningful delimiters,
+        position after offset 14 (the 2nd hex character); the hyphens would not be confused with meaningful delimiters,
         and the final character of the DID would be easy to find. They could also be rendered in a short form with the
         middle of the long hex section elided, if it is not necessary to compare them with precision: <code>
-            did:peer:11-479cbc0...f3e2cbe</code>. The ellipsis should not obscure the prefix or the initial 7 or last 7
-        characters of the hex, to preserve enough info for casual distinciton. This might be a useful rendering in log
+        did:peer:11-479cbc0...f3e2cbe</code>. The ellipsis should not obscure the prefix or the initial or final few
+        characters of the hex, to preserve enough info for casual distinction. This might be a useful rendering in log
         files, for example.
     </p>
 
@@ -133,21 +133,9 @@ did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe
         basis itself, in properly encoded form, in capture group 3.</p>
 
     <p>Pseudocode to sort two peer DIDs or test them for equality might be:</p>
-    <pre class="example" class="python" title="Python to compare two peer DIDs">
-def compare_peer_did(did_a, did_b):
-    prefix_a = did_a[:12]
-    prefix_b = did_b[:12]
-    # Compare the prefix case-sensitively.
-    n = cmp(prefix_a, prefix_b)
-    if n == 0:
-        numeric_a = did_a[12:].lower()
-        numeric_b = did_b[12:].lower()
-        # Compare the numeric portion case-insensitively.
-        n = cmp(numeric_a, numeric_b)
-    # Return < 0 if a < b, 0 if a == b, > 0 if a > b
-    return n
+    <pre class="example" title="JavaScript to compare two peer DIDs" data-include="compare.js">
     </pre>
-    
+
     <p>More efficient versons of this code could be written; this merely illustrates a correct algorithm.</p>
 
     <p>Examples of a DID doc for this method are explored in greater detail <a href="#diddocs">below</a>.</p>
