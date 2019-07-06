@@ -107,7 +107,7 @@ numbasis = 64*hex
 
     <p>A valid <code>peer</code> DID might be:</p>
 
-    <pre class="example nohighlight" title="A typical peer DID">
+    <pre class="example nohighlight" title="A typical peer DID" id="typical-did">
 did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe
     </pre>
 
@@ -124,7 +124,7 @@ did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe
 
     <p>A convenient regex to match <code>peer</code> DIDs is:</p>
 
-    <pre class="example nohighlight" title="Matching regex">
+    <pre class="example nohighlight" title="Matching regex" id="matching-regex">
 ^did:peer:(1)(1)-([a-fA-F0-9]{64})$
     </pre>
 
@@ -132,9 +132,9 @@ did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe
         capture group 1, <code>encalgo</code> (the algorithm for encoding) in capture group 2, and the numeric
         basis itself, in properly encoded form, in capture group 3.</p>
 
-    <p>Pseudocode to sort two peer DIDs or test them for equality might be:</p>
+    <p>Javascript to sort two peer DIDs or test them for equality might be:</p>
 
-    <pre class="example" title="JavaScript to compare two peer DIDs">
+    <pre class="example" title="JavaScript to compare two peer DIDs" id="js-compare-func">
 function comparePeerDIDs(didA, didB) {
     a = didA.substring(0,12);
     b = didB.substring(0,12);
@@ -142,17 +142,18 @@ function comparePeerDIDs(didA, didB) {
     n = (a < b) ? -1 : (a > b ? 1 : 0);
     if (n == 0) {
         // Don't use .localeCompare() or .toLocaleLowerCase();
-        // we want raw ASCII comparison.
+        // we want raw ASCII comparison. Just normalize to
+        // lower case before comparing.
         a = didA.substring(12).toLowerCase();
         b = didB.substring(12).toLowerCase();
-        // Compare the numeric portion case-insensitively.
         n = (a < b) ? -1 : (a > b ? 1 : 0);
     }
     return n;
 }
     </pre>
 
-    <p>More efficient versons of this code could be written; this merely illustrates a correct algorithm.</p>
+    <p>See also the <a href="compare.py">Python equivalent</a>. Note that more robust and efficient versons of this code
+        could be written; this merely illustrates a correct algorithm.</p>
 
     <p>Examples of a DID doc for this method are explored in greater detail <a href="#diddocs">below</a>.</p>
 </section>

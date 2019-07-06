@@ -6,14 +6,158 @@
     <p>Different software may need to support peer DIDs to different degrees. Some natural clusters of functionality
         include:
     </p>
+
+    <figure id="impl-levels">
+        <img src="impl-levels.png" alt="3 levels of impl"/>
+        <figcaption>Natural ways to approach implementation.</figcaption>
+    </figure>
+
     <dl>
-        <dt>Level 1: Recognition</dt>
+        <dt>Level 1: Recognize</dt>
         <dd>
-            <p>Software understands what a peer DID is and how it works. It can tell whether a string is a valid
-                peer DID or not. It correctly compares two peer DIDs when sorting or testing for equality, taking
-                into account the case sensitivity rules.</p>
+            <p>Software with <dfn>Level 1</dfn> support MUST understand what a peer DID is and how it works. It MUST
+                tell whether a string is a valid peer DID or not. It MUST correctly compare two peer DIDs when sorting
+                or testing for equality, taking into account the case sensitivity rules. If relevant, it SHOULD display,
+                hyphenate, and abbreviate peer DIDs correctly. See <a href="#recognizing-and-handling-peer-DIDs">
+                Recognizing and handling peer DIDs</a>.
+            </p>
             <p>This might be an appropriate level of support for a database that needs to store peer DIDs as an
-                indexed field, but that otherwise has little need to provide peer DID features.</p>
+                indexed field, but that otherwise has little need to provide peer DID features.
+            </p>
+            <p><em>Expected effort</em>: a few minutes of coder time. See the <a href="#matching-regex">matching regex
+                </a> and the <a href="#js-compare-func">JavaScript implementation of correct comparison semantics</a>.
+            </p>
+        </dd>
+        <dt>Level 2a: Accept static peer DIDs from others</dt>
+        <dd>
+            <p>Software with <dfn>Level 2a</dfn> support includes <a>Level 1</a> support, and is also willing to
+                interact with other parties that use peer DIDs (e.g., to perform a <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0023-did-exchange/README.md">DID
+                Exchange</a> and additional protocols)--as long as the other parties do not attempt to update their DID
+                docs. This "static" (no update) constraint drastically simplifies implementation because support for
+                <a>backing storage</a>, <a>deltas</a>, and the <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md">
+                Sync Connection</a> or <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/query-connection-state-protocol/README.md">
+                Query Connection State</a> protocols is NOT REQUIRED. The implementation MUST recognize peer DIDs (Level
+                1), MUST store peer DID docs, and MUST look up those docs as a form of resolution. The implementation
+                SHOULD handle an <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/abandon-connection-protocol/README.md">
+                <code>abandon_connect/announce</code> message</a> gracefully, deleting the peer DID Doc from its cache.
+                The implementation MUST return a
+                <a href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0035-report-problem/README.md"
+                target="aries"><code>problem_report</code></a> with <code>code</code> == <code>unsupported-protocol</code>
+                if a remote party attempts to use dynamic peer DID protocols. The implementation SHOULD report that it
+                supports the DID Exchange protocol if it receives a <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0031-discover-features/README.md">
+                <code>discover-features/query</code> message</a>.
+
+            </p>
+            <p>This might be a beginning level of support for software that's already supporting other DID methods,
+            that wants meaningful interoperability as quickly and cheaply as possible. However, it is NOT RECOMMENDED
+            as a permanent goal, because it places limits on the behaviors of other peer DID users. Upgrading to
+            <a>Level 3a</a> support is strongly preferred.
+            </p>
+            <p><em>Expected effort</em>: a few hours of coder time if a codebase already has some DID features, or a
+                couple days of effort if starting from scratch.
+            </p>
+        </dd>
+        <dt>Level 2b: Give static peer DIDs to others</dt>
+        <dd>
+            <p>Software with <dfn>Level 2b</dfn> support includes <a>Level 1</a> support. It also creates peer DIDs and
+                gives them to other parties as the basis of interactions. <a>Level 2a</a> and Level 2b are not
+                hierarchical; either or both may be chosen, and the effort to implement is somewhat independent.
+            </p>
+            <p>Like <a>Level 2a</a>, Level 2b gets significant compatibility because the effort of supporting
+                <a>backing storage</a>, <a>deltas</a>, and the <a target="aries"
+                        href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md">
+                    Sync Connection</a> and <a target="aries"
+                        href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/query-connection-state-protocol/README.md">
+                    Query Connection State</a> protocols is NOT REQUIRED. Resolving peer DIDs against a cached version
+                of a peer DID Doc is also NOT REQUIRED. However, Level 2b-compliant implementations MUST be capable of
+                generating a genesis version of their own DID doc and calculating the <a>numeric basis</a> and DID
+                value that goes with it. The implementation SHOULD receive and MAY emit an <a target="aries"
+                        href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/abandon-connection-protocol/README.md">
+                    <code>abandon_connect/announce</code> message</a> gracefully.
+                The implementation SHOULD return a
+                <a href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0035-report-problem/README.md"
+                        target="aries"><code>problem_report</code></a> with <code>code</code> == <code>unsupported-protocol</code>
+                if a remote party attempts to use dynamic peer DID protocols. The implementation SHOULD report that it
+                supports the DID Exchange protocol if it receives a <a target="aries"
+                        href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0031-discover-features/README.md">
+                    <code>discover-features/query</code> message</a>.
+            </p>
+            <p>This might be an appropriate level of support for software that wants to use peer DIDs, but doesn't
+                intend to ever rotate its keys.
+            </p>
+            <p class="note" id="static-and-key-rotation">
+                Key rotation is an important security feature. It is generally a bad idea to provide no way to change
+                how proof of control is provided. The wisdom of supporting neither key rotation NOR <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/abandon-connection-protocol/README.md">
+                a way to abandon a connection</a> is particularly dubious. However, these static-only levels of support
+                are provided anyway, because some connections might be so short-lived that the security risks are
+                acceptable. Use good judgment. [[TODO: Do we need to support expiration of a conn?]]
+            </p>
+            <p><em>Expected effort</em>: a few hours of coder time if a codebase already has some DID features--especially
+                <a>Level 2a</a> support--or a couple days of effort if starting from scratch.
+            </p>
+        </dd>
+        <dt>Level 3a: Accept dynamic peer DIDs from others</dt>
+        <dd>
+            <p>Software with <dfn>Level 3a</dfn> support includes <a>Level 2a</a> support and is maximally interoperable
+                with others who want to use peer DIDs in rich ways. It may or may not use any peer DIDS of its own.
+            </p>
+            <p>Such an implementation MUST provide<a>backing storage</a> to persist others' peer DID Docs and the
+                <a>deltas</a> for them. It MUST support the <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md">
+                Sync Connection</a> and <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/query-connection-state-protocol/README.md">
+                Query Connection State</a> protocols, but, if <a>Level 3b</a> is supported, it can support those protocols
+                only for the dynamic data of others (meaning the only role it has to support in Query Connection State
+                is <code>responder</code>). The implementation SHOULD report that it supports these protocols if it
+                receives a relevant <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0031-discover-features/README.md">
+                <code>discover-features/query</code> message</a>.
+            </p>
+            <p>This level of support for accepting peer DIDs is RECOMMENDED for software that wants to offer rich peer
+                DID support to others, regardless of the level of peer DID usage it intends for itself. Anything less
+                than this level of support, insofar as <em>accepting</em> DIDs from others is concerned, in software
+                that expects to interact richly on the DID landscape, will hamper pervasive interoperability.
+            </p>
+            <p><em>Expected effort</em>: a few hours of coder time if a codebase already has support for <a>Level 2a</a>.
+                A couple days if the codebase has support for <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0005-didcomm/README.md">DIDComm</a>
+                and <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0005-didcomm/README.md">protocols</a>,
+                but only different DID types. A couple weeks if starting from scratch.
+            </p>
+        </dd>
+        <dt>Level 3b: Give dynamic peer DIDs to others</dt>
+        <dd>
+            <p>Software with <dfn>Level 3a</dfn> support includes <a>Level 2a</a> support. It MUST also provide
+                <a>backing storage</a> to persist others' peer DID Docs and the <a>deltas</a> for them. It MUST
+                support the <a target="aries"
+                        href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md">
+                    Sync Connection</a> and <a target="aries"
+                        href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/query-connection-state-protocol/README.md">
+                    Query Connection State</a> protocols, but, if <a>Level 3b</a> is supported, it can support those protocols
+                only for the dynamic data of others (meaning the only role it has to support in Query Connection State
+                is <code>responder</code>). The implementation SHOULD report that it supports these protocols if it
+                receives a relevant <a target="aries"
+                        href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0031-discover-features/README.md">
+                    <code>discover-features/query</code> message</a>.
+            </p>
+            <p>This might be an appropriate level of support for software that wants to offer rich peer DID support to
+                others, but that either doesn't intend to use peer DIDs itself or doesn't intend to rotate its own
+                keys.
+            </p>
+            <p><em>Expected effort</em>: A couple days of coder time if a codebase already has support for <a>Level 2b</a>.
+                A couple days if the codebase has support for <a target="aries"
+                        href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0005-didcomm/README.md">DIDComm</a>
+                and <a target="aries"
+                        href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0005-didcomm/README.md">protocols</a>,
+                but only different DID types. A couple weeks if starting from scratch.
+            </p>
         </dd>
     </dl>
 </section>
