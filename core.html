@@ -107,8 +107,8 @@ numbasis = 64*hex
 
     <p>A valid <code>peer</code> DID might be:</p>
 
-    <pre class="example" title="A typical peer DID">
-        <code>did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe</code>
+    <pre class="example" class="nohighlight" title="A typical peer DID">
+did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe
     </pre>
 
     <p>Peer DIDs consist entirely of printable ASCII characters and are exactly 76 characters long. They have no
@@ -124,7 +124,7 @@ numbasis = 64*hex
 
     <p>A convenient regex to match <code>peer</code> DIDs is:</p>
 
-    <pre class="example" title="Matching regex">
+    <pre class="example" class="nohighlight" title="Matching regex">
 ^did:peer:(1)(1)-([a-fA-F0-9]{64})$
     </pre>
 
@@ -133,7 +133,7 @@ numbasis = 64*hex
         basis itself, in properly encoded form, in capture group 3.</p>
 
     <p>Pseudocode to sort two peer DIDs or test them for equality might be:</p>
-    <pre class="example" title="Pseudocode to compare two peer DIDs">
+    <pre class="example" class="python" title="Python to compare two peer DIDs">
 def compare_peer_did(did_a, did_b):
     prefix_a = did_a[:12]
     prefix_b = did_b[:12]
@@ -147,6 +147,7 @@ def compare_peer_did(did_a, did_b):
     # Return < 0 if a < b, 0 if a == b, > 0 if a > b
     return n
     </pre>
+    
     <p>More efficient versons of this code could be written; this merely illustrates a correct algorithm.</p>
 
     <p>Examples of a DID doc for this method are explored in greater detail <a href="#diddocs">below</a>.</p>
