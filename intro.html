@@ -116,15 +116,25 @@
         <a href="nwise.html#sweet-spot">clearly n-wise</a>. Each party can enumerate all the other parties, and each
         party uses the same identifier in all directions within the group:
     </p>
-    <img src="n-wise.png"/>
-    <p>(See <a href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0006-ssi-notation/README.md"
-            target="aries">Aries RFC 0006</a> for help with the notation used in the diagram.)</p>
+
+    <figure id="n-wise-group">
+        <img src="n-wise.png" alt="n-wise group"/>
+        <figcaption>A classic 3-wise group: each party uses the same DID with two peers. (See <a
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0006-ssi-notation/README.md"
+                target="aries">Aries RFC 0006</a> for help with the notation used in the diagram.)</figcaption>
+    </figure>
+
     <p>But groups can also be modeled with a hub-and-spoke model. That model is commonly used in group chats,
         for example: each member of the group chat sends and receives via a central service, which in turn
         broadcasts to all other members of the group. This hub-and-spoke model is actually just a <a>pairwise</a>
         variant, because the relationship is between a member and the hub; all other relationships are only
         indirect:</p>
-    <img src="hub-wise.png"/>
+
+    <figure id="hub-and-spoke-group">
+        <img src="hub-wise.png" alt="group modeled as hub and spokes"/>
+        <figcaption>A group modeled as hub and spokes: each party only relates directly to the hub.</figcaption>
+    </figure>
+
     <p>Use of peer DIDs with <a>n-wise</a> groups is explicitly supported and documented below. We do not cover
         hub-and-spoke groups in the same way. They are compatible with this method, if reanalyzed as
         <a>pairwise</a>. Otherwise, the protocol described here may need adaptation.</p>
