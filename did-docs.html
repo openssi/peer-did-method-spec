@@ -272,13 +272,13 @@
     "authorization": { "profiles": [ {"key": "#Mv6gmMNa", "roles", ["edge"]} ] }
 }
         </pre>
-        <p class="note">Adding a key with authentication privileges can only be authorized by a key that has the
-            <a>key_admin</a> privilege.</p>
+        <p class="note">Adding or deleting a key with authentication privileges can only be authorized by a key that
+            has the <a>key_admin</a> privilege.</p>
 
         <h4 id="deleting-key-from-authn">Deleting a key</h4>
         <p>Because a key's authentication privileges are immutable, the only way to take away authentication
         privileges from a key is to remove it entirely from the DID doc. See
-            <a href="#example-10-change-fragment-that-deletes-a-key">Example 10</a>.</p>
+            <a href="#example-8-change-fragment-that-deletes-a-key">Example 8</a>.</p>
     </section>
 </section>
 
@@ -443,7 +443,7 @@
     }
 }
         </pre>
-        <p class="note">Both adding and deleting a rule must be authorized by a key with the <a>key_admin</a> privilege.
+        <p class="note">Both adding and deleting a rule must be authorized by a key with the <a>rule_admin</a> privilege.
             Care should be taken to bundle additions and deletions of rules in such a way that once a full <a>delta</a>
             is applied, the new state provides adequate privileges for all existing keys.
         </p>

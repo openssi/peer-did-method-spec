@@ -62,11 +62,11 @@ numbasis = 64*hex
     <p class="note">Implementations of <code>encalgo</code> == <code>1</code> SHOULD render the numeric basis in lower
         case. However, the <code>numbasis</code> portion of peer DIDs MUST be compared according to
         whatever case-sensitivity is implied by the encoding algorithm they use. Hex is not case-sensitive,
-        so two peer DID strings using <code>encalgo</code> == <code>1</code>, that differ only in the case
-        of the <code>numbasis</code> portion, are equivalent. If a future version of the spec
+        so two peer DID strings using <code>encalgo</code> == <code>1</code>, that differ only in
+        the <code>numbasis</code> portion, are equivalent. If a future version of the spec
         defines <code>encalgo</code> == <code>2</code> to be something case-sensitive, such as <a target="_blank"
         href="https://en.bitcoin.it/wiki/Base58Check_encoding">base58</a> or base64 [[RFC4648]], comparison of
-        the <code>numbasis</code>values for peer DIDs with <code>encalgo</code> == <code>2</code> will be
+        the <code>numbasis</code> values for peer DIDs with <code>encalgo</code> == <code>2</code> will be
         case-sensitive. Therefore, routines that handle peer DIDs MUST NOT normalize or ignore case unless they
         take into account the encoding algorithm of each individual peer DID.</p>
 </section>
