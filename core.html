@@ -1,16 +1,15 @@
 <h2>Core Characteristics</h2>
 
-<section>
+<section class="normative">
     <h3>Namestring</h3>
 
-    <p>The namestring that shall identify this DID method is: <code>peer</code></p>
+    <p>The namestring that identifies this DID method SHALL be: <code>peer</code></p>
     <p>A DID that uses this method MUST begin with the following prefix: <code>did:peer:</code>.
         Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix,
-        is the <a href="#namespace-specific-identifier-nsi">namespace specific identifier specified below</a>.
+        is the <a href="#namespace-specific-identifier-nsi">namespace specific identifier described below</a>.
     </p>
     <p class="note">Early feedback on this method suggested that we embed it beneath the namespace of a particular
-        blockchain, as in <code>did:sov:peer</code> or <a target="_blank"
-        href="https://w3c-ccg.github.io/didm-veres-one/#veres-one-did-format"><code>did:v1:nym</code></a>.
+        blockchain, as in <code>did:sov:peer</code> or <code>did:v1:nym</code>.
         However, this DID method is not captive to any particular blockchain, does not take its resolution rules
         from a parent method, and does not require anchoring or reference to a blockchain to be valid.
         Furthermore, any direct or indirect anchoring of a peer DID to a specific blockchain is driven by
@@ -21,7 +20,7 @@
     </p>
 </section>
 
-<section>
+<section class="normative">
     <h3>Target System(s)</h3>
 
     <p>This DID method applies to any identity management implementation that meets the following two
@@ -38,22 +37,22 @@
     </ul>
 </section>
 
-<section>
+<section class="normative">
     <h3>Namespace Specific Identifier (NSI)</h3>
 
     <p>The peer DID scheme is defined by the following ABNF (see [[RFC5234]] for syntax):</p>
-    <pre class="example" class="ABNF">
-peer-did = "did:peer:" numalgo encalgo "-" idstring
+    <pre class="example" class="ABNF" title="ABNF for peer DIDs">
+peer-did = "did:peer:" numalgo encalgo "-" numbasis
 numalgo = "1"
 encalgo = "1"
-idstring = 64*hex
+numbasis = 64*hex
     </pre>
     <p>The meaning of <code>hex</code> is the traditional one for hexadecimal digits.</p>
     <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the source of their
-        uniqueness. This version of the spec requires a 256-bit numeric basis generated from a SHA256 [[!RFC4634]] hash
+        uniqueness. This version of the spec requires a 256-bit numeric basis generated from a SHA256 hash
         of the initial content of a DID doc. The <a href="#namestring-generation-method">next section</a> has details.
         The requirement about size and origin of numeric basis is represented in the DID value with <code>numalgo
-        </code>==<code>1</code>. Subsequent versions of the spec may describe additional methods of generating the
+        </code> == <code>1</code>. Subsequent versions of the spec may describe additional methods of generating the
         numeric basis; each new method is associated with the next unused <code>numalgo</code> digit as it is defined.
     </p>
     <p>This <em>numeric basis</em> is transformed to text using an encoding algorithm. This version of the spec encodes
@@ -61,18 +60,18 @@ idstring = 64*hex
         </code>. Subsequent versions of the spec may describe additional encodings; each new encoding is associated with
         the next unused <code>encalgo</code> digit as it is defined.</p>
     <p class="note">Implementations of <code>encalgo</code> == <code>1</code> SHOULD render the numeric basis in lower
-        case. However, the <code>idstring</code> portion of peer DIDs MUST be compared according to
+        case. However, the <code>numbasis</code> portion of peer DIDs MUST be compared according to
         whatever case-sensitivity is implied by the encoding algorithm they use. Hex is not case-sensitive,
         so two peer DID strings using <code>encalgo</code> == <code>1</code>, that differ only in the case
-        of the <code>idstring</code> portion, are equivalent. If a future version of the spec
+        of the <code>numbasis</code> portion, are equivalent. If a future version of the spec
         defines <code>encalgo</code> == <code>2</code> to be something case-sensitive, such as <a target="_blank"
         href="https://en.bitcoin.it/wiki/Base58Check_encoding">base58</a> or base64 [[RFC4648]], comparison of
-        the <code>idstring</code>values for peer DIDs with <code>encalgo</code> == <code>2</code> will be
+        the <code>numbasis</code>values for peer DIDs with <code>encalgo</code> == <code>2</code> will be
         case-sensitive. Therefore, routines that handle peer DIDs MUST NOT normalize or ignore case unless they
         take into account the encoding algorithm of each individual peer DID.</p>
 </section>
 
-<section>
+<section class="normative">
     <h3>Namestring Generation Method</h3>
 
     <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
@@ -90,8 +89,8 @@ idstring = 64*hex
             <code>controller</code> property of a <a href="#publickey">publicKey that is owned by this DID would say
                 <code>"controller": "#id"</code></a>.)
         </li>
-        <li>Calculate the SHA256 hash of the bytes of the <a>stored variant</a> of the <a>genesis version</a> of the
-            DID doc, and make this value the new DID's <a>numeric basis</a>.
+        <li>Calculate the SHA256 [[!RFC4634]] hash of the bytes of the <a>stored variant</a> of the <a>genesis
+            version</a> of the DID doc, and make this value the new DID's <a>numeric basis</a>.
         </li>
     </ul>
     <p>By basing the numeric value of the DID on the <a>genesis version</a> of the DID doc, the DID can begin its
@@ -103,7 +102,7 @@ idstring = 64*hex
         data into a <a>resolved variant</a> by inserting the value of the DID being resolved, during resolution.</p>
 </section>
 
-<section>
+<section class="informative">
     <h3>Recognizing and handling peer DIDs</h3>
 
     <p>A valid <code>peer</code> DID might be:</p>
