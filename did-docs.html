@@ -4,7 +4,8 @@
     <h3>Backing Storage</h3>
 
     <p>At first glance, it might seem that parties dealing in peer DID docs could just store raw DID docs.
-        However, this is not the case. Any time a DID doc evolves, proof that the evolution is authorized must be found
+        However, this is only a viable answer for the most modest <a href="#levels-of-support">levels of support</a>
+        for peer DIDs. Any time a DID doc evolves, proof that the evolution is authorized must be found
         in the DID doc's previous state. If an agent is offline for an extended period (e.g., a phone is lost in the
         couch cushions for a week), multiple evolutions may have occurred by the time it reconnects--and it cannot
         accept the latest state of the doc without validating the sequence of changes it underwent to get there. Agents
