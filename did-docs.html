@@ -209,7 +209,7 @@
             delete a key with <code>id</code> = <code>izfrNTmQ</code>, your <a>change fragment</a> would look like
             this:
         </p>
-        <pre class="example" title="Change fragment that deletes a key">
+        <pre class="example" title="Change fragment that deletes a key with id=izfrNTmQ">
 {
     "deleted": [ "izfrNTmQ" ]
 }
@@ -323,7 +323,7 @@
             "id": "e1e7d7bc"
         },
         {
-            "grant": ["key_admin", "se_admin", "rules_admin"],
+            "grant": ["key_admin", "se_admin", "rule_admin"],
             "when": {
                 "any": [{"roles": "offline"}, {"roles": "biometric"}],
                 "n": 2
@@ -338,7 +338,7 @@
         <li>Let a key have the <a>route</a> and <a>authcrypt</a> privileges when its set of roles contains "cloud".</li>
         <li>Let a key have the <a>authcrypt</a>, <a>plaintext</a> and <a>sign</a> privileges when its set of roles
             contains "edge".</li>
-        <li>Let any 2 keys, acting together, have the <a>key_admin</a>, <a>se_admin</a>, and <a>rules_admin</a>
+        <li>Let any 2 keys, acting together, have the <a>key_admin</a>, <a>se_admin</a>, and <a>rule_admin</a>
             privileges when their roles each contain either "offline" or "biometric".</li>
     </ul>
     <p>Far more elaborate rules can be constructed. See the <a target="sgl" href="https://evernym.github.io/sgl">
@@ -404,7 +404,7 @@
                 <code>service</code> section</a>.</p>
             </dd>
 
-            <dt><dfn>rules_admin</dfn></dt>
+            <dt><dfn>rule_admin</dfn></dt>
             <dd><p>The holder of this privilege can add or remove rules from a peer DID doc's <code>authorization.rules
             </code> list. Typically this privilege is held only by very privileged keys, or by combinations of keys.</p>
             </dd>
@@ -455,7 +455,7 @@
         <p>A <a>change fragment</a> that deletes a rule might look like this:
         </p>
 
-        <pre class="example" title="Change fragment that deletes a rule">
+        <pre class="example" title="Change fragment that deletes a rule with id=rule-7">
 {
     "deleted": [ "rule-7" ]
 }
@@ -492,7 +492,7 @@
             <h4>Deleting a service endpoint</h4>
             <p>A <a>change fragment</a> that deletes a service endpoint might look like this:</p>
 
-            <pre class="example" title="Change fragment that deletes a service endpoint">
+            <pre class="example" title="Change fragment that deletes a service endpoint with id=agent">
 {
     "deleted": [ "#agent" ]
 }
