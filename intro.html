@@ -8,7 +8,14 @@
 <p>However, the vast majority of relationships between people, organizations, and things have simpler requirements.
     When Alice<code>(</code>Corp<code>|</code>Device<code>)</code> and Bob want to interact, there are exactly and
     only 2 parties in the world who should care: Alice and Bob. Instead of arbitrary parties needing to resolve
-    their DIDs, only Alice and Bob do.</p>
+    their DIDs, only Alice and Bob do. Peer DIDs are perfect in these cases. In many ways, peer DIDs are to public,
+    blockchain-based DIDs what <a target="cryptoc"
+    href="https://education.district0x.io/general-topics/understanding-ethereum/understanding-plasma/">Ethereum Plasma</a>
+    or <a target="cryptoc" href="https://education.district0x.io/general-topics/understanding-ethereum/basics-state-channels/">
+    state channels</a> are to on-chain smart contracts&mdash; or what <a target="cryptoc"
+    href="https://lightning.network/">Bitcoin's Lightning Network</a> is to on-chain cryptopayments. They move the bulk
+    of interactions off-chain, but offer options to connect back to a chain-based ecosystem as needed.
+</p>
 
 <p>Some formal terminology may make the application of this insight to DIDs clearer:</p>
 
@@ -30,13 +37,6 @@
     reciprocal nature of DID usage in enumerated relationships like this, we call the parties "peers", and it is this
     dynamic that gives our DID method its name.
 </p>
-
-<p>In many ways, peer DIDs are to public, blockchain-based DIDs what <a target="cryptoc"
-    href="https://education.district0x.io/general-topics/understanding-ethereum/understanding-plasma/">Ethereum Plasma</a>
-    or <a target="cryptoc" href="https://education.district0x.io/general-topics/understanding-ethereum/basics-state-channels/">
-    state channels</a> are to on-chain smart contracts&mdash; or what <a target="cryptoc"
-    href="https://lightning.network/">Bitcoin's Lightning Network</a> is to on-chain cryptopayments. They move the bulk
-    of interactions off-chain, but offer options to connect back to a chain-based ecosystem as needed.</p>
 
 <section class="informative">
     <h3>Guarantees</h3>
