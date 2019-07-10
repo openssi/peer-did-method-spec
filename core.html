@@ -157,3 +157,110 @@ function comparePeerDIDs(didA, didB) {
 
     <p>Examples of a DID doc for this method are explored in greater detail <a href="#diddocs">below</a>.</p>
 </section>
+
+<section class="informative">
+    <h3>Reserved Values</h3>
+    
+    <p>The sixteen peer DID values that have 64 identical hex digits (all 0s, all 1s, all 2s, etc) are reserved for
+        testing, debugging, and other meta purposes. They cannot be resolved in a normal and valid way, since we haven't
+        done the massive amount of computation that would tell us what DID Doc content would produce the associated numeric
+        bases. Instead, they should trigger special handling beginning in implementations that offer <a>Level 2a</a>
+        or <a>Level 2b</a> support</a> for this spec.
+    </p>
+    <dl>
+        <dt>The <dfn>bitbucket DID</dfn> (did:peer:11-0000...0000)</dt>
+        <dd><p>This DID is somewhat like <code>/dev/null</code>; it is a predefined identity that acts as a sink, accepting
+        incoming messages but refusing to respond. Messages routed to this DID should be swallowed/deleted without an error.
+        Thus <a href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0003-protocols#types-of-protocols"
+        target="aries">1-step notification protocols</a> will always succeed when this DID is the target, and
+        <a href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0003-protocols#types-of-protocols"
+        target="aries">2-step request-response protocols</a> will always timeout waiting for a response. Resolving
+            this DID should return a DID doc containing at least the following material:</p>
+            <pre class="example" title="minimal DID Doc for the bitbucket DID">
+{
+    "@context": "https://w3id.org/did/v0.11",
+    "id": "did:peer:11-0000000000000000000000000000000000000000000000000000000000000000",
+    "service": [{
+        "type": "did-communication",
+        "serviceEndpoint": "https://localhost:12345"
+    }],
+    "publicKey": [{
+        "id": "key-1",
+        "type": "Ed25519VerificationKey2018",
+        "publicKeyBase58": "GBMBzuhw7XgSdbNffh8HpoKWEdEN6hU2Q5WqL1KQTG5Z"
+    }],
+    "authentication": ["#key-1"]
+}
+            </pre>
+        </dd>
+
+        <dt>The <dfn>anywise self DID</dfn> (did:peer:11-1111...1111)</dt>
+        <dd><p>
+            This DID is somewhat analogous to the use of "loopback" or "localhost" in TCP/IP; it means an anywise or
+            public "self" for whatever entity sees it in a DIDComm stack. An agent that emits a message for this DID
+            should see the message come back to itself without passing through any mediators or relays, with no trust
+            degradation in its <a href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0029-message-trust-contexts/README.md"
+            target="aries">message trust context</a> and with minimal latency. Protocols that depend on cooperation from
+            another party should always get maxiumum cooperation from this one; for example, an invitation to connect
+            that arrives at this DID should always be accepted <code>:-)</code> &mdash; though negotiation of a new
+            pairwise DID should ensue. Attempts to resolve this DID should return a DID Doc that contains the same set
+            of keys as the predefined<a target="aries"
+            href="https://github.com/hyperledger/aries-rfcs/blob/62621ad8765352863d17ba9a66bf8ab1e6ad1558/features/0114-predefined-identities/README.md#bob-many-1">
+            <code>bob-many-1</code> Aries test DID</a>; this includes Ed25519, Secp2561k, and RSA keys. It is thus a flexible,
+            low-risk identity to connect with or talk to in a way that short-circuits many layers of communication
+            complexity.
+        </p>
+        <dt>The <dfn>pairwise self DID</dfn> (did:peer:11-2222...2222)</dt>
+        <dd><p>
+            This DID is like the <a>anywise self DID</a> (including identical DID doc on resolution), except that it is
+            assumed to already be connected in a pairwise relationship, and to be private. Thus, interacting with this DID is a great way
+            to exercise any pairwise protocol without going through <a target="aries"
+            href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0033-did-exchange">DID Exchange</a>.
+        </p>
+        </dd>
+        <dt>The <dfn>3-wise self DID</dfn> (did:peer:11-3333...3333) and the <dfn>4-wise self DID</dfn> (did:peer:11-4444...4444)</dt>
+        <dd><p>
+            These two DID are like the <a>pairwise self DID</a> (including identical DID doc on resolution), except that
+            they are assumed to already be connected to the current context plus one another in a 3-wise relationship.
+        </p>
+        </dd>
+        <dt>The <dfn>alice peer DID</dfn> (did:peer:11-5555...5555)</dt>
+        <dd><p>
+            This DID is for an identity that is NOT connected in the current context. should resolve to a DID doc that contains at least the following material:
+        </p>
+            <pre class="example" title="minimal DID Doc for the bitbucket DID">
+{
+    "@context": "https://w3id.org/did/v5.11",
+    "id": "did:peer:11-5555555555555555555555555555555555555555555555555555555555555555",
+    "service": [{
+        "type": "did-communication",
+        "serviceEndpoint": "https://localhost:12345"
+    }],
+    "publicKey": [{
+        "id": "key-1",
+        "type": "Ed25519VerificationKey2018",
+        "publicKeyBase58": "GBMBzuhw7XgSdbNffh8HpoKWEdEN6hU2Q5WqL1KQTG5Z"
+    }],
+    "authentication": ["#key-1"]
+}
+            </pre>
+        </dd>
+        <p>Note that this uses the <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0114-predefined-identities#key-1-ed25519">
+            key-1 test key</a> from Aries RFC 0014's predefined identity material. You can look up the associated
+        private key there to encrypt as if from this identity.</p>
+        <dt>did:peer:11-6666...6666 to did:peer:11-cccc...cccc</dt>
+        <dd>No special semantics are defined for these. Implementations or particular software packages may define
+        how they wish.</dd>
+        <dt>The <dfn>broken DID</dfn> (did:peer:11:dddd...dddd)</dt>
+        <dd>This DID should resolve to the string <code>I'm an invalid DID doc</code>, triggering JSON deserialization
+            errors.</dd>
+        <dt>The <dfn>empty DID</dfn> (did:peer:11:eeee...eeee)</dt>
+        <dd>This DID should resolve to a DID doc that is well formed JSON-LD but that contains no keys, no service
+            endpoints, and empty containers for other sections. Attempting to interact with such a DID should trigger
+            DID Doc validation errors but not raw JSON deserialization errors.</dd>
+        <dt>The <dfn>never resolvable DID</dfn> (did:peer:11:ffff...ffff)</dt>
+        <dd>This DID should reserved for triggering resolution errors. [[TODO: Markus, what is the equivalent of
+            "not found" as a DID resolution error?]]</dd>
+    </dl>
+</section>
