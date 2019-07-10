@@ -176,40 +176,16 @@ function comparePeerDIDs(didA, didB) {
         target="aries">1-step notification protocols</a> will always succeed when this DID is the target, and
         <a href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0003-protocols#types-of-protocols"
         target="aries">2-step request-response protocols</a> will always timeout waiting for a response. Resolving
-            this DID should return a DID doc containing at least the following material:</p>
-            <pre class="example" title="minimal DID Doc for the bitbucket DID">
-{
-    "@context": "https://w3id.org/did/v0.11",
-    "id": "did:peer:11-0000000000000000000000000000000000000000000000000000000000000000",
-    "service": [{
-        "type": "did-communication",
-        "serviceEndpoint": "https://localhost:12345"
-    }],
-    "publicKey": [
-        {
-            "id": "key-1",
-            "type": "Ed25519VerificationKey2018",
-            "publicKeyBase58": "GBMBzuhw7XgSdbNffh8HpoKWEdEN6hU2Q5WqL1KQTG5Z"
-        },
-        {
-            "id": "key-3",
-            "type": "Secp256k1VerificationKey2018",
-            "controller": "#id",
-            "publicKeyHex": "3056301006072a8648ce3d020106052b8104000a03420004a34521c8191d625ff811c82a24a60ff9f174c8b17a7550c11bba35dbf97f3f04392e6a9c6353fd07987e016122157bf56c487865036722e4a978bb6cd8843fa8"
-        },
-        {
-            "id": "key-5",
-            "type": "RsaVerificationKey2018",
-            "controller": "#id",
-            "publicKeyPem": "-----BEGIN PUBLIC KEY-----\r\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAoZp7md4nkmmFvkoHhQMw\r\nN0lcpYeKfeinKir7zYWFLmpClZHawZKLkB52+nnY4w9ZlKhc4Yosrw/N0h1sZlVZ\r\nfOQBnzFUQCea6uK/4BKHPhiHpN73uOwu5TAY4BHS7fsXRLPgQFB6o6iy127o2Jfb\r\nUVpbNU/rJGxVI2K1BIzkfrXAJ0pkjkdP7OFE6yRLU4ZcATWSIPwGvlF6a0/QPC3B\r\nbTvp2+DYPDC4pKWxNF/qOwOnMWqxGq6ookn12N/GufA/Ugv3BTVoy7I7Q9SXty4u\r\nUat19OBJVIqBOMgXsyDz0x/C6lhBR2uQ1K06XRa8N4hbfcgkSs+yNBkLfBl7N80Q\r\n0Wkq2PHetzQU12dPnz64vvr6s0rpYIo20VtLzhYA8ZxseGc3s7zmY5QWYx3ek7Vu\r\nwPv9QQzcmtIQQsUbekPoLnKLt6wJhPIGEr4tPXy8bmbaThRMx4tjyEQYy6d+uD0h\r\nXTLSjZ1SccMRqLxoPtTWVNXKY1E84EcS/QkqlY4AthLFBL6r+lnm+DlNaG8LMwCm\r\ncz5NMag9ooM9IqgdDYhUpWYDSdOvDubtz1YZ4hjQhaofdC2AkPXRiQvMy/Nx9WjQ\r\nn4z387kz5PK5YbadoZYkwtFttmxJ/EQkkhGEDTXoSRTufv+qjXDsmhEsdaNkvcDP\r\n1uiCSY19UWe5LQhIMbR0u/0CAwEAAQ==\r\n-----END PUBLIC KEY-----"
-        }
-    ],
-    "authentication": ["#key-1", "#key-3", "#key-5"]
-}
-            </pre>
-            <p>Note that this contains Ed25519, Secp2561k, and RSA keys, allowing interaction from various crypto foundations.
-            [TODO: Do we need other key types?]
-            </p>
+        this DID should return a DID doc containing at least <a target="aries"
+        href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0114-predefined-identities#key-1-ed25519">
+        key-1</a>, <a target="aries"
+        href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0114-predefined-identities#key-3-secp256k1">
+        key-3</a>, and <a target="aries"
+        href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0114-predefined-identities#key-5-4096-bit-rsa">
+        key-5</a> from the <a target="aries"
+        href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0114-predefined-identities">Aries
+        Predefined Identities RFC (0114)</a>. This allows zero-setup interactions from various crypto foundations.
+        [TODO: Do we need other key types?]</p>
         </dd>
 
         <dt>The <dfn>anywise self DID</dfn> (did:peer:11-1111...1111)</dt>
