@@ -253,13 +253,13 @@ function comparePeerDIDs(didA, didB) {
             particular software packages may define them (or not) according to preference.</dd>
 
         <dt>The <dfn>corrupted DID</dfn> (did:peer:11:cccc...cccc)</dt>
-        <dd>This DID should resolve to the string <code>I'm an invalid DID doc</code>, triggering JSON deserialization
+        <dd>This DID should resolve to the string <code>invalid DID doc</code>, triggering JSON deserialization
             errors.</dd>
 
         <dt>The <dfn>disconnected DID</dfn> (did:peer:11-dddd...ddddd)</dt>
         <dd>This is a pairwise DID that does NOT have an active connection (e.g., that someone else knows about but
             that is unrecognized in the current context, or that has sent an <code>abandon_connection/announce</code>
-            message.
+            message).
         </dd>
 
         <dt>The <dfn>empty DID</dfn> (did:peer:11:eeee...eeee)</dt>
@@ -268,7 +268,7 @@ function comparePeerDIDs(didA, didB) {
             DID Doc validation errors but not raw JSON deserialization errors.</dd>
 
         <dt>The <dfn>never resolvable DID</dfn> (did:peer:11:ffff...ffff)</dt>
-        <dd>This DID should reserved for triggering resolution errors. [[TODO: Markus, what is the equivalent of
+        <dd>This DID is reserved for triggering resolution errors. [[TODO: Markus, what is the equivalent of
             "not found" as a DID resolution error?]]</dd>
     </dl>
 </section>
