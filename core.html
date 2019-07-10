@@ -164,8 +164,9 @@ function comparePeerDIDs(didA, didB) {
     <p>The sixteen peer DID values that have 64 identical hex digits (all 0s, all 1s, all 2s, etc) are reserved for
         testing, debugging, and other meta purposes. They cannot be resolved in a normal and valid way, since we haven't
         done the massive amount of computation that would tell us what DID Doc content would produce the associated numeric
-        bases. Instead, they should trigger special handling beginning in implementations that offer <a>Level 2a</a>
-        or <a>Level 2b</a> support</a> for this spec.
+        bases. Instead, they MAY trigger the special handling described below, beginning in implementations that offer
+        <a>Level 2a</a> or <a>Level 2b</a> support</a> for this spec. Implementations SHOULD NOT define semantics that
+        contradict these.
     </p>
     <dl>
         <dt>The <dfn>bitbucket DID</dfn> (did:peer:11-0000...0000)</dt>
@@ -184,14 +185,31 @@ function comparePeerDIDs(didA, didB) {
         "type": "did-communication",
         "serviceEndpoint": "https://localhost:12345"
     }],
-    "publicKey": [{
-        "id": "key-1",
-        "type": "Ed25519VerificationKey2018",
-        "publicKeyBase58": "GBMBzuhw7XgSdbNffh8HpoKWEdEN6hU2Q5WqL1KQTG5Z"
-    }],
-    "authentication": ["#key-1"]
+    "publicKey": [
+        {
+            "id": "key-1",
+            "type": "Ed25519VerificationKey2018",
+            "publicKeyBase58": "GBMBzuhw7XgSdbNffh8HpoKWEdEN6hU2Q5WqL1KQTG5Z"
+        },
+        {
+            "id": "key-3",
+            "type": "Secp256k1VerificationKey2018",
+            "controller": "#id",
+            "publicKeyHex": "3056301006072a8648ce3d020106052b8104000a03420004a34521c8191d625ff811c82a24a60ff9f174c8b17a7550c11bba35dbf97f3f04392e6a9c6353fd07987e016122157bf56c487865036722e4a978bb6cd8843fa8"
+        },
+        {
+            "id": "key-5",
+            "type": "RsaVerificationKey2018",
+            "controller": "#id",
+            "publicKeyPem": "-----BEGIN PUBLIC KEY-----\r\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAoZp7md4nkmmFvkoHhQMw\r\nN0lcpYeKfeinKir7zYWFLmpClZHawZKLkB52+nnY4w9ZlKhc4Yosrw/N0h1sZlVZ\r\nfOQBnzFUQCea6uK/4BKHPhiHpN73uOwu5TAY4BHS7fsXRLPgQFB6o6iy127o2Jfb\r\nUVpbNU/rJGxVI2K1BIzkfrXAJ0pkjkdP7OFE6yRLU4ZcATWSIPwGvlF6a0/QPC3B\r\nbTvp2+DYPDC4pKWxNF/qOwOnMWqxGq6ookn12N/GufA/Ugv3BTVoy7I7Q9SXty4u\r\nUat19OBJVIqBOMgXsyDz0x/C6lhBR2uQ1K06XRa8N4hbfcgkSs+yNBkLfBl7N80Q\r\n0Wkq2PHetzQU12dPnz64vvr6s0rpYIo20VtLzhYA8ZxseGc3s7zmY5QWYx3ek7Vu\r\nwPv9QQzcmtIQQsUbekPoLnKLt6wJhPIGEr4tPXy8bmbaThRMx4tjyEQYy6d+uD0h\r\nXTLSjZ1SccMRqLxoPtTWVNXKY1E84EcS/QkqlY4AthLFBL6r+lnm+DlNaG8LMwCm\r\ncz5NMag9ooM9IqgdDYhUpWYDSdOvDubtz1YZ4hjQhaofdC2AkPXRiQvMy/Nx9WjQ\r\nn4z387kz5PK5YbadoZYkwtFttmxJ/EQkkhGEDTXoSRTufv+qjXDsmhEsdaNkvcDP\r\n1uiCSY19UWe5LQhIMbR0u/0CAwEAAQ==\r\n-----END PUBLIC KEY-----"
+        }
+    ],
+    "authentication": ["#key-1", "#key-3", "#key-5"]
 }
             </pre>
+            <p>Note that this contains Ed25519, Secp2561k, and RSA keys, allowing interaction from various crypto foundations.
+            [TODO: Do we need other key types?]
+            </p>
         </dd>
 
         <dt>The <dfn>anywise self DID</dfn> (did:peer:11-1111...1111)</dt>
@@ -204,46 +222,36 @@ function comparePeerDIDs(didA, didB) {
             another party should always get maxiumum cooperation from this one; for example, an invitation to connect
             that arrives at this DID should always be accepted <code>:-)</code> &mdash; though negotiation of a new
             pairwise DID should ensue. Attempts to resolve this DID should return a DID Doc that contains the same set
-            of keys as the predefined<a target="aries"
-            href="https://github.com/hyperledger/aries-rfcs/blob/62621ad8765352863d17ba9a66bf8ab1e6ad1558/features/0114-predefined-identities/README.md#bob-many-1">
-            <code>bob-many-1</code> Aries test DID</a>; this includes Ed25519, Secp2561k, and RSA keys. It is thus a flexible,
-            low-risk identity to connect with or talk to in a way that short-circuits many layers of communication
-            complexity.
+            of keys as the <a>bitbucket DID</a>. This makes it a flexible, low-risk identity to connect with or talk to
+            in a way that short-circuits many layers of communication complexity.
         </p>
+
         <dt>The <dfn>pairwise self DID</dfn> (did:peer:11-2222...2222)</dt>
         <dd><p>
-            This DID is like the <a>anywise self DID</a> (including identical DID doc on resolution), except that it is
-            assumed to already be connected in a pairwise relationship, and to be private. Thus, interacting with this DID is a great way
+            This DID is like the <a>anywise self DID</a> (including a DID doc the resolves to identical content except
+            for the DID value). It differs in that it is assumed to already be connected in a pairwise relationship, and
+            to be private. Thus, interacting with this DID is a great way
             to exercise any pairwise protocol without going through <a target="aries"
             href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0033-did-exchange">DID Exchange</a>.
         </p>
         </dd>
-        <dt>The <dfn>3-wise self DID</dfn> (did:peer:11-3333...3333) and the <dfn>4-wise self DID</dfn> (did:peer:11-4444...4444)</dt>
+
+        <dt>The <dfn>n3 DID</dfn> (did:peer:11-3333...3333) and the <dfn>n4 DID</dfn> (did:peer:11-4444...4444)</dt>
         <dd><p>
-            These two DID are like the <a>pairwise self DID</a> (including identical DID doc on resolution), except that
-            they are assumed to already be connected to the current context plus one another in a 3-wise relationship.
+            These two DID are like the <a>pairwise self DID</a> (including a DID doc the resolves to identical content except
+            for the DID value). They differ in that they are assumed to already be connected to the current context and
+            to one another in a 3-wise relationship. That is:
         </p>
+            <figure id="n3-n4">
+                <img src="n3-n4.png"/>
+                <figcaption>n3 and n4 are pre-connected to self and to each other</figcaption>
+            </figure>
         </dd>
+
         <dt>The <dfn>alice peer DID</dfn> (did:peer:11-5555...5555)</dt>
         <dd><p>
-            This DID is for an identity that is NOT connected in the current context. should resolve to a DID doc that contains at least the following material:
-        </p>
-            <pre class="example" title="minimal DID Doc for the bitbucket DID">
-{
-    "@context": "https://w3id.org/did/v5.11",
-    "id": "did:peer:11-5555555555555555555555555555555555555555555555555555555555555555",
-    "service": [{
-        "type": "did-communication",
-        "serviceEndpoint": "https://localhost:12345"
-    }],
-    "publicKey": [{
-        "id": "key-1",
-        "type": "Ed25519VerificationKey2018",
-        "publicKeyBase58": "GBMBzuhw7XgSdbNffh8HpoKWEdEN6hU2Q5WqL1KQTG5Z"
-    }],
-    "authentication": ["#key-1"]
-}
-            </pre>
+            This DID is for an identity that is NOT connected in the current context. However, during DID exchange
+            protocol it should propose a DID doc with at least one key from the set defined for the <a>bitbucket DID</a>.
         </dd>
         <p>Note that this uses the <a target="aries"
                 href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0114-predefined-identities#key-1-ed25519">
@@ -251,7 +259,7 @@ function comparePeerDIDs(didA, didB) {
         private key there to encrypt as if from this identity.</p>
         <dt>did:peer:11-6666...6666 to did:peer:11-cccc...cccc</dt>
         <dd>No special semantics are defined for these. Implementations or particular software packages may define
-        how they wish.</dd>
+        them (or not) according to preference.</dd>
         <dt>The <dfn>broken DID</dfn> (did:peer:11:dddd...dddd)</dt>
         <dd>This DID should resolve to the string <code>I'm an invalid DID doc</code>, triggering JSON deserialization
             errors.</dd>
