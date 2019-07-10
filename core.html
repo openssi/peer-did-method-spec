@@ -248,25 +248,25 @@ function comparePeerDIDs(didA, didB) {
             </figure>
         </dd>
 
-        <dt>The <dfn>alice peer DID</dfn> (did:peer:11-5555...5555)</dt>
-        <dd><p>
-            This DID is for an identity that is NOT connected in the current context. However, during DID exchange
-            protocol it should propose a DID doc with at least one key from the set defined for the <a>bitbucket DID</a>.
-        </dd>
-        <p>Note that this uses the <a target="aries"
-                href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0114-predefined-identities#key-1-ed25519">
-            key-1 test key</a> from Aries RFC 0014's predefined identity material. You can look up the associated
-        private key there to encrypt as if from this identity.</p>
-        <dt>did:peer:11-6666...6666 to did:peer:11-cccc...cccc</dt>
+        <dt>did:peer:11-5555...5555 to did:peer:11-cccc...cccc</dt>
         <dd>No special semantics are defined for these. Implementations or particular software packages may define
-        them (or not) according to preference.</dd>
-        <dt>The <dfn>broken DID</dfn> (did:peer:11:dddd...dddd)</dt>
+            them (or not) according to preference.</dd>
+
+        <dt>The <dfn>corrupted DID</dfn> (did:peer:11:cccc...cccc)</dt>
         <dd>This DID should resolve to the string <code>I'm an invalid DID doc</code>, triggering JSON deserialization
             errors.</dd>
+
+        <dt>The <dfn>disconnected DID</dfn> (did:peer:11-dddd...ddddd)</dt>
+        <dd>This is a pairwise DID that does NOT have an active connection (e.g., that someone else knows about but
+            that is unrecognized in the current context, or that has sent an <code>abandon_connection/announce</code>
+            message.
+        </dd>
+
         <dt>The <dfn>empty DID</dfn> (did:peer:11:eeee...eeee)</dt>
         <dd>This DID should resolve to a DID doc that is well formed JSON-LD but that contains no keys, no service
             endpoints, and empty containers for other sections. Attempting to interact with such a DID should trigger
             DID Doc validation errors but not raw JSON deserialization errors.</dd>
+
         <dt>The <dfn>never resolvable DID</dfn> (did:peer:11:ffff...ffff)</dt>
         <dd>This DID should reserved for triggering resolution errors. [[TODO: Markus, what is the equivalent of
             "not found" as a DID resolution error?]]</dd>
