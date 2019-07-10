@@ -50,7 +50,12 @@
                         target="_blank">some extensions</a>, instead. The extensions allow the same message to be
                 encrypted once for multiple recipients and sent to them all in an efficient manner:
             </p>
-            <img src="multiplex.png"/>
+
+            <figure id="multiplexed encryption">
+                <img src="multiplex.png" alt="multiplexed encryption"/>
+                <figcaption>Multiplexed encryption lets multiple parties decrypt.</figcaption>
+            </figure>
+
             <p>These extensions are under review by the maintainers of JWE/JWT and are likely to be mainstreamed
                 eventually. The particulars are detailed in <a target="aries"
                         href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0019-encryption-envelope/README.md">
@@ -88,7 +93,10 @@
                 can be recognized by a registered handler, short-circuiting the URI fetch and the onboarding/
                 learning process. This invitation URI may be transmitted by email, SMS, QR code, or any other
                 convenient method. If it is important to the inviter that it be secured, the inviter can share
-                the invitation on a secure channel.
+                the invitation on a secure channel. Important to note that if the messaging is to be done 
+                anonymously without sharing of personal identifiable information (PII) between both parties the
+                invitation should not be transmitted to personal email, sms, etc. A one time identifier shall be
+                used to send initial invitation.
             </li>
             <li>The invitee sends an encrypted <dfn>connection request</dfn> back to the inviter, using the
                 endpoint that the inviter supplied in the invitation. This connection request includes a signed
@@ -142,7 +150,7 @@
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/query_connection_state/1.0/state_request",
   "@id": "6a4986dd-f50e-4ed5-a389-718e61517207",
-  "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
+  "for": "did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
   "as_of_time": "2019-07-23 18:05:06.123Z"
 }
         </pre>
@@ -158,7 +166,7 @@
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync-connection/1.0/state_response",
   "@id": "1517207d-f50e-4ed5-a389-6a4986d718e6",
   "~thread": { "thid": "6a4986dd-f50e-4ed5-a389-718e61517207" },
-  "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
+  "for": "did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
   "did_doc": {
     // full content of resolved variant of DID doc here
   },
@@ -184,7 +192,7 @@
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync-connection/1.0/sync_state",
   "@id": "e61586dd-f50e-4ed5-a389-716a49817207",
-  "for": "did:peer:1-F1220479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
+  "for": "did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
   "base_hash": "d48f058771956a305e12a3b062a3ac81bd8653d7b1a88dd07db8f663f37bf8e0",
   "base_hash_time": "2019-07-23 18:05:06.123Z",
   "deltas": [

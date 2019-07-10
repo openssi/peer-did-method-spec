@@ -8,7 +8,14 @@
 <p>However, the vast majority of relationships between people, organizations, and things have simpler requirements.
     When Alice<code>(</code>Corp<code>|</code>Device<code>)</code> and Bob want to interact, there are exactly and
     only 2 parties in the world who should care: Alice and Bob. Instead of arbitrary parties needing to resolve
-    their DIDs, only Alice and Bob do.</p>
+    their DIDs, only Alice and Bob do. Peer DIDs are perfect in these cases. In many ways, peer DIDs are to public,
+    blockchain-based DIDs what <a target="cryptoc"
+    href="https://education.district0x.io/general-topics/understanding-ethereum/understanding-plasma/">Ethereum Plasma</a>
+    or <a target="cryptoc" href="https://education.district0x.io/general-topics/understanding-ethereum/basics-state-channels/">
+    state channels</a> are to on-chain smart contracts&mdash; or what <a target="cryptoc"
+    href="https://lightning.network/">Bitcoin's Lightning Network</a> is to on-chain cryptopayments. They move the bulk
+    of interactions off-chain, but offer options to connect back to a chain-based ecosystem as needed.
+</p>
 
 <p>Some formal terminology may make the application of this insight to DIDs clearer:</p>
 
@@ -23,11 +30,12 @@
         N-Wise in the Appendix</a>.</dd>
 </dl>
 
-<p>Generally, an anywise DID needs to be resolvable by strangers. These strangers can use the DID to reference its
-    subject without establishing a relationship. On the other hand, pairwise and n-wise DIDs only need to be
-    resolvable by the parties in the relationship, and <em>each</em> party in the relationship has to contribute a
-    DID to make the relationship work. Because of the reciprocal nature of DID usage in enumerated relationships
-    like this, we call the parties "peers", and it is this dynamic that gives our DID method its name.
+<p>Generally, an anywise DID needs to be resolvable by strangers (i.e. publicly anchored DID). These strangers can use
+    the DID to reference its subject (usually by resolving it on a public ledger) without establishing a relationship.
+    On the other hand, pairwise and n-wise DIDs only need to be resolvable by the parties in the relationship, and
+    <em>each</em> party in the relationship has to contribute a DID to make the relationship work. Because of the
+    reciprocal nature of DID usage in enumerated relationships like this, we call the parties "peers", and it is this
+    dynamic that gives our DID method its name.
 </p>
 
 <section class="informative">
@@ -98,10 +106,10 @@
         unnecessary, and it represents a privacy and security risk as well as a problem of cost, scale, and
         performance. We strongly recommend that peer DIDs be used for peer relationships.
     </p>
-    <p>In a similar vein, peer DIDs could be used, hypothetically, for <a>anywise</a> scenarios. The main
-        disadvantage would be the lack of a formal publication mechanism. Nothing would prevent a user from
-        publishing a peer DID and its associated DID document on some website, but such publication would be hard to
-        discover, maintain as DID docs evolved, and integrate into interoperable applications. DID methods that use
+    <p>In a similar vein, peer DIDs could be used, hypothetically, for <a>anywise</a> scenarios. The main disadvantage
+        would be the lack of a formal publication mechanism. Nothing would prevent a user from publishing a peer DID and
+        its associated DID document on a website. However, information published in this way would be hard to discover,
+        maintain as DID docs evolved, and integrate into interoperable applications. DID methods that use
         a public ledger or a similar source of truth are a better choice here, because they have authoritative
         answers to the publication problem.
     </p>
@@ -116,15 +124,25 @@
         <a href="nwise.html#sweet-spot">clearly n-wise</a>. Each party can enumerate all the other parties, and each
         party uses the same identifier in all directions within the group:
     </p>
-    <img src="n-wise.png"/>
-    <p>(See <a href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0006-ssi-notation/README.md"
-            target="aries">Aries RFC 0006</a> for help with the notation used in the diagram.)</p>
+
+    <figure id="n-wise-group">
+        <img src="n-wise.png" alt="n-wise group"/>
+        <figcaption>A classic 3-wise group: each party uses the same DID with two peers. (See <a
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0006-ssi-notation/README.md"
+                target="aries">Aries RFC 0006</a> for help with the notation used in the diagram.)</figcaption>
+    </figure>
+
     <p>But groups can also be modeled with a hub-and-spoke model. That model is commonly used in group chats,
         for example: each member of the group chat sends and receives via a central service, which in turn
         broadcasts to all other members of the group. This hub-and-spoke model is actually just a <a>pairwise</a>
         variant, because the relationship is between a member and the hub; all other relationships are only
         indirect:</p>
-    <img src="hub-wise.png"/>
+
+    <figure id="hub-and-spoke-group">
+        <img src="hub-wise.png" alt="group modeled as hub and spokes"/>
+        <figcaption>A group modeled as hub and spokes: each party only relates directly to the hub.</figcaption>
+    </figure>
+
     <p>Use of peer DIDs with <a>n-wise</a> groups is explicitly supported and documented below. We do not cover
         hub-and-spoke groups in the same way. They are compatible with this method, if reanalyzed as
         <a>pairwise</a>. Otherwise, the protocol described here may need adaptation.</p>

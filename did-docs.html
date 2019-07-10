@@ -4,7 +4,8 @@
     <h3>Backing Storage</h3>
 
     <p>At first glance, it might seem that parties dealing in peer DID docs could just store raw DID docs.
-        However, this is not the case. Any time a DID doc evolves, proof that the evolution is authorized must be found
+        However, this is only a viable answer for the most modest <a href="#levels-of-support">levels of support</a>
+        for peer DIDs. Any time a DID doc evolves, proof that the evolution is authorized must be found
         in the DID doc's previous state. If an agent is offline for an extended period (e.g., a phone is lost in the
         couch cushions for a week), multiple evolutions may have occurred by the time it reconnects--and it cannot
         accept the latest state of the doc without validating the sequence of changes it underwent to get there. Agents
@@ -17,7 +18,7 @@
     </p>
     <p>The backing storage for peer DID docs is therefore a sequence of <dfn>deltas</dfn>. Each delta is a JSON object
         in this form:</p>
-    <pre>
+    <pre class="example nohighlight" title="Delta structure">
 {
     "id": &lt;a UUID&gt;,
     "change": &lt;base64 encoding of a change fragment&gt;,
@@ -52,7 +53,7 @@
         a signature from any key defined internally in the genesis state, and <code>when</code> is populated by the
         system clock.
     </p>
-    <p class="note">The genesis state can be authorized by <em>any</em> internally defined key, even if that key is has a very
+    <p class="note">The genesis state can be authorized by <em>any</em> internally defined key, even if that key has a very
         limited <a>trust profile</a>. This is because the authorization for genesis state is only proving that the
         creator of the DID doc has not been shadowed by a malicious man-in-the-middle; no other test of authorization
         is performed.
@@ -209,7 +210,7 @@
             delete a key with <code>id</code> = <code>izfrNTmQ</code>, your <a>change fragment</a> would look like
             this:
         </p>
-        <pre class="example" title="Change fragment that deletes a key">
+        <pre class="example" title="Change fragment that deletes a key with id=izfrNTmQ">
 {
     "deleted": [ "izfrNTmQ" ]
 }
@@ -272,13 +273,13 @@
     "authorization": { "profiles": [ {"key": "#Mv6gmMNa", "roles", ["edge"]} ] }
 }
         </pre>
-        <p class="note">Adding a key with authentication privileges can only be authorized by a key that has the
-            <a>key_admin</a> privilege.</p>
+        <p class="note">Adding or deleting a key with authentication privileges can only be authorized by a key that
+            has the <a>key_admin</a> privilege.</p>
 
         <h4 id="deleting-key-from-authn">Deleting a key</h4>
         <p>Because a key's authentication privileges are immutable, the only way to take away authentication
-        privileges from a key is to remove it entirely from the DID doc. See
-            <a href="#example-4-change-fragment-that-deletes-a-key">Example 4</a>.</p>
+            privileges from a key is to <a href="#deleting-a-key">remove it entirely from the DID doc</a>.
+        </p>
     </section>
 </section>
 
@@ -323,7 +324,7 @@
             "id": "e1e7d7bc"
         },
         {
-            "grant": ["key_admin", "se_admin", "rules_admin"],
+            "grant": ["key_admin", "se_admin", "rule_admin"],
             "when": {
                 "any": [{"roles": "offline"}, {"roles": "biometric"}],
                 "n": 2
@@ -338,7 +339,7 @@
         <li>Let a key have the <a>route</a> and <a>authcrypt</a> privileges when its set of roles contains "cloud".</li>
         <li>Let a key have the <a>authcrypt</a>, <a>plaintext</a> and <a>sign</a> privileges when its set of roles
             contains "edge".</li>
-        <li>Let any 2 keys, acting together, have the <a>key_admin</a>, <a>se_admin</a>, and <a>rules_admin</a>
+        <li>Let any 2 keys, acting together, have the <a>key_admin</a>, <a>se_admin</a>, and <a>rule_admin</a>
             privileges when their roles each contain either "offline" or "biometric".</li>
     </ul>
     <p>Far more elaborate rules can be constructed. See the <a target="sgl" href="https://evernym.github.io/sgl">
@@ -404,7 +405,7 @@
                 <code>service</code> section</a>.</p>
             </dd>
 
-            <dt><dfn>rules_admin</dfn></dt>
+            <dt><dfn>rule_admin</dfn></dt>
             <dd><p>The holder of this privilege can add or remove rules from a peer DID doc's <code>authorization.rules
             </code> list. Typically this privilege is held only by very privileged keys, or by combinations of keys.</p>
             </dd>
@@ -443,7 +444,7 @@
     }
 }
         </pre>
-        <p class="note">Both adding and deleting a rule must be authorized by a key with the <a>key_admin</a> privilege.
+        <p class="note">Both adding and deleting a rule must be authorized by a key with the <a>rule_admin</a> privilege.
             Care should be taken to bundle additions and deletions of rules in such a way that once a full <a>delta</a>
             is applied, the new state provides adequate privileges for all existing keys.
         </p>
@@ -455,7 +456,7 @@
         <p>A <a>change fragment</a> that deletes a rule might look like this:
         </p>
 
-        <pre class="example" title="Change fragment that deletes a rule">
+        <pre class="example" title="Change fragment that deletes a rule with id=rule-7">
 {
     "deleted": [ "rule-7" ]
 }
@@ -492,7 +493,7 @@
             <h4>Deleting a service endpoint</h4>
             <p>A <a>change fragment</a> that deletes a service endpoint might look like this:</p>
 
-            <pre class="example" title="Change fragment that deletes a service endpoint">
+            <pre class="example" title="Change fragment that deletes a service endpoint with id=agent">
 {
     "deleted": [ "#agent" ]
 }
