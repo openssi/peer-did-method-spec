@@ -54,11 +54,14 @@ numbasis = 64*hex
         The requirement about size and origin of numeric basis is represented in the DID value with <code>numalgo
         </code> == <code>1</code>. Subsequent versions of the spec may describe additional methods of generating the
         numeric basis; each new method is associated with the next unused <code>numalgo</code> digit as it is defined.
+        Only a single digit is used, giving a maximum of 16 possible evolutions.
     </p>
     <p>This <em>numeric basis</em> is transformed to text using an encoding algorithm. This version of the spec encodes
         using 64 hexadecimal digits, and represents that choice in the DID value with <code>encalgo</code> == <code>1
         </code>. Subsequent versions of the spec may describe additional encodings; each new encoding is associated with
-        the next unused <code>encalgo</code> digit as it is defined.</p>
+        the next unused <code>encalgo</code> digit as it is defined. Only a single digit is used, giving a maximum of 16
+        possible evolutions.
+    </p>
     <p class="note">Implementations of <code>encalgo</code> == <code>1</code> SHOULD render the numeric basis in lower
         case. However, the <code>numbasis</code> portion of peer DIDs MUST be compared according to
         whatever case-sensitivity is implied by the encoding algorithm they use. Hex is not case-sensitive,
