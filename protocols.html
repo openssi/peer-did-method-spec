@@ -1,6 +1,7 @@
-<h2>Protocols</h2>
+<h1>Protocols</h1>
+
 <section class="informative">
-    <h3>Roles and Agents</h3>
+    <h2>Roles and Agents</h2>
 
     <p>As described in the introduction, we call this the "peer" DID method because it enables peers to exchange
         DIDs without recourse to a central authority. Thus, we expect all participants in the protocol to play the
@@ -21,7 +22,7 @@
 </section>
 
 <section class="informative">
-    <h3>Messages</h3>
+    <h2>Messages</h2>
     <dl>
         <dt>Peers interact via messages.</dt>
         <dd>This is a more general claim than saying that peers expose an API because it doesn't assume that peers
@@ -73,9 +74,10 @@
 </section>
 
 <section>
-    <h3>CRUD Operations</h3>
+    <h2>CRUD Operations</h2>
+
     <section>
-        <h4>Create (Register)</h4>
+        <h3>Create (Register)</h3>
         <p>Although the work of <em>creating</em> a peer DID and the <a>genesis version</a> of its DID doc can be
             done at any time and does not require a message, <em>registering</em> a peer DID with the other party or
             parties in a relationship involves a specific sequence of messages known as the <dfn>DID Exchange
@@ -141,7 +143,7 @@
     </section>
 
     <section>
-        <h4>Read (Resolve)</h4>
+        <h3>Read (Resolve)</h3>
         <p>This operation, as well as Update and Delete, are documented in greater detail in
             <a href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md"
                     target="aries">Aries RFC 0030</a>. Here, we offer only a summary.
@@ -184,7 +186,7 @@
     </section>
 
     <section>
-        <h4 id="sync-protocol">Update</h4>
+        <h3 id="sync-protocol">Update</h3>
         <p>The subject of a peer DID can update their associated DID document with anyone who knows the
             DID&mdash;one or more agents of the peer(s), or agents of the owner&mdash;by sending a <a target="aries"
             href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md#sync_state">
@@ -240,7 +242,7 @@
     </section>
 
     <section>
-        <h4>Delete</h4>
+        <h3>Delete</h3>
         <p>In a self-sovereign paradigm, abandoning a relationship can be done unilaterally, and does not
             require formal announcement; one party can simply stop communicating with the other. Since there
             is no public record of the relationship to delete, no further action is strictly required.
@@ -278,6 +280,6 @@
 "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/abandon_connection/1.0/ack",
 "@thread": { "thid": "c17147d2-ada6-4d3c-a489-dc1e1bf778ab" }
 }
-</pre>
+        </pre>
     </section>
 </section>

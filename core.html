@@ -1,7 +1,7 @@
-<h2>Core Characteristics</h2>
+<h1>Core Characteristics</h1>
 
 <section class="normative">
-    <h3>Method Name</h3>
+    <h2>Method Name</h2>
 
     <p>The method name that identifies this DID method SHALL be: <code>peer</code></p>
     <p>A DID that uses this method MUST begin with the following prefix: <code>did:peer:</code>.
@@ -21,7 +21,7 @@
 </section>
 
 <section class="normative">
-    <h3>Target System(s)</h3>
+    <h2>Target System(s)</h2>
 
     <p>This DID method applies to any identity management implementation that meets the following two
         requirements:</p>
@@ -38,7 +38,7 @@
 </section>
 
 <section class="normative">
-    <h3>Method Specific Identifier</h3>
+    <h2>Method Specific Identifier</h2>
 
     <p>The peer DID scheme is defined by the following ABNF (see [[RFC5234]] for syntax):</p>
     <pre class="example" class="ABNF" title="ABNF for peer DIDs">
@@ -75,7 +75,7 @@ numbasis = 64*hex
 </section>
 
 <section class="normative">
-    <h3>Namestring Generation Method</h3>
+    <h2>Namestring Generation Method</h2>
 
     <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
     <ul>
@@ -106,7 +106,7 @@ numbasis = 64*hex
 </section>
 
 <section class="informative">
-    <h3>Recognizing and handling peer DIDs</h3>
+    <h2>Recognizing and handling peer DIDs</h2>
 
     <p>A valid <code>peer</code> DID might be:</p>
 
@@ -162,7 +162,7 @@ function comparePeerDIDs(didA, didB) {
 </section>
 
 <section class="normative">
-    <h3>Reserved Values</h3>
+    <h2>Reserved Values</h2>
 
     <p class="note">This section is still being debated and may be removed. It got merged as a matter of git
     merge convenience, a bit before it was mature.</p>
