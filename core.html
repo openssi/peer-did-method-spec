@@ -1,12 +1,12 @@
-<h2>Core Characteristics</h2>
+<h1>Core Characteristics</h1>
 
 <section class="normative">
-    <h3>Namestring</h3>
+    <h2>Method Name</h2>
 
-    <p>The namestring that identifies this DID method SHALL be: <code>peer</code></p>
+    <p>The method name that identifies this DID method SHALL be: <code>peer</code></p>
     <p>A DID that uses this method MUST begin with the following prefix: <code>did:peer:</code>.
         Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix,
-        is the <a href="#namespace-specific-identifier-nsi">namespace specific identifier described below</a>.
+        is the <a href="#method-specific-identifier">method specific identifier described below</a>.
     </p>
     <p class="note">Early feedback on this method suggested that we embed it beneath the namespace of a particular
         blockchain, as in <code>did:sov:peer</code> or <code>did:v1:nym</code>.
@@ -21,12 +21,12 @@
 </section>
 
 <section class="normative">
-    <h3>Target System(s)</h3>
+    <h2>Target System(s)</h2>
 
     <p>This DID method applies to any identity management implementation that meets the following two
         requirements:</p>
     <ul>
-        <li><em>Generation Algorithm</em> &mdash; The DIDs are created using the <a href="#namespace-specific-identifier-nsi">
+        <li><em>Generation Algorithm</em> &mdash; The DIDs are created using the <a href="#method-specific-identifier">
             algorithm described below</a>, endowing them with properties vital to trust between peers that is not
             dependent on a central source of truth.
         </li>
@@ -38,16 +38,18 @@
 </section>
 
 <section class="normative">
-    <h3>Namespace Specific Identifier (NSI)</h3>
+    <h2>Method Specific Identifier</h2>
 
     <p>The peer DID scheme is defined by the following ABNF (see [[RFC5234]] for syntax):</p>
     <pre class="example" class="ABNF" title="ABNF for peer DIDs">
 peer-did = "did:peer:" numalgo encalgo "-" numbasis
 numalgo = "1"
 encalgo = "1"
-numbasis = 64*hex
+numbasis = 64*HEXDIGCI
+HEXDIGCI = HEXDIG / "a" / "b" / "c" / "d" / "e" / "f"
     </pre>
-    <p>The meaning of <code>hex</code> is the traditional one for hexadecimal digits.</p>
+    <p>The meaning of <code>HEXDIGCI</code> is the traditional one for hexadecimal digits and can be considered
+    a case-insensitive variant of the basic <code>HEXDIG</code> rule that is part of the core ABNF defined by [[RFC5234]].</p>
     <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the source of their
         uniqueness. This version of the spec requires a 256-bit numeric basis generated from a hash
         of the initial content of a DID doc. The <a href="#namestring-generation-method">next section</a> has details.
@@ -75,7 +77,7 @@ numbasis = 64*hex
 </section>
 
 <section class="normative">
-    <h3>Namestring Generation Method</h3>
+    <h2>Namestring Generation Method</h2>
 
     <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
     <ul>
@@ -106,7 +108,7 @@ numbasis = 64*hex
 </section>
 
 <section class="informative">
-    <h3>Recognizing and handling peer DIDs</h3>
+    <h2>Recognizing and handling peer DIDs</h2>
 
     <p>A valid <code>peer</code> DID might be:</p>
 
@@ -162,7 +164,7 @@ function comparePeerDIDs(didA, didB) {
 </section>
 
 <section class="normative">
-    <h3>Reserved Values</h3>
+    <h2>Reserved Values</h2>
 
     <p class="note">This section is still being debated and may be removed. It got merged as a matter of git
     merge convenience, a bit before it was mature.</p>

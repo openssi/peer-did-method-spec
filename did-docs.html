@@ -1,7 +1,7 @@
-<h2>DID docs</h2>
+<h1>DID docs</h1>
 
 <section>
-    <h3>Backing Storage</h3>
+    <h2>Backing Storage</h2>
 
     <p>At first glance, it might seem that parties dealing in peer DID docs could just store raw DID docs.
         However, this is only a viable answer for the most modest <a href="#levels-of-support">levels of support</a>
@@ -62,7 +62,7 @@
 </section>
 
 <section>
-    <h3>CRDTs</h3>
+    <h2>CRDTs</h2>
 
     <p>Because peer DID docs can be updated by multiple parties at the same time (as when two agents of the same
         identity owner rotate their keys without coordinating), they have the potential for merge conflicts. Resolving
@@ -95,7 +95,7 @@
     </ol>
 
     <section>
-        <h4>Conflict Resolution</h4>
+        <h3>Conflict Resolution</h3>
 
         <p>These rules do not make conflicts impossible. However, they should make conflicts from non-malicious activity
             quite rare, and they make the order in which deltas are applied mostly uninteresting. Uncoordinated actions
@@ -203,13 +203,11 @@
             At least once both deletes have been applied, the potential for new inconsistencies collapses. Real life in
             a decentralized world is messy like this.
         </p>
-
     </section>
-
 </section>
 
 <section>
-    <h3><code><dfn>publicKey</dfn></code></h3>
+    <h2><code><dfn>publicKey</dfn></code></h2>
 
     <p>The <code>publicKey</code> section of a peer DID document, in either stored or resolved form, is as you would
         expect from a reading of the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#authentication">DID
@@ -273,7 +271,7 @@
     </p>
 
     <section>
-        <h4 id="adding-a-publickey">Adding a key</h4>
+        <h3 id="adding-a-publickey">Adding a key</h3>
 
         <p>To add a new key with <code>id</code> = <code>Mv6gmMNa</code> to a peer DID doc, you might create
         a <a>change fragment</a> of the DID doc that looks like this:
@@ -313,7 +311,7 @@
     </section>
 
     <section>
-        <h4 id="deleting-a-publickey">Deleting a key</h4>
+        <h3 id="deleting-a-publickey">Deleting a key</h3>
 
         <p>Any key can be deleted by appending its <code>id</code> to the <code>deleted</code> list at the root of
             the stored variant of a peer DID doc, and by removing its corresponding entry from the <code>publicKey</code>
@@ -331,8 +329,9 @@
         the fragment was handled in the example about adding a key.</p>
     </section>
 </section>
+
 <section>
-    <h3><code><dfn>authentication</dfn></code></h3>
+    <h2><code><dfn>authentication</dfn></code></h2>
     <p>The <code>authentication</code> section of a peer DID document conforms to <a target="didspec"
             href="https://w3c-ccg.github.io/did-spec/#authentication">standard practice described in the DID spec</a>,
         with the constraint that only references, not inline key definitions, are allowed. Any keys referenced
@@ -364,7 +363,7 @@
         diplomats. This will prevent impersonation by less trusted keys when stakes are high.
     </p>
     <section>
-        <h4 id="adding-key-to-authn">Adding a key</h4>
+        <h3 id="adding-key-to-authn">Adding a key</h3>
         <p>As mentioned earlier, all objects having an <code>id</code> property in peer DID docs are immutable. This
             means that a key cannot change its status with respect to the <code>authentication</code> section of a peer
             DID doc during its lifetime in that doc; it must be declared as an authentication key when it is first
@@ -388,7 +387,7 @@
         <p class="note">Adding or deleting a key with authentication privileges can only be authorized by a key that
             has the <a>key_admin</a> privilege.</p>
 
-        <h4 id="deleting-key-from-authn">Deleting a key</h4>
+        <h3 id="deleting-key-from-authn">Deleting a key</h3>
         <p>Because a key's authentication privileges are immutable, the only way to take away authentication
             privileges from a key is to <a href="#deleting-a-key">remove it entirely from the DID doc</a>.
         </p>
@@ -396,7 +395,7 @@
 </section>
 
 <section>
-    <h3><code><dfn>authorization</dfn></code></h3>
+    <h2><code><dfn>authorization</dfn></code></h2>
 
     <p class="note">This section of a peer DID docs governs how DID docs are updated and DIDComm trust flows. It doesn't
         contemplate custom authorization schemes such as peers might develop to give each other spending limits or
@@ -458,7 +457,7 @@
         SGL documentation</a> for details.</p>
 
     <section>
-        <h4>Privilege Inventory</h4>
+        <h3>Privilege Inventory</h3>
 
         <p>Unlike role names, the privileges named in these rules DO need to be understood by code that parses peer
             DID docs; it is these privileges that others in a relationship should enforce. Possible values include:</p>
@@ -534,7 +533,7 @@
     </section>
 
     <section>
-        <h4>Adding a rule</h4>
+        <h3>Adding a rule</h3>
 
         <p>Notice that rules have <code>id</code> properties. The IDs for these rules can be assigned by any convenient
             method that provides collision resistance across concurrent updates.
@@ -564,7 +563,7 @@
     </section>
 
     <section>
-        <h4>Deleting a rule</h4>
+        <h3>Deleting a rule</h3>
 
         <p>A <a>change fragment</a> that deletes a rule might look like this:
         </p>
@@ -578,8 +577,9 @@
             transactional logic when deleting rules.</p>
     </section>
 </section>
+
 <section>
-    <h3><code><dfn>service</dfn></code></h3>
+    <h2><code><dfn>service</dfn></code></h2>
 
     <p>This section matches the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#service-endpoints">
         general description of service endpoints in the DID Spec</a>. Any changes to this section of the DID doc
@@ -604,7 +604,7 @@
     </section>
 
     <section>
-        <h4>Deleting a service endpoint</h4>
+        <h3>Deleting a service endpoint</h3>
         <p>A <a>change fragment</a> that deletes a service endpoint might look like this:</p>
 
         <pre class="example" title="Change fragment that deletes a service endpoint with id=agent">
