@@ -31,7 +31,7 @@
         value is like timestamps on an email header&mdash;not guaranteed to be highly accurate, but useful for rough
         analysis.
     </p>
-    <p>Deltas are uniquely identified by the SHA256 hash of the raw (non-base64-encoded) of their change fragment.
+    <p>Deltas are uniquely identified by the SHA256 hash of the raw (non-base64-encoded) bytes of their change fragment.
     </p>
     <p>Deltas are like database transactions, in that they may embody multiple changes that must be performed together.
         For example, key rotation involves both a key addition and a key deletion, performed as a unit.
