@@ -1,12 +1,12 @@
 <h2>Core Characteristics</h2>
 
 <section class="normative">
-    <h3>Namestring</h3>
+    <h3>Method Name</h3>
 
-    <p>The namestring that identifies this DID method SHALL be: <code>peer</code></p>
+    <p>The method name that identifies this DID method SHALL be: <code>peer</code></p>
     <p>A DID that uses this method MUST begin with the following prefix: <code>did:peer:</code>.
         Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix,
-        is the <a href="#namespace-specific-identifier-nsi">namespace specific identifier described below</a>.
+        is the <a href="#method-specific-identifier">method specific identifier described below</a>.
     </p>
     <p class="note">Early feedback on this method suggested that we embed it beneath the namespace of a particular
         blockchain, as in <code>did:sov:peer</code> or <code>did:v1:nym</code>.
@@ -26,7 +26,7 @@
     <p>This DID method applies to any identity management implementation that meets the following two
         requirements:</p>
     <ul>
-        <li><em>Generation Algorithm</em> &mdash; The DIDs are created using the <a href="#namespace-specific-identifier-nsi">
+        <li><em>Generation Algorithm</em> &mdash; The DIDs are created using the <a href="#method-specific-identifier">
             algorithm described below</a>, endowing them with properties vital to trust between peers that is not
             dependent on a central source of truth.
         </li>
@@ -38,7 +38,7 @@
 </section>
 
 <section class="normative">
-    <h3>Namespace Specific Identifier (NSI)</h3>
+    <h3>Method Specific Identifier</h3>
 
     <p>The peer DID scheme is defined by the following ABNF (see [[RFC5234]] for syntax):</p>
     <pre class="example" class="ABNF" title="ABNF for peer DIDs">
