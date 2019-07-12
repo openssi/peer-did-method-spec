@@ -39,39 +39,7 @@
 </p>
 
 <section class="informative">
-    <h3>Guarantees</h3>
-    <p>This spec uses a <a target="aries"
-            href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0003-protocols/README.md#what-is-a-protocol">
-        protocol</a>, rather than a public oracle, as the root of trust. This protocol reliably communicates data
-        about peer DIDs and peer DID docs; peers must persist that data into a local cache or database that functions
-        as the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#dfn-dir">Decentralized Identifier
-            Registry</a> for the method. The method is worthy of trust because it guarantees the following properties:
-    </p>
-    <dl>
-        <dt>DIDs are associated with at least one key pair at the moment of creation.</dt>
-        <dd>This prevents a category of man-in-the-middle attacks where an attacker could rotate a DID's keys
-            at the outset of a relationship, unbeknownst to peers.
-        </dd>
-        <dt>DIDs have an acceptable level of uniqueness.</dt>
-        <dd>This is NOT a guarantee that DIDs will never be reused by their owner, NOR is it a guarantee that
-            collusion cannot subvert uniqueness. Thus, it is not a uniqueness upon which deep trust can be based.
-            Rather, it is a guarantee that good behavior will not produce accidental collisions. In this
-            sense, it is a bit like the uniqueness offered by NATing mechanisms in IPv4. It provides
-            enough uniqueness that a DID can be used as an index in a database or as a routing target
-            in DID communication. It also makes it possible for blockchains to <a href="#grafting">graft</a> a peer
-            DID by mapping it into their namespace, without incurring the risk of ambiguity. Any time a peer
-            DID is discovered to be less than unique, a true problem exists and systems can fairly
-            raise an exception.
-        </dd>
-        <dt>The values of DIDs are securely random.</dt>
-        <dd>This prevents attackers from discovering patterns in DIDs that might undermine privacy.
-        </dd>
-        <dt>Parties to a relationship can prove the orderly and authorized evolution of their
-            keys to one another.</dt>
-    </dl>
-</section>
-<section class="informative">
-    <h3>Advantages</h3>
+    <h3>Benefits</h3>
     <p>Peer DIDs are not suitable for <a>anywise</a> use cases, which are usually public by intent. However, peer
         DIDs have certain virtues that make them desirable for private relationships between a small number of
         enumerable parties:</p>
@@ -97,56 +65,10 @@
             software movements.
         </li>
     </ul>
+    <p>For more on when peer DIDs do and do not make sense, see <a href="#comparison">Comparison to Other DID Methods</a>
+    in the Appendices.</p>
 </section>
-<section class="informative">
-    <h3>Comparison to Other DID Methods</h3>
-    <p>We could certainly build peer relationships with <a>anywise</a> DIDs based on a public ledger or a similar
-        source of truth. However, in the same way that a company doesn't want the public to resolve private host
-        names inside its corporate intranet, letting others resolve <a>pairwise</a> and <a>n-wise</a> DIDs is
-        unnecessary, and it represents a privacy and security risk as well as a problem of cost, scale, and
-        performance. We strongly recommend that peer DIDs be used for peer relationships.
-    </p>
-    <p>In a similar vein, peer DIDs could be used, hypothetically, for <a>anywise</a> scenarios. The main disadvantage
-        would be the lack of a formal publication mechanism. Nothing would prevent a user from publishing a peer DID and
-        its associated DID document on a website. However, information published in this way would be hard to discover,
-        maintain as DID docs evolved, and integrate into interoperable applications. DID methods that use
-        a public ledger or a similar source of truth are a better choice here, because they have authoritative
-        answers to the publication problem.
-    </p>
-</section>
-<section class="informative">
-    <h3>Applicability in Group Relationships</h3>
-    <p>Most of this doc is framed by a <a>pairwise</a> Alice:Bob context. This sort of pair (no matter whether its
-        members are people, IoT devices, or institutions) will be the most common peer relationship in the SSI
-        landscape. Groups larger than 2 can also have a peer-style relationship&mdash;but not all groups will be
-        modeled that way. Therefore, applying this method to groups should be done thoughtfully.</p>
-    <p>Some groups, such as a doctor, a hospital, and a patient participating in a medical procedure together, are
-        <a href="nwise.html#sweet-spot">clearly n-wise</a>. Each party can enumerate all the other parties, and each
-        party uses the same identifier in all directions within the group:
-    </p>
 
-    <figure id="n-wise-group">
-        <img src="n-wise.png" alt="n-wise group"/>
-        <figcaption>A classic 3-wise group: each party uses the same DID with two peers. (See <a
-                href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0006-ssi-notation/README.md"
-                target="aries">Aries RFC 0006</a> for help with the notation used in the diagram.)</figcaption>
-    </figure>
-
-    <p>But groups can also be modeled with a hub-and-spoke model. That model is commonly used in group chats,
-        for example: each member of the group chat sends and receives via a central service, which in turn
-        broadcasts to all other members of the group. This hub-and-spoke model is actually just a <a>pairwise</a>
-        variant, because the relationship is between a member and the hub; all other relationships are only
-        indirect:</p>
-
-    <figure id="hub-and-spoke-group">
-        <img src="hub-wise.png" alt="group modeled as hub and spokes"/>
-        <figcaption>A group modeled as hub and spokes: each party only relates directly to the hub.</figcaption>
-    </figure>
-
-    <p>Use of peer DIDs with <a>n-wise</a> groups is explicitly supported and documented below. We do not cover
-        hub-and-spoke groups in the same way. They are compatible with this method, if reanalyzed as
-        <a>pairwise</a>. Otherwise, the protocol described here may need adaptation.</p>
-</section>
 <section class="informative">
     <h3>Enforcement</h3>
 
