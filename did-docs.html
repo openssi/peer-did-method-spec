@@ -103,6 +103,8 @@
             operate with high autonomy and minimal coordination, even during extended periods of imperfect
             synchronization.
         </p>
+        <p class="note">A key rotation is a bit different. It has to be treated like a deletion as far as ordering rules
+            are concerned, since it does in fact include a deletion. More on this in a moment.</p>
         <p>A reasonable analog might be a git repo that only allows 1 version of each file--no modifications, no
             renames--and that guarantees that independent coders never add files with the same names. Such a repo could
             probably accept commits in any order, from an unlimited number of collaborators, and largely avoid
@@ -141,7 +143,8 @@
             policies in the <a>authorization</a> section of its DID doc. Wise planning can largely eliminate the
             problems with this simple first-come-first-served strategy.
         </p>
-        <p>What if the two messages that arrive are not mutually contradictory--but one is a delete and another is an
+        <p>But let's assume that planning hasn't been perfect. And let's make the question less of a corner case. What
+            if the two messages that arrive are not mutually contradictory--but one is a delete and another is an
             operation that can't succeed if the the delete happens first?
         </p>
 
@@ -168,13 +171,14 @@
         <p>The <a href="#sync-protocol">synchronization protocol</a> between parties to a DID doc allows them to have
             different opinions about order, and to adjust that order over time, based on evidence. A delete delta
             "bubbles" to a position in history that's after the last delta that would have been impossible before it,
-            AND that was accepted by any party that had to make authorization decisions. And deltas that were discarded
-            by a party because of ordering differences will get re-introduced to history once evidence is found that
-            a party making authorization decisions saw the order differently. This is essentially like the Republic of
-            Bob official saying, "For now, I'm going to pretend that Foo's appointment request is rejected, since I saw
-            it after the notice that Foo was fired. But if I see that my boss has scheduled the appointment, I'll put
-            the appointment request into my official log of Acmeland actions in the other order, because my boss must
-            have received the letters in the other order."
+            AND that was accepted by any party that had to make authorization decisions. A delete delta that was never
+            accepted by anyone (as with one of the mutually contradictory deltas above) just disappers. And deltas that
+            were discarded by a party because of ordering differences will get re-introduced to history once evidence is
+            found that a party making authorization decisions saw the order differently. This is essentially like the
+            Republic of Bob official saying, "For now, I'm going to pretend that Foo's appointment request is rejected,
+            since I saw it after the notice that Foo was fired. But if I see that my boss has scheduled the appointment,
+            I'll put the appointment request into my official log of Acmeland actions in the other order, because my
+            boss must have received the letters in the other order."
         </p>
 
         <p>The net effect of these two rules for deletes is that different parties can have different views of where
@@ -184,17 +188,21 @@
         </p>
 
         <p>You may be saying, "Yes, but what if the ambassador was fired in the morning, and I can prove it, and
-            someone still gave the ambassador privileges twelve hours later in the evening?
+            someone still gave the ambassador privileges twelve hours later in the evening?" Or what if one party
+            accepted <code>delta[0]</code>, and another party accepted <code>delta[1]</code> (that were mutually
+            contradictory)? How do those get reconciled?
         </p>
 
-        <p>It doesn't matter. In such a case, the delete's timing moves to the evening in history; that's the true last
-            time that the ambassador's privileges had any effect, even if the intent was to de-authorize earlier. The
-            deltas is not an expression of intention, but an expression of when that intention was acknowledged in any
-            way that mattered. Real life is messy like this.
+        <p>They don't, and it doesn't matter. In the first case, the delete's timing moves to the evening in history;
+            that's the true last time that the ambassador's privileges had any effect, even if the intent was to
+            de-authorize earlier. The deltas is not an expression of intention, but an expression of when that intention
+            was honored in any way that mattered. In the second case, the contradictory views of reality are a real
+            historical event, and the fact that they caused inconsistent authorizations to happen in different corners
+            of the world isn't going to be reconciled into an explanation that pretends otherwise. The deltas on top
+            of the genesis doc end up containing both deletes, as well as some deltas inconsistent with both deletes.
+            At least once both deletes have been applied, the potential for new inconsistencies collapses. Real life in
+            a decentralized world is messy like this.
         </p>
-
-        <p class="note">A key rotation has to be treated like a deletion as far as ordering rules are concerned, since
-        it does in fact include a deletion.</p>
 
     </section>
 
