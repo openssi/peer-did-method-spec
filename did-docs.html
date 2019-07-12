@@ -20,7 +20,6 @@
         in this form:</p>
     <pre class="example nohighlight" title="Delta structure">
 {
-    "id": &lt;a UUID&gt;,
     "change": &lt;base64 encoding of a change fragment&gt;,
     "by": [ {"key": &lt;id of key&gt;, "sig": &lt;signature value&gt;} ... ],
     "when": &lt;ISO8601 UTC timestamp with at least second precision&gt;
@@ -31,6 +30,8 @@
         JSON text of the change fragment, and <code>when</code> contains a value supplied by the system clock. This
         value is like timestamps on an email header&mdash;not guaranteed to be highly accurate, but useful for rough
         analysis.
+    </p>
+    <p>Deltas are uniquely identified by the SHA256 hash of the raw (non-base64-encoded) of their change fragment.
     </p>
     <p>Deltas are like database transactions, in that they may embody multiple changes that must be performed together.
         For example, key rotation involves both a key addition and a key deletion, performed as a unit.
@@ -63,19 +64,23 @@
 <section>
     <h3>CRDTs</h3>
 
-    <p>Because peer DID docs can be updated by multiple parties at the same time (as when two agents of the same identity
-        owner rotate their keys without coordinating), they have the potential for merge conflicts. Resolving these
-        merge conflicts could introduce much complexity in our DID method. However, peer DID docs use a clever
+    <p>Because peer DID docs can be updated by multiple parties at the same time (as when two agents of the same
+        identity owner rotate their keys without coordinating), they have the potential for merge conflicts. Resolving
+        these merge conflicts could introduce much complexity in our DID method. However, peer DID docs use a clever
         technique that avoids much of the pain. The backing storage for peer DID docs is carefully defined to
         be a <a target="wikipedia" href="https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type">conflict-free
-        replicated data type</a> (<dfn>CRDT</dfn>).</p>
+        replicated data type</a> (<dfn>CRDT</dfn>).
+    </p>
     <p>CRDTs are a deep subject unto themselves, with a body of academic research; additional study is recommended.
         They are behind familiar experiences like simultaneous, distributed editing of Google Docs, which never raises
         error messages about merge conflicts. Here, we will not explain their theory; we will simply note some key
-        requirements that they impose on DID docs and their <a>backing storage</a>.</p>
+        requirements that they impose on DID docs and their <a>backing storage</a>. More details about given later in
+        this spec, where individual parts of the DID doc are described. The general rules are:
+    </p>
+
     <ol id="crdt-rules">
         <li>Core building blocks&mdash;keys, rules, and service endpoints&mdash; must be assigned
-            <code>id</code> properties in a way that prevents collisions.</li>
+            <code>id</code> properties that are unique within the DID doc, across all its versions.</li>
         <li>All items with <code>id</code> properties must be immutable. They can be deleted, but they can never have
             a different state than they were created with. The effect of modifying an item can be achieved by
             deleting an old item and replacing it with a new item that has a different <code>id</code> and updated
@@ -84,16 +89,115 @@
             is a root property of the <a>stored variant</a> of a DID doc and is named <code>deleted</code>. It is
             suppressed when generating a <a>resolved variant</a> of the DID doc, so it is only visible in the deltas
             of <a>backing storage</a>. See <a href="#deleting-a-publickey">this clarifying example</a>.</li>
-        <li>When any party encounters two versions of a peer DID doc, one of which has an item in undeleted state and
-            one of which has the item in a deleted state, the item's state should be considered deleted, regardless
-            of relative timing of the two versions. This eliminates the possibility that a malicious party could
-            attempt to take advantage of differences in system clocks or sequencing.</li>
+        <li>When any party encounters two versions of a peer DID doc that are mututally incompatible, an impartial,
+            ungameable resolution algorithm is used to restore harmony. See next subsection.
+        </li>
     </ol>
-    <p>These rules do not guarantee that conflicting state can never exist. However, they eliminate most ordering
-        concerns, and they provide a framework that allows conflicting state to be resolved automatically. No human
-        judgment is ever required, and all non-malicious parties to a relationship will agree on the proper course of
-        action in every circumstance. Details about CRDT requirements are documented below, in the sections about
-        individual parts of the DID doc. These will make the CRDT semantics and the technique clearer.</p>
+
+    <section>
+        <h4>Conflict Resolution</h4>
+
+        <p>These rules do not make conflicts impossible. However, they should make conflicts from non-malicious activity
+            quite rare, and they make the order in which deltas are applied mostly uninteresting. Uncoordinated actions
+            that add keys, rules, and service endpoints can never cause conflicts. Holders of keys should be able to
+            operate with high autonomy and minimal coordination, even during extended periods of imperfect
+            synchronization.
+        </p>
+        <p>A reasonable analog might be a git repo that only allows 1 version of each file--no modifications, no
+            renames--and that guarantees that independent coders never add files with the same names. Such a repo could
+            probably accept commits in any order, from an unlimited number of collaborators, and largely avoid
+            conflicts.
+        </p>
+        <p>The real difficulty is deletions. Suppose AcmeCorp has two agents, <code>A.1</code> and <code>A.2</code>, and
+            that it uses these agents to interact with Bob, via Bob's agent <code>B.1</code>. <code>A.2</code> is hacked.
+            <code>A.1</code> becomes suspicious and decides to take protective action. <code>A.1</code> creates a delta,
+            <code>delta[1]</code>, that revokes <code>A.2</code>'s keys, and sends it to <code>B.1</code>. Meanwhile,
+            the hacker on <code>A.2</code> is moving swiftly to consolidate his own advantage; he uses <code>A.2
+            </code>'s leaked key to create a different delta, <code>delta[2]</code>, that revokes <code>A.1</code>'s
+            keys. Each of these deltas is authorized by the very party that the other delta de-authorizes.
+        </p>
+        <p>So what does <code>B.1</code> do when it receives these contradictory deltas?
+        </p>
+
+        <figure id="contradictory-deletes">
+            <img src="contradictory-deletes.png" alt="A.1 says delete A.2; A.2 says the opposite"/>
+            <figcaption>Mutually contradictory deletes.</figcaption>
+        </figure>
+
+        <p>Before answering this question, let's reframe the situation into a less technical context, because it will
+            make the answer easier to understand. Change AcmeCorp into a country, Acmeland, and its agents into
+            diplomats that represent Acmeland in the Republic of Bob. One of the Acme diplomats becomes treasonous. Now
+            the Republic of Bob receives two contradictory letters, both on official Acmeland letterhead, from A.1 and
+            A.2. Each letter instructs the Republic of Bob to strip the other Acme diplomat of all rank and privileges.
+        </p>
+        <p>So what does the Republic of Bob do when it receives these contradictory letters?
+        </p>
+        <p>Part 1 of the answer is that <em>it processes them in the order it receives them</em>. If <code>A.1</code>'s
+            delta arrives first, <code>A.2</code> loses rank and privileges, and the letter from <code>A.2</code> must
+            be rejected. If the order changes, so does the outcome.
+        </p>
+        <p>If Acmeland is worried about this, it can prearrange with the Republic of Bob that all changes to its
+            diplomat corps will always come endorsed by multiple officials. AcmeCorp can setup similar M-of-N signature
+            policies in the <a>authorization</a> section of its DID doc. Wise planning can largely eliminate the
+            problems with this simple first-come-first-served strategy.
+        </p>
+        <p>What if the two messages that arrive are not mutually contradictory--but one is a delete and another is an
+            operation that can't succeed if the the delete happens first?
+        </p>
+
+        <figure id="delete-order-ex">
+            <img src="delete-order-ex.png" alt="A.1 says delete A.2; A.2 says to add a rule"/>
+            <figcaption>A delete and another operation, where order matters.</figcaption>
+        </figure>
+
+        <p>Again, the party that receives these two deltas processes them in the order they are received. In a
+            decentralized system, no other answer makes sense. This might feel like a terrible answer, since different
+            parties can receive what started as the same sequence of deltas in very different orders, and thus end up
+            with very different views of the world. But we can add a nuance that makes this feel more rational.
+        </p>
+
+        <p>Part 2 of the answer starts with the observation that <em>the relative order of two operations only matters
+            when it affects authorization</em>. If an official for the Republic of Bob sees a letter announcing that
+            Acmeland's ambassador Foo has been fired, and another letter announcing that Acmeland's ambassador Foo
+            requested an appointment with Bob's prime minister, the official doesn't care about the relative order
+            unless she's in charge of scheduling appointments with Bob's prime minister. Otherwise she can suspend
+            judgment about whether Foo's appointment request should be honored, and wait to see how the authorization
+            decision is made by someone else who's empowered to make it.
+        </p>
+
+        <p>The <a href="#sync-protocol">synchronization protocol</a> between parties to a DID doc allows them to have
+            different opinions about order, and to adjust that order over time, based on evidence. A delete delta
+            "bubbles" to a position in history that's after the last delta that would have been impossible before it,
+            AND that was accepted by any party that had to make authorization decisions. And deltas that were discarded
+            by a party because of ordering differences will get re-introduced to history once evidence is found that
+            a party making authorization decisions saw the order differently. This is essentially like the Republic of
+            Bob official saying, "For now, I'm going to pretend that Foo's appointment request is rejected, since I saw
+            it after the notice that Foo was fired. But if I see that my boss has scheduled the appointment, I'll put
+            the appointment request into my official log of Acmeland actions in the other order, because my boss must
+            have received the letters in the other order."
+        </p>
+
+        <p>The net effect of these two rules for deletes is that different parties can have different views of where
+            a delete fits into history, and those views will converge over time, <em>to the extent that convergence
+            matters</em>. Where convergence never reaches closure, that means there's no evidence that forces one of
+            the views to be more correct than the other. And that's okay.
+        </p>
+
+        <p>You may be saying, "Yes, but what if the ambassador was fired in the morning, and I can prove it, and
+            someone still gave the ambassador privileges twelve hours later in the evening?
+        </p>
+
+        <p>It doesn't matter. In such a case, the delete's timing moves to the evening in history; that's the true last
+            time that the ambassador's privileges had any effect, even if the intent was to de-authorize earlier. The
+            deltas is not an expression of intention, but an expression of when that intention was acknowledged in any
+            way that mattered. Real life is messy like this.
+        </p>
+
+        <p class="note">A key rotation has to be treated like a deletion as far as ordering rules are concerned, since
+        it does in fact include a deletion.</p>
+
+    </section>
+
 </section>
 
 <section>
@@ -397,7 +501,8 @@
                 <code>publicKey</code> section</a>, <a href="#authentication"><code>authentication</code> section</a>,
                 or <code>authorization.profiles</code> list. Typically this privilege is held only by very privileged
                 keys, or by combinations of keys, to prevent hackers who co-opt one device from adding new, malicious
-                keys to the inventory.
+                keys to the inventory. [[TODO: should we say that key_admin can only grant to other keys privileges that
+                it also has, so if it lacks signing privs it can't give them to anybody else?]]
             </dd>
 
             <dt><dfn>se_admin</dfn></dt>
