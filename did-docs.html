@@ -296,7 +296,7 @@
         <p>Change fragments only show where something is <em>appended</em> to either normal lists or the <a>deletion
             list</a>. Here, the single entries under <code>publicKey</code> and <code>authorization.profiles</code> are
             additions, not replacements, to the lists that already contain values. (The <a>trust profile</a> embodied in
-            the<code>authorization.profiles</code> associates the new key with privileges. This must be done at creation
+            the <code>authorization.profiles</code> associates the new key with privileges. This must be done at creation
             time. It is discussed under <a href="#authorization"><code>authorization</code></a>.) The <a>delta</a> that
             encapsulates this update would take the above JSON text, base64-encode it, and assign the result to the
             delta's <code>change</code> property. It would need to be authorized by a key with the <a>key_admin</a>
