@@ -1,4 +1,41 @@
-<h1>N-Wise</h1>
+<h1>Groups</h1>
+
+<section class="informative">
+    <h3>Group Models</h3>
+    <p>Most of this doc is framed by a <a>pairwise</a> Alice:Bob context. This sort of pair (no matter whether its
+        members are people, IoT devices, or institutions) will be the most common peer relationship in the SSI
+        landscape. Groups larger than 2 can also have a peer-style relationship&mdash;but not all groups will be
+        modeled that way. Therefore, applying this method to groups should be done thoughtfully.</p>
+    <p>Some groups, such as a doctor, a hospital, and a patient participating in a medical procedure together, are
+        <a href="nwise.html#sweet-spot">clearly n-wise</a>. Each party can enumerate all the other parties, and each
+        party uses the same identifier in all directions within the group:
+    </p>
+
+    <figure id="n-wise-group">
+        <img src="n-wise.png" alt="n-wise group"/>
+        <figcaption>A classic 3-wise group: each party uses the same DID with two peers. (See <a
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0006-ssi-notation/README.md"
+                target="aries">Aries RFC 0006</a> for help with the notation used in the diagram.)</figcaption>
+    </figure>
+
+    <p>But groups can also be modeled with a hub-and-spoke model. That model is commonly used in group chats,
+        for example: each member of the group chat sends and receives via a central service, which in turn
+        broadcasts to all other members of the group. This hub-and-spoke model is actually just a <a>pairwise</a>
+        variant, because the relationship is between a member and the hub; all other relationships are only
+        indirect:</p>
+
+    <figure id="hub-and-spoke-group">
+        <img src="hub-wise.png" alt="group modeled as hub and spokes"/>
+        <figcaption>A group modeled as hub and spokes: each party only relates directly to the hub.</figcaption>
+    </figure>
+
+    <p>Use of peer DIDs with <a>n-wise</a> groups is explicitly supported and documented below. We do not cover
+        hub-and-spoke groups in the same way. They are compatible with this method, if reanalyzed as
+        <a>pairwise</a>. Otherwise, the protocol described here may need adaptation.</p>
+</section>
+
+<section class="informative">
+<h2>N-Wise</h2>
 
 <p>N-wise groups often exist alongside pairwise relationships. For example, a 3-wise business
     partnership between Alice, Bob, and Carol is probably preceded by pairwise relationships between
@@ -14,7 +51,7 @@
 </p>
 
 <section class="informative">
-    <h2>Features</h2>
+    <h3>Features</h3>
 
     <p>When N is greater than 2, N-wise DIDs provide the following benefits over combinations of pairwise DIDs:</p>
 
@@ -65,7 +102,7 @@
 </section>
 
 <section class="informative">
-    <h2 id="sweet-spot">Sweet spot</h2>
+    <h3 id="sweet-spot">Sweet spot</h3>
     <p>
         Flat (not strongly hierarchical) groups with a small, enumerated set of members, and without a centralizing
         party that must act as coordinator and dispatcher. Many of the members probably have pairwise relationships
@@ -96,7 +133,7 @@
 </section>
 
 <section class="informative">
-    <h2>Where n-wise is suboptimal</h2>
+    <h3>Where n-wise is suboptimal</h3>
     <p>Large groups. Groups with a centralizing party that always or almost always acts as coordinator and
         dispatcher. Groups where most members do not know one another and would rarely interact except with the
         group as a whole. Groups where members don't want to be known to one another.
@@ -118,9 +155,11 @@
 </section>
 
 <section class="informative">
-    <h2>How peer n-wise relationships are built and used</h2>
+    <h3>How peer n-wise relationships are built and used</h3>
     <p>TODO: move an evolved version of the content from <a target="_blank"
             href="https://docs.google.com/document/d/1BjYdivGQ9GxIz9CJ2ymNvMA68uHZm8bFOTyCHDmziOU/edit">this
     Google doc</a> into the spec.</p>
 
+</section>
+    
 </section>

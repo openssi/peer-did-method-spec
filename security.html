@@ -1,4 +1,38 @@
 <h2>Security Considerations</h2>
+
+<section class="informative">
+    <h3>Guarantees</h3>
+    <p>This spec uses a <a target="aries"
+            href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0003-protocols/README.md#what-is-a-protocol">
+        protocol</a>, rather than a public oracle, as the root of trust. This protocol reliably communicates data
+        about peer DIDs and peer DID docs; peers must persist that data into a local cache or database that functions
+        as the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#dfn-dir">Decentralized Identifier
+            Registry</a> for the method. The method is worthy of trust because it guarantees the following properties:
+    </p>
+    <dl>
+        <dt>DIDs are associated with at least one key pair at the moment of creation.</dt>
+        <dd>This prevents a category of man-in-the-middle attacks where an attacker could rotate a DID's keys
+            at the outset of a relationship, unbeknownst to peers.
+        </dd>
+        <dt>DIDs have an acceptable level of uniqueness.</dt>
+        <dd>This is NOT a guarantee that DIDs will never be reused by their owner, NOR is it a guarantee that
+            collusion cannot subvert uniqueness. Thus, it is not a uniqueness upon which deep trust can be based.
+            Rather, it is a guarantee that good behavior will not produce accidental collisions. In this
+            sense, it is a bit like the uniqueness offered by NATing mechanisms in IPv4. It provides
+            enough uniqueness that a DID can be used as an index in a database or as a routing target
+            in DID communication. It also makes it possible for blockchains to <a href="#grafting">graft</a> a peer
+            DID by mapping it into their namespace, without incurring the risk of ambiguity. Any time a peer
+            DID is discovered to be less than unique, a true problem exists and systems can fairly
+            raise an exception.
+        </dd>
+        <dt>The values of DIDs are securely random.</dt>
+        <dd>This prevents attackers from discovering patterns in DIDs that might undermine privacy.
+        </dd>
+        <dt>Parties to a relationship can prove the orderly and authorized evolution of their
+            keys to one another.</dt>
+    </dl>
+</section>
+
 <section>
     <h3>Secure communication</h3>
     <p>All the messages in this protocol (except for a connection invitation that requires no security, by design)
