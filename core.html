@@ -45,9 +45,11 @@
 peer-did = "did:peer:" numalgo encalgo "-" numbasis
 numalgo = "1"
 encalgo = "1"
-numbasis = 64*hex
+numbasis = 64*HEXDIGCI
+HEXDIGCI = HEXDIG / "a" / "b" / "c" / "d" / "e" / "f"
     </pre>
-    <p>The meaning of <code>hex</code> is the traditional one for hexadecimal digits.</p>
+    <p>The meaning of <code>HEXDIGCI</code> is the traditional one for hexadecimal digits and can be considered
+    a case-insensitive variant of the basic <code>HEXDIG</code> rule that is part of the core ABNF defined by [[RFC5234]].</p>
     <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the source of their
         uniqueness. This version of the spec requires a 256-bit numeric basis generated from a hash
         of the initial content of a DID doc. The <a href="#namestring-generation-method">next section</a> has details.
