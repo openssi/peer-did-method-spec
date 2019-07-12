@@ -145,7 +145,7 @@
         </p>
         <p>But let's assume that planning hasn't been perfect. And let's make the question less of a corner case. What
             if the two messages that arrive are not mutually contradictory--but one is a delete and another is an
-            operation that can't succeed if the the delete happens first?
+            operation that can't succeed if the delete happens first?
         </p>
 
         <figure id="delete-order-ex">
@@ -304,7 +304,7 @@
 {
     "id": "040aaa5e-1a27-40d8-8d53-13a00b82d235",
     "change": "ewogICJwdWJsaWNLZXkiOiBbCiAgICB...ozd1htcVBWcGZrY0pDd0R3biIKICAgIH0KICBdCn0=",
-    "by": [ {"key": "H3C2AVvL", "sig": ""if8ooA+32YZc4SQBvIDDY9tgTa...i4VvND87PUqq5/0vsNFEGIIEDA=="} ],
+    "by": [ {"key": "H3C2AVvL", "sig": "if8ooA+32YZc4SQBvIDDY9tgTa...i4VvND87PUqq5/0vsNFEGIIEDA=="} ],
     "when": "2019-07-18T15:49:22.03Z"
 }
         </pre>
@@ -314,7 +314,7 @@
         <h3 id="deleting-a-publickey">Deleting a key</h3>
 
         <p>Any key can be deleted by appending its <code>id</code> to the <code>deleted</code> list at the root of
-            the stored variant of a peer DID doc, and by removing its corresponding entry from the <code>publicKey</code>
+            the <a>stored variant</a> of a peer DID doc, and by removing its corresponding entry from the <code>publicKey</code>
             section. Only the append-to-<code>deleted</code> operation needs to be represented in the <a>change
             fragment</a>; the corresponding removal from the <code>publicKey</code> section is implied. For example, to
             delete a key with <code>id</code> = <code>izfrNTmQ</code>, your <a>change fragment</a> would look like
