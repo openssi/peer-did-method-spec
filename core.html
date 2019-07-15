@@ -83,7 +83,8 @@ HEXDIGCI = HEXDIG / "a" / "b" / "c" / "d" / "e" / "f"
     <ul>
         <li>Create a <dfn>genesis version</dfn> of JSON text of the DID doc for the DID. The genesis version MUST
             include enough keys and <a target="#authorization">authorization</a> that the genesis version of the doc
-            can be signed, to prevent man-in-the-middle attacks during initial DID exchange. It SHOULD also include
+            can be signed (see <a href="https://w3c-ccg.github.io/did-spec/#binding-of-identity">Binding of Identity</a>
+            in the DID spec), to prevent man-in-the-middle attacks during initial DID exchange. It SHOULD also include
             enough state that subsequent evolutions to the doc are authorized; otherwise, the doc is a dead end.
             It MUST NOT include the DID itself (either the root <code>id</code> property or its value). This
             lets the doc be created without knowing the DID's value in advance.
