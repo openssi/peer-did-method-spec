@@ -144,38 +144,38 @@
 
     <section>
         <h4>Read (Resolve)</h4>
-        <p>This operation, as well as Update and Deactivate, are documented in greater detail in
-            <a href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md"
-                    target="aries">Aries RFC 0030</a>. Here, we offer only a summary.
+        <p>This operation is documented in greater detail in
+            <a href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0124-did-resolution-protocol/README.md"
+                    target="aries">Aries RFC 0124</a>. Here, we offer only a summary.
         </p>
         <p>A peer DID can be resolved to a DID document by sending a <a target="aries"
-                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/query-connection-state-protocol/README.md#state_request">
-            state_request</a> message from one peer to another:</p>
-        <pre class="example" title="A state_request message">
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0124-did-resolution-protocol/README.md#resolve-message">
+            resolve</a> message from one peer to another:</p>
+        <pre class="example" title="A resolve message">
 {
-  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/query_connection_state/1.0/state_request",
+  "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/did_resolution/0.1/resolve",
   "@id": "6a4986dd-f50e-4ed5-a389-718e61517207",
-  "for": "did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
-  "as_of_time": "2019-07-23 18:05:06.123Z"
+  "did": "did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
+  "input_options": {
+    "version_time": "2019-07-23T18:05:06.123Z"
+  }
 }
         </pre>
-        <p>The <code>as_of_time</code> property is optional and often omitted; if so, the DID doc at
-            the current time is returned.</p>
+        <p>The <code>version_time</code> property is optional and often omitted; if so, the DID doc at
+            the current time is returned (see <a href="https://w3c-ccg.github.io/did-resolution/#resolving-input-version-time">version-time</a> in DID Resolution).</p>
         <p>A <a target="aries"
-            href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/query-connection-state-protocol/README.md#state_response">
-            state_response</a> message is returned. It includes a DID doc and some additional metadata, and looks like
+            href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0124-did-resolution-protocol/README.md#resolve_result-message">
+            resolve_result</a> message is returned. It includes a DID doc and some additional metadata, and looks like
             this:
         </p>
-        <pre class="example" title="A state_response message">
+        <pre class="example" title="A resolve_result message">
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync-connection/1.0/state_response",
   "@id": "1517207d-f50e-4ed5-a389-6a4986d718e6",
   "~thread": { "thid": "6a4986dd-f50e-4ed5-a389-718e61517207" },
-  "for": "did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
-  "did_doc": {
+  "did_document": {
     // full content of resolved variant of DID doc here
-  },
-  "as_of_time": "2019-07-23 18:05:06.123Z"
+  }
 }
         </pre>
         <p class="note">Note the use of <code>~thread</code> in the response, with <code>thid</code> equal to the
