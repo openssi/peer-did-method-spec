@@ -508,8 +508,12 @@
                 <code>publicKey</code> section</a>, <a href="#authentication"><code>authentication</code> section</a>,
                 or <code>authorization.profiles</code> list. Typically this privilege is held only by very privileged
                 keys, or by combinations of keys, to prevent hackers who co-opt one device from adding new, malicious
-                keys to the inventory. [[TODO: should we say that key_admin can only grant to other keys privileges that
-                it also has, so if it lacks signing privs it can't give them to anybody else?]]
+                keys to the inventory. 
+                To guard against privilege escalation, it is important to enforce that entity 
+                adding the new key can only add grant privileges (add <code>roles</code>) that it itself has. 
+                Also note that a key can remove itself from <a href="#publickey"><code>publicKey</code> section</a>, 
+                it does nee the <code>key_admin</code> privilege. A real example would be when an existing device with a 
+                key in the DID doc gets damaged and the identity owner has no plans to replace it.
             </dd>
 
             <dt><dfn>se_admin</dfn></dt>
@@ -527,8 +531,36 @@
                 key throughout a DID doc, with a new key definition and references, in a single delete-and-add
                 operation. If key #2 has this privilege and exercises it, the result is that key #2 is revoked from
                 the doc, but a new key (perhaps key #7) appears with exactly the same profile. This privilege is
-                assumed to be held by all keys unless rules specify otherwise.
+                assumed to be held by all keys unless rules specify otherwise. The construct <code>revoke-implicit</code> 
+                is used to prevent keys from having implicit privileges. The example below shows that the key id 
+                <code>#H3C2AVvL</code> is unable to replace its associated key definition.
             </dd>
+            <pre class="example" title="Preventing keys from having implicit privileges">
+                “authorization”: {
+                    "profiles": [
+                        {"key": "#Mv6gmMNa", "roles", ["edge"]},              // an "edge" key
+                        {"key": "#H3C2AVvL", "roles", ["offline"]},           // an "offline" key
+                    ],
+                    "rules": [
+                        {
+                            "grant": ["authcrypt", "plaintext", "sign"],
+                            "when": {"roles": "edge"},
+                            "id": "e1e7d7bc"
+                        },
+                        {
+                            "revoke-implicit": ["rotate"],
+                            "when": {"key": "#H3C2AVvL"},
+                            "id": "f908a18c"
+                        },
+                        {
+                            "grant": ["key_admin", "se_admin", "rule_admin"],
+                            ......
+                            ......
+                            ......
+                        }
+                    ]
+                }
+                        </pre>
         </dl>
     </section>
 
