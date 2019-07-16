@@ -54,9 +54,12 @@
                     of traditional security analysis).</li>
                 <li>Both parties can be sure that they know what the other party intends (the "integrity" guarantee).</li>
             </ul>
-            <p>A trivial example might be for Alice and Bob to use AirDrop to trade DID docs between Macbooks when they
-                are standing next to each other -- IFF they are confident that the communication channel between them is
-                not hacked.
+            <p>A trivial example of a compliant protocol might be for Alice and Bob to use AirDrop to trade DID docs
+                between Macbooks when they are standing next to each other -- IFF they are confident that the
+                communication channel between them is not hacked. This approach would not work well when the parties
+                are remote, because trust would be unachievable. Using HTTPS might be an improvement in that situation,
+                if it were done carefully. However, even with HTTPS, there are subtleties to consider. A
+                careful study of the DIDComm protocol and its guarantees is recommended when exploring alternatives.
             </p>
         </section>
         <section>
@@ -110,6 +113,10 @@
                 <li>The invitation can be sent by a third party, allow introductions (Alice introduces Carol to Bob).
                     However, an introducer is prevented from seeing the secure and private connection built by the
                     two parties.
+                </li>
+                <li>It is possible to conduct the protocol very asynchronously. Either party can be offline when the
+                other party sends a message; no server has to be listening in realtime to make it work. Invitations and
+                    subsequent steps can be widely separated in time, and can use different transports.
                 </li>
             </ul>
             <p>Additional security against man-in-the-middle attacks may be achieved by signing an invitation, if it is
@@ -318,7 +325,12 @@
             local cache. It should also prevent the other party from trying to communicate in the future.
         </p>
         <section>
-            <h4>DIDComm approach</h4>
+            <h4>General Recipe</h4>
+            <p>Send a message or make an API call announcing that the relationship is over. Possibly, receive an
+                acknowledgement in response.</p>
+        </section>
+        <section>
+            <h4>DIDComm Approach</h4>
             <p>Formally terminating a connection happens by sending an <a target="aries"
                 href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0030-sync-connection/abandon-connection-protocol#announce"><code>
                 announce</code> message</a> to a peer:</p>
