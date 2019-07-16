@@ -1,7 +1,22 @@
 <h1>Protocols</h1>
 
 <section class="informative">
-    <h2>Roles and Agents</h2>
+    <h2>What is a protocol?</h2>
+    <p>Protocols are just formal recipes for stateful interactions. All peers will interact through protocols of one
+        type or another. Work on this spec grew out of work on <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0005-didcomm/README.md">DIDComm</a>,
+        which is the basis of <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/index.md">many JSON-message-based protocols</a>
+        that take advantage of DID-based encryption and privacy. However, using DIDComm is not the only way
+        to build a protocol. Therefore, this spec presents a general recipe for creating, reading, updating, and
+        deactivating DIDs in a DIDComm variant, and specifies how that recipe manifests specifically in a non-DIDComm
+        variant. It is possible to be compliant with the spec using non-DIDComm protocols, as long as whatever protocol
+        is used is known to both parties and meets the requirements of the general recipe.
+    </p>
+</section>
+
+<section class="informative">
+    <h2>Roles and Agents in Protocols</h2>
 
     <p>As described in the introduction, we call this the "peer" DID method because it enables peers to exchange
         DIDs without recourse to a central authority. Thus, we expect all participants in the protocol to play the
@@ -21,137 +36,141 @@
     </p>
 </section>
 
-<section class="informative">
-    <h2>Messages</h2>
-    <dl>
-        <dt>Peers interact via messages.</dt>
-        <dd>This is a more general claim than saying that peers expose an API because it doesn't assume that peers
-            are directly callable by each other. It must be possible to exchange DIDs in this method in a very
-            asynchronous fashion (e.g., one party sends a message while the other party is offline; a response is
-            returned when the original sender may not be actively listening).
-        </dd>
-        <dt>Message transmission is transport-agnostic.</dt>
-        <dd>That is, the messages can flow over any combination of HTTP, Bluetooth, NFC, email, AMPRNet (TCP/IP over
-            ham radio), snail mail, sneakernet, intermediaries, or future protocols we have not yet imagined.
-        </dd>
-        <dt>Messages are JSON ([[RFC8259]]).</dt>
-        <dd>They are compatible with <a target="jsonld" href="https://w3c.github.io/json-ld-syntax/#basic-concepts">
-            basic concepts of [[JSON-LD]]</a>, but <a target="aries"
-                href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0047-json-ld-compatibility/README.md">
-            no deep knowledge of JSON-LD is required to understand them, and no dependency
-            on JSON-LD libraries is necessary</a>. The specifics of the JSON format are discussed below.
-        </dd>
-        <dt>Messages are serialized and encrypted in a standard way for transport.</dt>
-        <dd>
-            <p>This method associates security guarantees with the message envelope rather than the transport, and is
-                aligned philosophically with the approach of <a href="https://datatracker.ietf.org/wg/mls/about/"
-                        target="rfc">IETF's Message Level Security initiative</a>. However, the first version of this spec
-                predates MLS's maturity, so the wire format uses JWEs ([[RFC7516]]) with
-                <a href="https://github.com/openssi/peer-did-method-spec/issues/14#issuecomment-493626810"
-                        target="_blank">some extensions</a>, instead. The extensions allow the same message to be
-                encrypted once for multiple recipients and sent to them all in an efficient manner:
-            </p>
-
-            <figure id="multiplexed encryption">
-                <img src="multiplex.png" alt="multiplexed encryption"/>
-                <figcaption>Multiplexed encryption lets multiple parties decrypt.</figcaption>
-            </figure>
-
-            <p>These extensions are under review by the maintainers of JWE/JWT and are likely to be mainstreamed
-                eventually. The particulars are detailed in <a target="aries"
-                        href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0019-encryption-envelope/README.md">
-                    a doc</a> that explains how agents in the Hyperledger Aries ecosystem have implemented the format -
-                but the format is easy to implement without any Aries dependencies, and its design has no connection
-                to any particular blockchain. See <a href="https://github.com/dbluhm/indy-pack-unpack-js/blob/db9d83e4/index.js"
-                        target="_blank">this implementation in pure javascript</a>, and
-                <a href="https://github.com/bcgov/indy-catalyst/blob/bba2ef5c/agent/indy_catalyst_agent/wallet/crypto.py#L402"
-                        target="_blank">this one in pure python</a>, in addition to
-                <a target="_blank" href="https://github.com/hyperledger/indy-sdk/blob/fbad7422/libindy/src/api/crypto.rs#L634">
-                    Indy's C-callable implementation in Rust</a>.
-            </p>
-        </dd>
-    </dl>
-</section>
-
 <section>
     <h2>CRUD Operations</h2>
 
     <section>
         <h3>Create (Register)</h3>
         <p>Although the work of <em>creating</em> a peer DID and the <a>genesis version</a> of its DID doc can be
-            done at any time and does not require a message, <em>registering</em> a peer DID with the other party or
-            parties in a relationship involves a specific sequence of messages known as the <dfn>DID Exchange
-            protocol</dfn>. The protocol is <a target="aries"
-            href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0023-did-exchange/README.md">
-            formally documented in Aries RFC 0023</a>; only a summary is offered here. It has 3 steps:
+            done at any time and does not require communication, <em>registering</em> a peer DID with the other party or
+            parties in a relationship requires a specific protocol. This is the only protocol that must be supported
+            by an implementation that targets <a>Layer 2a</a> or <a>Layer 2b</a> support.
         </p>
-        <ol>
-            <li>One of the parties (the <dfn>inviter</dfn>) sends an <dfn>invitation</dfn> to connect. The
-                invitation is NOT encrypted, and it does NOT require the recipient (the <dfn>invitee</dfn>) to
-                have special software that understands this protocol. Instead, it is a specially formatted URI
-                that can be a <a target="wikipedia" href="https://en.wikipedia.org/wiki/Deferred_deep_linking">
-                deferred deep link</a>, helping the invitee to learn about SSI, get an SSI-capable app, and
-                otherwise onboard into the ecosystem. If the invitee already has SSI-aware software, the URI
-                can be recognized by a registered handler, short-circuiting the URI fetch and the onboarding/
-                learning process. This invitation URI may be transmitted by email, SMS, QR code, or any other
-                convenient method. If it is important to the inviter that it be secured, the inviter can share
-                the invitation on a secure channel. Important to note that if the messaging is to be done 
-                anonymously without sharing of personal identifiable information (PII) between both parties the
-                invitation should not be transmitted to personal email, sms, etc. A one time identifier shall be
-                used to send initial invitation.
-            </li>
-            <li>The invitee sends an encrypted <dfn>connection request</dfn> back to the inviter, using the
-                endpoint that the inviter supplied in the invitation. This connection request includes a signed
-                version of the <a>resolved variant</a> [TODO: signed variant??] of the <a>genesis version</a> of
-                the invitee's DID doc. The inviter must verify that the received DID was generated according to
-				the <a href="#namestring-generation-method">namestring generation method</a> from the <a>stored variant</a>
-				of the received genesis DID Doc. This is to ensure a strong binding between the received DID and
-				the public key(s) contained in the DID Doc, see also: <a href="#proof-of-control">proof of control</a>.
-            </li>
-            <li>The inviter sends an encrypted <dfn>connection response</dfn> the other direction. This response
-                includes a signed version of the <a>resolved variant</a> of the <a>genesis version</a> of the
-                inviter's DID doc.
-            </li>
-        </ol>
-        <p>These three steps have been carefully defined to achieve a number of important goals:</p>
-        <ul>
-            <li>Because the invitation can be sent to someone who does not know about DIDs or SSI at all,
-                and because it can be sent over insecure channels, establishing DID relationships has an
-                extremely low bar. This is vital to the virality of SSI.
-            </li>
-            <li>The invitation identifies an endpoint over which the connection can occur, but it does not
-                communicate peer keys or a peer DID from the inviter, and the endpoint that the inviter uses (as
-                well as the inviter's DID and keys) are only transmitted once security and privacy are guaranteed.
-            </li>
-            <li>The protocol can be used by parties using any DID method. One of the parties can be using
-                a peer DID, both can, or neither can.
-            </li>
-            <li>The invitation can be sent by a third party, allow introductions (Alice introduces Carol to Bob).
-                However, an introducer is prevented from seeing the secure and private connection built by the
-                two parties.
-            </li>
-        </ul>
-        <p>Additional security against man-in-the-middle attacks may be achieved by signing an invitation, if it is
-            public. If the public invitation includes an <a>anywise</a> DID, then the invitee should verify that the
-            signature on the invitation matches with an active verification key for the associated anywise DID. If the
-            public invitation includes a verification key, then the invitee can verify that the signature on the
-            invitation matches with the verification key. Once the DIDs are exchanged, the invitee can
-            ask the inviter for proof-of-control of that initial verification key. In any case, further action is
-            advisable to build deeper trust about the identity of other side. This likely includes mutual exchange
-            of <a target="vcspec" href="https://w3c.github.io/vc-data-model/">verifiable credentials</a>.
-        </p>
+        <section>
+            <h4>Generic Recipe</h4>
+            <p>Give the <a>stored variant</a> of a peer DID doc to a remote party in a way that guarantees:</p>
+            <ul>
+                <li>No other party knows the DID values or the content of DID docs (the "confidentiality" guarantee
+                    of traditional security analysis).</li>
+                <li>Both parties can be sure that they know what the other party intends (the "integrity" guarantee).</li>
+            </ul>
+            <p>A trivial example might be for Alice and Bob to use AirDrop to trade DID docs between Macbooks when they
+                are standing next to each other -- IFF they are confident that the communication channel between them is
+                not hacked.
+            </p>
+        </section>
+        <section>
+            <h4>DIDComm Approach</h4>
+            <p>Agents that are capable of DIDComm use the <dfn>DID Exchange protocol</dfn> for this task. The protocol is
+                <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0023-did-exchange/README.md">
+                formally documented in Aries RFC 0023</a>; only a summary is offered here. It has 3 steps:
+            </p>
+            <ol>
+                <li>One of the parties (the <dfn>inviter</dfn>) sends an <dfn>invitation</dfn> to connect. The
+                    invitation is NOT encrypted, and it does NOT require the recipient (the <dfn>invitee</dfn>) to
+                    have special software that understands this protocol. Instead, it is a specially formatted URI
+                    that can be a <a target="wikipedia" href="https://en.wikipedia.org/wiki/Deferred_deep_linking">
+                    deferred deep link</a>, helping the invitee to learn about SSI, get an SSI-capable app, and
+                    otherwise onboard into the ecosystem. If the invitee already has SSI-aware software, the URI
+                    can be recognized by a registered handler, short-circuiting the URI fetch and the onboarding/
+                    learning process. This invitation URI may be transmitted by email, SMS, QR code, or any other
+                    convenient method. If it is important to the inviter that it be secured, the inviter can share
+                    the invitation on a secure channel. Important to note that if the messaging is to be done
+                    anonymously without sharing of personal identifiable information (PII) between both parties the
+                    invitation should not be transmitted to personal email, sms, etc. A one time identifier shall be
+                    used to send initial invitation.
+                </li>
+                <li>The invitee sends an encrypted <dfn>connection request</dfn> back to the inviter, using the
+                    endpoint that the inviter supplied in the invitation. This connection request includes a signed
+                    version of the <a>resolved variant</a> [TODO: signed variant??] of the <a>genesis version</a> of
+                    the invitee's DID doc. The inviter must verify that the received DID was generated according to
+                    the <a href="#namestring-generation-method">namestring generation method</a> from the <a>stored variant</a>
+                    of the received genesis DID Doc. This is to ensure a strong binding between the received DID and
+                    the public key(s) contained in the DID Doc, see also: <a href="#proof-of-control">proof of control</a>.
+                </li>
+                <li>The inviter sends an encrypted <dfn>connection response</dfn> the other direction. This response
+                    includes a signed version of the <a>resolved variant</a> of the <a>genesis version</a> of the
+                    inviter's DID doc.
+                </li>
+            </ol>
+            <p>These three steps have been carefully defined to achieve a number of important goals:</p>
+            <ul>
+                <li>Because the invitation can be sent to someone who does not know about DIDs or SSI at all,
+                    and because it can be sent over insecure channels, establishing DID relationships has an
+                    extremely low bar. This is vital to the virality of SSI.
+                </li>
+                <li>The invitation identifies an endpoint over which the connection can occur, but it does not
+                    communicate peer keys or a peer DID from the inviter, and the endpoint that the inviter uses (as
+                    well as the inviter's DID and keys) are only transmitted once security and privacy are guaranteed.
+                </li>
+                <li>The protocol can be used by parties using any DID method. One of the parties can be using
+                    a peer DID, both can, or neither can.
+                </li>
+                <li>The invitation can be sent by a third party, allow introductions (Alice introduces Carol to Bob).
+                    However, an introducer is prevented from seeing the secure and private connection built by the
+                    two parties.
+                </li>
+            </ul>
+            <p>Additional security against man-in-the-middle attacks may be achieved by signing an invitation, if it is
+                public. If the public invitation includes an <a>anywise</a> DID, then the invitee should verify that the
+                signature on the invitation matches with an active verification key for the associated anywise DID. If the
+                public invitation includes a verification key, then the invitee can verify that the signature on the
+                invitation matches with the verification key. Once the DIDs are exchanged, the invitee can
+                ask the inviter for proof-of-control of that initial verification key. In any case, further action is
+                advisable to build deeper trust about the identity of other side. This likely includes mutual exchange
+                of <a target="vcspec" href="https://w3c.github.io/vc-data-model/">verifiable credentials</a>.
+            </p>
+        </section>
     </section>
 
     <section>
-        <h4>Read (Resolve)</h4>
-        <p>This operation is documented in greater detail in
-            <a href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0124-did-resolution-protocol/README.md"
-                    target="aries">Aries RFC 0124</a>. Here, we offer only a summary.
+        <h3>Read (Resolve)</h3>
+        <p>With peer DIDs, resolution can be local or remote, and it can be resolution of <em>either</em> one's own peer
+            DID, or of a peer DID from a remote party. Local resolution of any DID--one's own or another's--is often
+            a simple matter of looking up a DID doc in a local cache. This lookup is internal and can be done any way
+            an implementation chooses. No protocol is required, and this spec has no opinion about how it should work.
+            However, when resolution involves a remote party (either one's own agent or the agent of a peer), a protocol
+            is involved.
         </p>
-        <p>A peer DID can be resolved to a DID document by sending a <a target="aries"
-                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0124-did-resolution-protocol/README.md#resolve-message">
-            resolve</a> message from one peer to another:</p>
-        <pre class="example" title="A resolve message">
+        <p class="note">Because peer DIDs are supposed to be resolvable ONLY by peers, resolution requests in this method
+            MUST NOT be honored if they do not come from peers. Furthermore, reasoning about the correctness of a response
+            is only possible if the genesis version of a peer DID doc is known to the requester. Implementations SHOULD
+            NOT return a resolved DID doc to a party that does not possess a copy of the genesis DID doc, or some
+            legitmate derivation thereof. To do otherwise would be to ask the <code>requester</code> to trust the
+            <code>responder</code> in a way that dilutes the goals of the method.
+        </p>
+
+        <section>
+            <h4>Generic Recipe</h4>
+            <p>A <code>requester</code> should formally ask a remote party for the DID doc--perhaps a specific version
+                or timestamp thereof--that corresponds to a particular DID. A <code>responder</code> should reply with
+                compatible data, in a way that guarantees confidentiality and integrity, plus:</p>
+            <ul>
+                <li>The <code>responder</code> can tell that the <code>requester</code> is an authorized peer.</li>
+                <li>It can be proved that the state in the response is derived from the genesis version of the DID doc.</li>
+            </ul>
+            <p>A trivial example of this recipe might be for Alice and Bob to perform mutual (NOT one-way) authentication
+                over HTTPS, and then to engage in a web service-based interaction that produces the resolved doc. This
+                approach is susceptible to MITM eavesdropping such as the ones used by SSL visibility appliances
+                <a target="_blank" href="https://www.symantec.com/products/ssl-visibility-appliance">offered by Symantec
+                </a> and <a target="_blank" href="https://www.f5.com/solutions/application-security/ssl-visibility">F5</a>.
+                It should therefore be used with careful consideration of the required <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0029-message-trust-contexts/README.md">
+                Message Trust Context</a>.
+            </p>
+        </section>
+
+        <section>
+            <h4>DIDComm Approach</h4>
+            <p>The DIDComm variant of this recipe is documented in greater detail in
+                <a href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0124-did-resolution-protocol/README.md"
+                        target="aries">Aries RFC 0124</a>. Here, we offer only a summary.
+            </p>
+            <p>A peer DID can be resolved to a DID document by sending a <a target="aries"
+                    href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0124-did-resolution-protocol/README.md#resolve-message">
+                resolve</a> message from one peer to another:</p>
+            <pre class="example" title="A resolve message">
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/did_resolution/0.1/resolve",
   "@id": "6a4986dd-f50e-4ed5-a389-718e61517207",
@@ -160,15 +179,15 @@
     "version_time": "2019-07-23T18:05:06.123Z"
   }
 }
-        </pre>
-        <p>The <code>version_time</code> property is optional and often omitted; if so, the DID doc at
-            the current time is returned (see <a href="https://w3c-ccg.github.io/did-resolution/#resolving-input-version-time">version-time</a> in DID Resolution).</p>
-        <p>A <a target="aries"
-            href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0124-did-resolution-protocol/README.md#resolve_result-message">
-            resolve_result</a> message is returned. It includes a DID doc and some additional metadata, and looks like
-            this:
-        </p>
-        <pre class="example" title="A resolve_result message">
+            </pre>
+            <p>The <code>version_time</code> property is optional and often omitted; if so, the DID doc at
+                the current time is returned (see <a href="https://w3c-ccg.github.io/did-resolution/#resolving-input-version-time">version-time</a> in DID Resolution).</p>
+            <p>A <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0124-did-resolution-protocol/README.md#resolve_result-message">
+                resolve_result</a> message is returned. It includes a DID doc and some additional metadata, and looks like
+                this:
+            </p>
+            <pre class="example" title="A resolve_result message">
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync-connection/1.0/state_response",
   "@id": "1517207d-f50e-4ed5-a389-6a4986d718e6",
@@ -177,23 +196,66 @@
     // full content of resolved variant of DID doc here
   }
 }
-        </pre>
-        <p class="note">Note the use of <code>~thread</code> in the response, with <code>thid</code> equal to the
-            <code>@id</code> property of the previous request, to connect the two messages. This is a <a target="aries"
-            href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0008-message-id-and-threading#threaded-messages">
-            standard message threading feature of DID Communication</a>, and also shows up in other message interactions
-            described here.</p>
+            </pre>
+            <p class="note">Note the use of <code>~thread</code> in the response, with <code>thid</code> equal to the
+                <code>@id</code> property of the previous request, to connect the two messages. This is a <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0008-message-id-and-threading#threaded-messages">
+                standard message threading feature of DID Communication</a>, and also shows up in other message interactions
+                described here.</p>
+        </section>
     </section>
 
     <section>
         <h3 id="sync-protocol">Update</h3>
-        <p>The subject of a peer DID can update their associated DID document with anyone who knows the
-            DID&mdash;one or more agents of the peer(s), or agents of the owner&mdash;by sending a <a target="aries"
-            href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md#sync_state">
-            sync_state</a> message to another peer. An example of this type of message is:
+        <p>The subject of a peer DID can update their associated DID document with anyone who knows the DID&mdash;one or more
+            agents of the peer(s), or agents of the owner. This operation is more important in the peer DID method than
+            in most other methods, because a loose collection of decentralized peers may include many different views
+            of current state, caused by inconsistent and incomplete connectivity within the peer group.
         </p>
+        <section>
+            <h4>General Recipe</h4>
+            <p>As with other operations, update must cause data to flow in a way that provides confidentiality and
+                integrity. In addition, the protocol must guarantee that:</p>
+            <ul>
+                <li>Problems with order-of-update and data gaps are solved.</li>
+                <li>It is possible to prove the correctness of an update, even if it is reported by a party of dubious
+                    motives.</li>
+                <li>Eventual consistency is achievable.</li>
+                <li>The protocol can tolerate imperfectly or inconsistently connected participants. Some agents may
+                not be able to participate in synchronization at any given point in time--or ever.</li>
+                <li>Alice cannot assume that Bob's agents are centralized (communicate through a central clearinghouse;
+                all share a common view), and vice-versa. Alice can assume this about her <em>own</em> agents
+                if she likes, but requiring such a strategy of the other partner is not safe or reasonable.</li>
+            </ul>
+            <p>These requirements are very demanding. An approach that fails to satisfy the final requirement is
+                easy to imagine, though. Each side maintains a server that knows their own definitive state. Whenever
+                Alice changes her state, she makes sure that her state is known to her server. Bob does corresponding work
+                on his side. Whenever Alice gets a state update from Bob, she assumes that all of Bob's agents agree;
+                whenever she wants to notify Bob that her state has updated, she tells Bob's server, and depends on it to
+                pass the word along inside Bob's domain.
+            </p>
+            <p>Such an approach does not conform to this spec, because it requires that both identity owners, not just
+                the one running a particular implementation, centralize the management of their identity domains. It
+                also requires that servers be online and reachable during any DID doc updates by either party. This may
+                be a perfectly reasonable choice for any given identity owner, but it is not reasonable to impose on a
+                remote other.
+            </p>
+        </section>
 
-        <pre class="example" title="A sync_state message">
+        <section>
+            <h4>DIDComm Approach</h4>
+            <p>The DIDComm approach implements these protocol requirements by trading <a target="aries"
+            href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md#sync_state">
+            sync_state</a> messages with one or more peers. These messages can be sent in a very deliberate fashion,
+            but also in a more casual, gossip style. In addition, any other DIDComm messages exchanged between peers can
+            be decorated with `~state`, allowing checks to see whether a sync is needed. The details of `sync_state`
+            usage are documented in <a target="aries"
+            href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0030-sync-connection/README.md">Aries
+                    RFC 0030</a>; here, we only summarize.</p>
+            <p>An example of this type of message is:
+            </p>
+
+            <pre class="example" title="A sync_state message">
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/sync-connection/1.0/sync_state",
   "@id": "e61586dd-f50e-4ed5-a389-716a49817207",
@@ -208,37 +270,39 @@
       "when": "2019-07-18T15:49:22.03Z"
     }
   ]
-}                </pre>
-        <p>This message does not follow a simple request~response pattern, and does not have "update" in its name,
-            because either party may know details that the other party lacks. This is especially likely when some
-            agents of either party have been offline. The sender picks a point in time, <code>delta_time</code>,
-            where it believes it and the receiver were probably in sync; it then describes the <a>deltas</a>
-            that it knows about, that have happened since.
-        </p>
-        <p>If the recipient already has the same state, it replies with an <a target="aries"
-                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0015-acks/README.md">ACK</a>.
-        </p>
-        <p>If the recipient knew about a subset of the delta, but not all of it, it applies what is left of the
-            delta, and sends an ACK.
-        </p>
-        <p>If the recipient has a more evolved state, the recipient sends a reply that is a new <code>sync_state
-        </code> message informing the sender of hitherto unknown information. As with the ACKs, this new message is
-            known to be a reply to the original <code>sync_state</code> because its <a target="aries"
-                    href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0008-message-id-and-threading#threaded-messages">
-                <code>~thread</code> decorator identifies the previous message's <code>@id</code> as its
-                <code>thid</code></a>.
-        </p>
-        <p>If the recipient does not recognize the base_hash, it selects a hash from a point in time earlier than
-            <code>base_hash_time</code> and sends back a new <code>sync_state</code> message with that earlier base.
-        </p>
-        <p>Because of the nature of our <a href="#crdt-rules">CRDT rules</a>, truly
-            problematic merge conflicts cannot occur. All objects in the DID doc that
-            have an <code>id</code> property are immutable, and ordering of operations does not
-            need to be highly consistent. Furthermore, an object in both deleted and
-            undeleted state must be deemed to be deleted. However, if the recipient
-            detects a trivial conflict, the delta with the <code>id</code> that sorts smaller/lower
-            is selected.</a>.
-        </p>
+}
+            </pre>
+            <p>This message does not follow a simple request~response pattern, and does not have "update" in its name,
+                because either party may know details that the other party lacks. This is especially likely when some
+                agents of either party have been offline. The sender picks a point in time, <code>delta_time</code>,
+                where it believes it and the receiver were probably in sync; it then describes the <a>deltas</a>
+                that it knows about, that have happened since.
+            </p>
+            <p>If the recipient already has the same state, it replies with an <a target="aries"
+                    href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0015-acks/README.md">ACK</a>.
+            </p>
+            <p>If the recipient knew about a subset of the delta, but not all of it, it applies what is left of the
+                delta, and sends an ACK.
+            </p>
+            <p>If the recipient has a more evolved state, the recipient sends a reply that is a new <code>sync_state
+            </code> message informing the sender of hitherto unknown information. As with the ACKs, this new message is
+                known to be a reply to the original <code>sync_state</code> because its <a target="aries"
+                        href="https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0008-message-id-and-threading#threaded-messages">
+                    <code>~thread</code> decorator identifies the previous message's <code>@id</code> as its
+                    <code>thid</code></a>.
+            </p>
+            <p>If the recipient does not recognize the base_hash, it selects a hash from a point in time earlier than
+                <code>base_hash_time</code> and sends back a new <code>sync_state</code> message with that earlier base.
+            </p>
+            <p>Because of the nature of our <a href="#crdt-rules">CRDT rules</a>, truly
+                problematic merge conflicts cannot occur. All objects in the DID doc that
+                have an <code>id</code> property are immutable, and ordering of operations does not
+                need to be highly consistent. Furthermore, an object in both deleted and
+                undeleted state must be deemed to be deleted. However, if the recipient
+                detects a trivial conflict, the delta with the <code>id</code> that sorts smaller/lower
+                is selected.</a>.
+            </p>
+        </section>
     </section>
 
     <section>
@@ -252,34 +316,38 @@
         <p>However, it is best practice to announce that the relationship is being abandoned. This
             should cause the other party to clean up by removing the DID, DID doc, and associated metadata from its
             local cache. It should also prevent the other party from trying to communicate in the future.
-            Formally terminating a connection happens by sending an <a target="aries"
-            href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0030-sync-connection/abandon-connection-protocol#announce"><code>
-            announce</code> message</a> to a peer:</p>
-        <pre class="example" title="Sample announce message">
+        </p>
+        <section>
+            <h4>DIDComm approach</h4>
+            <p>Formally terminating a connection happens by sending an <a target="aries"
+                href="https://github.com/hyperledger/aries-rfcs/tree/master/features/0030-sync-connection/abandon-connection-protocol#announce"><code>
+                announce</code> message</a> to a peer:</p>
+            <pre class="example" title="Sample announce message">
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/abandon_connection/1.0/announce",
   "@id": "c17147d2-ada6-4d3c-a489-dc1e1bf778ab",
   "~please_ack": {}
 }
-            </pre>
-        <p>If Bob receives a message like this, he should assume that Alice no longer considers
-            herself connected, and take appropriate action. This could include destroying
-            data about Alice that he has accumulated over the course of their relationship,
-            removing her peer DID and its public key(s) and endpoints from his wallet, and so
-            forth. The nature of the relationship, the need for a historical audit trail, regulatory
-            requirements, and many other factors may influence what's appropriate; the protocol
-            simply requires that the message be understood to have permanent termination semantics.
-        </p>
+                </pre>
+            <p>If Bob receives a message like this, he should assume that Alice no longer considers
+                herself connected, and take appropriate action. This could include destroying
+                data about Alice that he has accumulated over the course of their relationship,
+                removing her peer DID and its public key(s) and endpoints from his wallet, and so
+                forth. The nature of the relationship, the need for a historical audit trail, regulatory
+                requirements, and many other factors may influence what's appropriate; the protocol
+                simply requires that the message be understood to have permanent termination semantics.
+            </p>
 
-        <p>The <a target="aries" href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0015-acks/README.md#requesting-an-ack-please_ack">
-            <code>~please_ack</code> decorator</a> is optional. It asks the receiver to send an acknowledgement that
-            it has processed the message. If used, the receiver should send an ACK that looks like this:</p>
+            <p>The <a target="aries" href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0015-acks/README.md#requesting-an-ack-please_ack">
+                <code>~please_ack</code> decorator</a> is optional. It asks the receiver to send an acknowledgement that
+                it has processed the message. If used, the receiver should send an ACK that looks like this:</p>
 
-        <pre class="example" title="An ACK">
+            <pre class="example" title="An ACK">
 {
 "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/abandon_connection/1.0/ack",
 "@thread": { "thid": "c17147d2-ada6-4d3c-a489-dc1e1bf778ab" }
 }
-        </pre>
+            </pre>
+        </section>
     </section>
 </section>
