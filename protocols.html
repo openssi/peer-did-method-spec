@@ -9,9 +9,9 @@
                 href="https://github.com/hyperledger/aries-rfcs/blob/master/index.md">many JSON-message-based protocols</a>
         that take advantage of DID-based encryption and privacy. However, using DIDComm is not the only way
         to build a protocol. Therefore, this spec presents a general recipe for creating, reading, updating, and
-        deactivating DIDs in a DIDComm variant, and specifies how that recipe manifests specifically in a non-DIDComm
-        variant. It is possible to be compliant with the spec using non-DIDComm protocols, as long as whatever protocol
-        is used is known to both parties and meets the requirements of the general recipe.
+        deactivating DIDs, and then specifies how that recipe manifests specifically in a DIDComm
+        variant. It is possible to be compliant with the spec using a non-DIDComm protocol, too--as long as whatever
+        protocol is used is known to both parties and meets the requirements of the general recipe.
     </p>
 </section>
 
@@ -47,7 +47,7 @@
             by an implementation that targets <a>Layer 2a</a> or <a>Layer 2b</a> support.
         </p>
         <section>
-            <h4>Generic Recipe</h4>
+            <h4>General Recipe</h4>
             <p>Give the <a>stored variant</a> of a peer DID doc to a remote party in a way that guarantees:</p>
             <ul>
                 <li>No other party knows the DID values or the content of DID docs (the "confidentiality" guarantee
@@ -149,7 +149,7 @@
         </p>
 
         <section>
-            <h4>Generic Recipe</h4>
+            <h4>General Recipe</h4>
             <p>A <code>requester</code> should formally ask a remote party for the DID doc--perhaps a specific version
                 or timestamp thereof--that corresponds to a particular DID. A <code>responder</code> should reply with
                 compatible data, in a way that guarantees confidentiality and integrity, plus:</p>
