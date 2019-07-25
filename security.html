@@ -1,5 +1,3 @@
-# AAA Stash
-
 <h1>Security Considerations</h1>
 
 <section class="informative">
@@ -210,11 +208,13 @@
         Note: In the current (as of July 2019) implementation of Hyperledger
         Indy, a self-attested claim in a presentation is not signed, and as
         such, this approach is not foolproof. As the probability of this attack
-        is extremely low, and the signing of self-attested claims will soon be added
-        to Indy to align with with the (hopefully) soon-to-be-accepted W3C
+        is extremely low, and the signing of self-attested claims will soon be
+        added to Indy to align with with the (hopefully) soon-to-be-accepted W3C
         verifiable presentation standard, this is deemed a low priority update
         to the current version of Indy. The priority of the change may be
         increased if the practical likelihood of this attack is found to be
-        significant. The change itself is not complex.
+        significant. With the verifiable credential presentations model still in
+        flux, other verifiable credential implementations may or may not have
+        comparable issues.
     </p>
 </section>
