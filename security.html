@@ -104,75 +104,120 @@
     <h2>Handling the trust-on-first-use (TOFU) problem</h2>
     <p>
         The trust-on-first-use is described in detail in its
-        <a target="wikipedia" href="https://en.wikipedia.org/wiki/Trust_on_first_use">Wikipedia article</a>.
-        In brief, the TOFU problem occurs because it's not possible to verify, with only a public key,
-        who is the owner of a private key. This lack of knowledge enables MITM attacks.
+        <a target="wikipedia"
+        href="https://en.wikipedia.org/wiki/Trust_on_first_use">Wikipedia
+        article</a>. In brief, the TOFU problem occurs because it's not possible
+        to verify on receipt of a public key, who is the owner of the
+        corresponding private key. This lack of knowledge enables Man in the
+        Middle (MITM) attacks, where an attempt to establish a connection
+        between two participants is compromised by a third party. With peer:did,
+        the interaction most vulnerable to MITM attacks is when an invitation is
+        sent in plaintext to start the establishment of a connection. Recall
+        that a plaintext invitation (a URL, a QR code, etc.) is needed when
+        there is no way for two parties that want to connect to send an
+        encrypted message. A relatively simple MITM attack using an intercepted
+        invitation is for the MITM to respond to the invitation and establish a
+        connection with the inviter, pretending to be the invitee. In a more
+        sophisticated attack, the MITM sends a second, replacement
+        MITM-generated invitation to the intended invitee, establishes a
+        connection with that party, responds to the original invitation, and
+        establishes a connection with the inviter. That second attack example
+        could allow the MITM to remain between the two communicating parties,
+        proxying messages between them, and intervening when it is advantageous.
+        Since it is such a complex attack, it is viewed as extremely unlikely
+        (arguably, impossible) to occur in practice.
     </p>
     <p>
-        There are two separate ways to handle the TOFU problem with the peer DID method spec. The more common
-        variant is to bootstrap based upon a trusted third party channel. The second approach is made
-        possible by verifiable credentials.
+        There are two common approaches to handling the TOFU problem with
+        connections established using the peer DID method specification. One is
+        to verify the connection using a trusted third party channel, and the second
+        is through the use of verifiable credentials.
     </p>
+    <p>
+        Note that in many use cases, an entity might not care who responds to an
+        invitation. In that case an "intercepted" invitation is OK, and might
+        even be encouraged as a way to get more connections. For example a
+        service where users only put in data for their own use (for example, a
+        time tracking app) would not care who establishes a connection, just
+        that the service has a reliable way to know whenever an entity returns
+        to the service. In that case, neither verification method is necessary.
+        It might only be when the user becomes a paying client that the service
+        needs stronger credentials from whomever it is that is using the service.
+    </p>
+</section>
 
-    <section>
-        <h3>Bootstrap from Trusted Third Party Channel</h3>
-        <p>
-            The core premise of using an out of band channel based solution is to be able to bootstrap the new
-            channel of communication from a third party trusted channel of communication. In many cases this is an
-            adequette solution, and in others it may require additional pieces of information in order to establish
-            trust, such as a verifiable credential exchange.
-        </p>
-        <p>
-            This method has been used in previous systems to rely on in person interactions to verify some piece of
-            information. For example, in some end to end messaging apps, they rely on key fingerprinting which
-            require a use to verify that a key fingerprint sent over a trusted communication channel or viewed in
-            person (usually a number) matches between the two parties. This method allows user to verify that the
-            channel hasn't been Man in the Middle (MITM) attacked.
-        </p>
-        <p>
-            There's also ways that the user experience could be improved using this same security process. For
-            example, a <a target="superuser" href="https://superuser.com/questions/22535/
-                    what-is-randomart-produced-by-ssh-keygen">randomart image</a> could be embedded into a QR code and then
-            the randomart image could be displayed on the users device as well. The user would then be required to
-            verify the image displayed on the user's device is the same as the one embedded in the QR code. This is
-            a great way to handle short-lived, ephemeral connections such as unlocking a door while being sure the
-            connection has not been MITM attacked.
-        </p>
-    </section>
+<section>
+    <h3>Verification Using a Trusted Third Party Channel</h3>
+    <p>
+        Verifying that the established connection is with the intended party
+        using a trusted third party channel is done by sending a request by
+        some means other than the newly established connection, and having
+        the response returned on (or about) the established connection. For
+        example, after establishing the connection, the inviter might
+        telephone the invitee and verbally confirm the public key the
+        invitee is using for the connection. Of course, such an approach is
+        neither user friendly, nor does it scale. The challenge is finding
+        approaches that are reliable, easy and that scale. Another approach
+        might be to email a message to the invitee and have them respond via
+        the new connection with a phrase from the email. While that approach
+        would detect the first example MITM attack (described above), it would
+        not detect the second.
+    </p>
+    <p>
+        The user experience can be improved as well using a <a target="superuser" href="https://superuser.com/questions/22535/what-is-randomart-produced-by-ssh-keygen">randomart image</a> generated from a public key while being able to detect both the first and second MITM attack examples. This image could be sent in numerous ways such as embedding it in a qr code, sending it over a email, or text message would also work. 
+    </p>
+</section>
 
-    <section>
-        <h3>Binding Verifiable Credentials with Public Keys</h3>
-        <p>
-            A verifiable credential method is a new approach to bootstrapping trust entirely within the connection.
-            The idea behind this is that a verifiable credential issued by a third party can be combined with a
-            self-attested attribute in a credential proof to link the possession of the key to a verifiable
-            credential.
-        </p>
-        <p>
-            The reason this works is because the cryptographic proof generated by the holder binds the attributes
-            provided from a verifiable credential with the self-attested public key attribute. This is done in a way
-            that only the holder could generate this proof and therefore the recipient can identify all keys
-            recognized by the sender while also being able to identify attributes about the sender in a way that a
-            trust decision can be made. If Bob detects that the key that Alice
-            provides in the DID Document is different than the key he received in the Credential Proof, then he’s
-            able to detect that some aspect of the setup was done incorrectly or was tampered with. This is good
-            enough indication that Bob SHOULD NOT trust this connection and SHOULD scrap it and reset.
-        </p>
-        <p>
-            One thing of particular importance in this method is that the credential requested must be unique enough
-            such that a malicious party cannot also generate a satisfactory proof. If a malicious party does holder
-            a credential which is not unique enough then the malicious party could conduct a MITM attack. This
-            attack would require a malicious party to first intercept the plaintext DID Document sent in the
-            invitation during the create operation, change the key, endpoint, and signature of the invitation. Then
-            the malicious party must generate a proof that meets the request of the verifier and impersonate the
-            sender.
-        </p>
-        <p>
-            In the majority of security threat models the use of a unique proof which includes all public keys
-            listed in the DID Document as self attested attributes in the proof. As recommendation, a unique proof
-            SHOULD include proof attributes issued by at least 2 unique issuers. This method SHOULD be satisfactory
-            for high value financial transactions while accommdating for internet wide scale. If a threat model
-            needs greater assurances, the parties SHOULD meet in person for a connection setup.
-        </p>
-    </section>
+<section>
+    <h3>Using Verifiable Credentials</h3>
+    <p>
+        The use of <a target="W3C"
+        href="https://www.w3.org/TR/vc-data-model/">verifiable credentials</a>
+        is another way to verify a connection. With the connection in place, one
+        party requests from the other a verifiable presentation of third party
+        claims made about them. The requested claims should be sufficient to
+        mitigate the risk for the transactions to be carried out using the
+        connection, possibly including (but not just) the detection of a MITM
+        attack. Note that such risk mitigation should be done by both connected
+        parties. For example, a company might need to know some identity
+        information about a new client, and the new client might want to be
+        certain that the company is who they claim to be as attested to by an
+        authorized entity.
+    </p>
+    <p>
+        The presentation of verifiable claims is sufficient
+        to handle the first example MITM attack&mdash;the presentation
+        provides sufficient information about the other entity to continue
+        the relationship. However, because in the second example, the MITM
+        can proxy the presentation request and presentation between the
+        parties, a verifiable presentation might not be sufficient to detect
+        the second MITM example. In that case, we also want proof that the
+        entity that delivered the presentation is the same entity that
+        constructed the presentation. Since in the case of did:peer the
+        delivery is by definition through a did:peer enabled connection,
+        that extra proof involves linking the construction of the
+        presentation to the connection through which it will be delivered.
+    </p>
+    <p>
+        This extra proof can be achieved by having the entity constructing the
+        presentation include a self-attested claim that is the did:peer
+        public key of the prover. When the presentation is received, the
+        verifier can compare the signed, self-attested claim with the one
+        they are holding in the did:peer DIDDoc for the connection. If they
+        do not match it is possible there has been a MITM attack and the
+        connection is suspect.
+    </p>
+    <p>
+        Note: In the current (as of July 2019) implementation of Hyperledger
+        Indy, a self-attested claim in a presentation is not signed, and as
+        such, this approach is not foolproof. As the probability of this attack
+        is extremely low, and the signing of self-attested claims will soon be
+        added to Indy to align with with the (hopefully) soon-to-be-accepted W3C
+        verifiable presentation standard, this is deemed a low priority update
+        to the current version of Indy. The priority of the change may be
+        increased if the practical likelihood of this attack is found to be
+        significant. With the verifiable credential presentations model still in
+        flux, other verifiable credential implementations may or may not have
+        comparable issues.
+    </p>
 </section>
