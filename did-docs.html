@@ -4,7 +4,7 @@
     <h2>Backing Storage</h2>
 
     <p>At first glance, it might seem that parties dealing in peer DID docs could just store raw DID docs.
-        However, this is only a viable answer for the lower <a href="#layers-of-support">layers of support</a>
+        However, this is only a viable answer for the lower 2 <a href="#layers-of-support">layers of support</a>
         for peer DIDs. Any time a DID doc evolves, proof that the evolution is authorized must be found
         in the DID doc's previous state. If an agent is offline for an extended period (e.g., a phone is lost in the
         couch cushions for a week), multiple evolutions may have occurred by the time it reconnects--and it cannot
@@ -74,7 +74,7 @@
     <p>CRDTs are a deep subject unto themselves, with a body of academic research; additional study is recommended.
         They are behind familiar experiences like simultaneous, distributed editing of Google Docs, which never raises
         error messages about merge conflicts. Here, we will not explain their theory; we will simply note some key
-        requirements that they impose on DID docs and their <a>backing storage</a>. More details about given later in
+        requirements that they impose on DID docs and their <a>backing storage</a>. More details are given later in
         this spec, where individual parts of the DID doc are described. The general rules are:
     </p>
 
