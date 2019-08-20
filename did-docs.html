@@ -4,7 +4,7 @@
     <h2>Backing Storage</h2>
 
     <p>At first glance, it might seem that parties dealing in peer DID docs could just store raw DID docs.
-        However, this is only a viable answer for the lower <a href="#layers-of-support">layers of support</a>
+        However, this is only a viable answer for the lower 2 <a href="#layers-of-support">layers of support</a>
         for peer DIDs. Any time a DID doc evolves, proof that the evolution is authorized must be found
         in the DID doc's previous state. If an agent is offline for an extended period (e.g., a phone is lost in the
         couch cushions for a week), multiple evolutions may have occurred by the time it reconnects--and it cannot
@@ -74,7 +74,7 @@
     <p>CRDTs are a deep subject unto themselves, with a body of academic research; additional study is recommended.
         They are behind familiar experiences like simultaneous, distributed editing of Google Docs, which never raises
         error messages about merge conflicts. Here, we will not explain their theory; we will simply note some key
-        requirements that they impose on DID docs and their <a>backing storage</a>. More details about given later in
+        requirements that they impose on DID docs and their <a>backing storage</a>. More details are given later in
         this spec, where individual parts of the DID doc are described. The general rules are:
     </p>
 
@@ -172,7 +172,7 @@
             different opinions about order, and to adjust that order over time, based on evidence. A delete delta
             "bubbles" to a position in history that's after the last delta that would have been impossible before it,
             AND that was accepted by any party that had to make authorization decisions. A delete delta that was never
-            accepted by anyone (as with one of the mutually contradictory deltas above) just disappers. And deltas that
+            accepted by anyone (as with one of the mutually contradictory deltas above) just disappears. And deltas that
             were discarded by a party because of ordering differences will get re-introduced to history once evidence is
             found that a party making authorization decisions saw the order differently. This is essentially like the
             Republic of Bob official saying, "For now, I'm going to pretend that Foo's appointment request is rejected,
@@ -195,7 +195,7 @@
 
         <p>They don't, and it doesn't matter. In the first case, the delete's timing moves to the evening in history;
             that's the true last time that the ambassador's privileges had any effect, even if the intent was to
-            de-authorize earlier. The deltas is not an expression of intention, but an expression of when that intention
+            de-authorize earlier. The deltas are not an expression of intention, but an expression of when that intention
             was honored in any way that mattered. In the second case, the contradictory views of reality are a real
             historical event, and the fact that they caused inconsistent authorizations to happen in different corners
             of the world isn't going to be reconciled into an explanation that pretends otherwise. The deltas on top

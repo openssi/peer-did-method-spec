@@ -67,7 +67,7 @@ HEXDIGCI = HEXDIG / "a" / "b" / "c" / "d" / "e" / "f"
     <p class="note">Implementations of <code>encalgo</code> == <code>1</code> SHOULD render the numeric basis in lower
         case. However, the <code>numbasis</code> portion of peer DIDs MUST be compared according to
         whatever case-sensitivity is implied by the encoding algorithm they use. Hex is not case-sensitive,
-        so two peer DID strings using <code>encalgo</code> == <code>1</code>, that differ only in
+        so two peer DID strings using <code>encalgo</code> == <code>1</code>, that differ only in case in
         the <code>numbasis</code> portion, are equivalent. If a future version of the spec
         defines <code>encalgo</code> == <code>2</code> to be something case-sensitive, such as <a target="_blank"
         href="https://en.bitcoin.it/wiki/Base58Check_encoding">base58</a> or base64 [[RFC4648]], comparison of
@@ -105,7 +105,7 @@ HEXDIGCI = HEXDIG / "a" / "b" / "c" / "d" / "e" / "f"
         initial integrity of the DID's chain of custody.</p>
     <p>By hashing the stored variant, we avoid the circular problem of including the DID in the data that's being
         hashed. This means that a peer DID doc must be resolved by converting a <a>stored variant</a> of DID doc
-        data into a <a>resolved variant</a> by inserting the value of the DID being resolved, during resolution.</p>
+        data into a <a>resolved variant</a> by inserting the value of the DID being resolved.</p>
 </section>
 
 <section class="informative">
