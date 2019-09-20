@@ -6,7 +6,7 @@
     <p>The method name that identifies this DID method SHALL be: <code>peer</code></p>
     <p>A DID that uses this method MUST begin with the following prefix: <code>did:peer:</code>.
         Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix,
-        is the <a href="#method-specific-identifier">method specific identifier described below</a>.
+        is the <dfn>method specific identifier</dfn> (<dfn>MSI</dfn>) described <a href="#method-specific-identifier">below</a>.
     </p>
     <p class="note">Early feedback on this method suggested that we embed it beneath the namespace of a particular
         blockchain, as in <code>did:sov:peer</code> or <code>did:v1:nym</code>.
@@ -32,7 +32,9 @@
         </li>
         <li>
             <em>Protocol</em> &mdash; The metadata for DIDs (what would be stored in an on-chain DID doc in other methods)
-            is communicated and maintained as described in the <a href="#protocols">Protocols</a> section.
+            is communicated and maintained as described in the <a href="#protocols">Protocols</a> section. (This
+            requirement may be mostly irrelevant if support for peer DIDs targets static DID docs only. See
+            <a href="#layers-of-support">Layers of Support</a>.)
         </li>
     </ul>
 </section>
@@ -42,38 +44,45 @@
 
     <p>The peer DID scheme is defined by the following ABNF (see [[RFC5234]] for syntax):</p>
     <pre class="example" class="ABNF" title="ABNF for peer DIDs">
-peer-did = "did:peer:" numalgo encalgo "-" numbasis
+peer-did = "did:peer:" numalgo transform encnumbasis
 numalgo = "1"
-encalgo = "1"
-numbasis = 64*HEXDIGCI
-HEXDIGCI = HEXDIG / "a" / "b" / "c" / "d" / "e" / "f"
+transform = "z"
+encnumbasis = 45*BASE58
     </pre>
-    <p>The meaning of <code>HEXDIGCI</code> is the traditional one for hexadecimal digits and can be considered
-    a case-insensitive variant of the basic <code>HEXDIG</code> rule that is part of the core ABNF defined by [[RFC5234]].</p>
     <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the source of their
-        uniqueness. This version of the spec requires a 256-bit numeric basis generated from a hash
-        of the initial content of a DID doc. The <a href="#namestring-generation-method">next section</a> has details.
-        The requirement about size and origin of numeric basis is represented in the DID value with <code>numalgo
-        </code> == <code>1</code>. Subsequent versions of the spec may describe additional methods of generating the
-        numeric basis; each new method is associated with the next unused <code>numalgo</code> digit as it is defined.
-        Only a single digit is used, giving a maximum of 16 possible evolutions.
+        uniqueness. The method for generating this number is described in the <a href="#namestring-generation-method">
+        next section</a> of this spec, and is represented in the DID value with <code>numalgo
+        </code> == <code>1</code>.
     </p>
-    <p>This <em>numeric basis</em> is transformed to text using an encoding algorithm. This version of the spec encodes
-        using 64 hexadecimal digits, and represents that choice in the DID value with <code>encalgo</code> == <code>1
-        </code>. Subsequent versions of the spec may describe additional encodings; each new encoding is associated with
-        the next unused <code>encalgo</code> digit as it is defined. Only a single digit is used, giving a maximum of 16
-        possible evolutions.
+    <p>To build the full MSI, the raw bytes of the <em>numeric basis</em> are prefixed with a <a target="_blank"
+            href="https://github.com/multiformats/multicodec"><dfn>multicodec descriptor</dfn></a> that makes those bytes
+        self-describing. This descriptor plus the raw bytes are then transformed to text in the manner associated with
+        <code>transform</code>. This yields <code>encnumbasis</code> in the ABNF.
     </p>
-    <p class="note">Implementations of <code>encalgo</code> == <code>1</code> SHOULD render the numeric basis in lower
-        case. However, the <code>numbasis</code> portion of peer DIDs MUST be compared according to
-        whatever case-sensitivity is implied by the encoding algorithm they use. Hex is not case-sensitive,
-        so two peer DID strings using <code>encalgo</code> == <code>1</code>, that differ only in case in
-        the <code>numbasis</code> portion, are equivalent. If a future version of the spec
-        defines <code>encalgo</code> == <code>2</code> to be something case-sensitive, such as <a target="_blank"
-        href="https://en.bitcoin.it/wiki/Base58Check_encoding">base58</a> or base64 [[RFC4648]], comparison of
-        the <code>numbasis</code> values for peer DIDs with <code>encalgo</code> == <code>2</code> will be
-        case-sensitive. Therefore, routines that handle peer DIDs MUST NOT normalize or ignore case unless they
-        take into account the encoding algorithm of each individual peer DID.</p>
+
+    <figure id="composition">
+        <img src="composition.png" alt="composition of a peer DID value"/>
+        <figcaption>Composition of a peer DID value</figcaption>
+    </figure>
+
+    <p>In this version of the spec, the <a>multicodec descriptor</a> is the single byte <code>0x12</code>, which says
+        that what follows is a SHA2-256 hash. The <code>transform</code> is base58, represented by the <a target="_blank"
+                href="https://github.com/multiformats/multibase/blob/master/README.md">multibase prefix</a> <code>z</code>.
+        <code>BASE58</code> in the ABNF means the <a target="_blank"
+        href="https://en.bitcoin.it/wiki/Base58Check_encoding#Base58_symbol_chart">Bitcoin base58 character inventory</a>;
+        for brevity, we omit the expansion.
+    </p>
+    <p>The format of the DID value is intended to be future-proof, offering three expandable self-describing choices.
+        Future versions of the spec may describe additional methods of generating the numeric basis; each new method
+        should be associated with the next unused <code>numalgo</code> decimal digit when it is defined. Likewise,
+        future versions of the spec may choose a different way to transform raw bytes to text, or a different format
+        for the raw bytes of the <a>numeric basis</a>; these should be reflected in updated values of <code>transform</code>
+        or of the <a>multicodec descriptor</a> at the front of the transformed bytes, respectively.
+    </p>
+    <p class="note">Note that base58 is case-sensitive; in this version of the spec, peer DIDs MUST be compared with a
+        case-sensitive algorithm and MUST NOT be normalized in case. The more general rule is that case sensitivity
+        derives from <code>transform</code>, so routines that process multiple versions of peer DIDs MUST derive their
+        case sensitivity rules from the corresponding properties of whatever transform a particular peer DID uses.</p>
 </section>
 
 <section class="normative">
