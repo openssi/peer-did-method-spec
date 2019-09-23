@@ -8,16 +8,6 @@
         Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix,
         is the <dfn>method specific identifier</dfn> (<dfn>MSI</dfn>) described <a href="#method-specific-identifier">below</a>.
     </p>
-    <p class="note">Early feedback on this method suggested that we embed it beneath the namespace of a particular
-        blockchain, as in <code>did:sov:peer</code> or <code>did:v1:nym</code>.
-        However, this DID method is not captive to any particular blockchain, does not take its resolution rules
-        from a parent method, and does not require anchoring or reference to a blockchain to be valid.
-        Furthermore, any direct or indirect anchoring of a peer DID to a specific blockchain is driven by
-        circumstance and changeable at any time. For example, a peer DID could specify that it is using
-        a dead drop on blockchain 1, then change to blockchain 2, then change to blockchains 3 and 4 at
-        the same time. Therefore, "peer" belongs at the top of the DID namespace. How this method may be
-        used with various blockchains is discussed <a href="#grafting">later</a>.
-    </p>
 </section>
 
 <section class="normative">
