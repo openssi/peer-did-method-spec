@@ -70,7 +70,7 @@ encnumbasis = 45*BASE58
                 href="https://github.com/multiformats/multibase/blob/master/README.md">multibase prefix</a> <code>z</code>.
         <code>BASE58</code> in the ABNF means the <a target="_blank"
         href="https://en.bitcoin.it/wiki/Base58Check_encoding#Base58_symbol_chart">Bitcoin base58 character inventory</a>;
-        for brevity, we omit the expansion.
+        for brevity, we omit the expansion--but see the <a href="#matching-regex">matching regex</a> for details.
     </p>
     <p>The format of the DID value is intended to be future-proof, offering three expandable self-describing choices.
         Future versions of the spec may describe additional methods of generating the numeric basis; each new method
@@ -148,5 +148,7 @@ did:peer:1z6Txy6b17tkRHqSfqpoYRTKwuP3Kncyfk6Z86mQGGWzJJq
         capture group 1, <code>transform</code> in capture group 2, and <code>encnumbasis</code> in capture group 3.
     </p>
 
-    <p>Examples of a DID doc for this method are explored in greater detail <a href="#diddocs">below</a>.</p>
+    <p>A few peer DID values are reserved and convey special meaning. See <a href="#reserved-values">Reserved Values</a>
+        in the appendix.
+    </p>
 </section>
