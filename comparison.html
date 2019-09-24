@@ -18,22 +18,23 @@
 </section>
 
 <section>
-    <h2>did:key</h2>
+    <h2><code>did:key</code> and <code>did:nacl</code></h2>
     <p>
-        <a target="_blank" href="https://github.com/digitalbazaar/did-method-key-js">This method</a> encodes a public
-        key directly as a DID value, and generates a very simple DID Doc in a deterministic way from that key. The only
+        The <a target="_blank" href="https://github.com/digitalbazaar/did-method-key-js">did:key</a> and <a target="_blank"
+            href="https://github.com/uport-project/nacl-did">did:nacl</a> methods encode a public
+        key directly as a DID value, and generate a very simple DID Doc in a deterministic way from that key. The only
         material that has to be generated or stored when using this method is the public key or DID itself; either
-        can derive the other and the DID Doc. Using a <code>did:key</code> is very similar to sharing and then using
-        a public SSH key.
+        can derive the other and the DID Doc. Using a <code>did:key</code> or <code>did:nacl</code> is very similar to
+        sharing and then using a public SSH key.
     </p>
     <p>
-        The benefit of this method is its simplicity. Like peer DIDs, <code>did:key</code> has no dependence on an
-        external source of truth, and it can be implemented in code with little effort. Like peer DIDs, <code>did:key</code>
-        is cheap to create and use.
+        The benefit of these methods is their simplicity. Like peer DIDs, they have no dependence on an
+        external source of truth, and they can be implemented in code with little effort. Like peer DIDs, they are
+        cheap to create and use.
     </p>
     <p>
-        However, <code>did:key</code> is not a direct equivalent of peer DIDs. Here are some features of peer DIDs
-        that <code>did:key</code> does not provide:
+        However, <code>did:key</code> and <code>did:nacl</code> are not direct equivalent of peer DIDs. Here are some
+        features of peer DIDs that they do not provide:
     </p>
     <ul>
         <li>In DID Doc, define an endpoint and routing for use in <a target="aries"
@@ -46,10 +47,10 @@
     </ul>
     <p>
         Peer DIDs use a layering approach so the complexity of key rotation and updates need not be supported if only
-        static, ephemeral use cases matter. This is the main complexity difference between the two methods, and is
-        optional with peer DIDs. Peer DIDs also use multicodec to encode keys in the same way that
+        static, ephemeral use cases matter. This is the main complexity difference between peer DIDs and these other
+        two methods, and is optional with peer DIDs. Peer DIDs also use multicodec to encode keys in the same way that
         <code>did:key</code> does. The hope is that these two methods will remain as similar as possible, and that
-        Peer DIDs will be a logical upgrade choice when use cases go beyond those that <code>did:key</code> is
-        designed to handle.
+        Peer DIDs will be a logical upgrade choice when use cases go beyond those that <code>did:key</code> and
+        <code>did:nacl</code> are designed to handle.
     </p>
 </section>

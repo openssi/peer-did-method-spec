@@ -82,9 +82,8 @@ encnumbasis = 45*BASE58
     <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
     <ul>
         <li>Create a <dfn>genesis version</dfn> of JSON text of the DID doc for the DID. The genesis version MUST
-            include enough keys and <a target="#authorization">authorization</a> that the genesis version of the doc
-            can be signed (see <a href="https://w3c-ccg.github.io/did-spec/#binding-of-identity">Binding of Identity</a>
-            in the DID spec), to prevent man-in-the-middle attacks during initial DID exchange. It SHOULD also include
+            define a single key with the <a>register</a> privilege. This is the key that creates the DID and authenticates
+            when exchanging it with a peer. It SHOULD also include
             enough state that subsequent evolutions to the doc are authorized; otherwise, the doc is a dead end.
             It MUST NOT include the DID itself (either the root <code>id</code> property or its value). This
             lets the doc be created without knowing the DID's value in advance.
@@ -100,9 +99,11 @@ encnumbasis = 45*BASE58
         </li>
     </ul>
     <p>By basing the numeric value of the DID on the <a>genesis version</a> of the DID doc, the DID can begin its
-        lifecycle with any number of keys and endpoints, and when the doc is signed or auth-encrypted by one
-        of the keys, the recipient can know it has not been modified since creation. This guarantees the
-        initial integrity of the DID's chain of custody.</p>
+        lifecycle with any number of keys and endpoints. By deriving the DID in part from the single key that has the
+        the <a>register</a> privilege, and by requiring that key to authenticate when the DID and its DID doc are
+        exchanged with a peer, the peer can know that the doc has not been tampered with, and that it is being shared
+        exactly as its creator intended. This makes the DID self-certifying and guarantees the initial integrity of the
+        DID's chain of custody.</p>
     <p>By hashing the stored variant, we avoid the circular problem of including the DID in the data that's being
         hashed. This means that a peer DID doc must be resolved by converting a <a>stored variant</a> of DID doc
         data into a <a>resolved variant</a> by inserting the value of the DID being resolved.</p>
@@ -119,7 +120,7 @@ did:peer:1z6Txy6b17tkRHqSfqpoYRTKwuP3Kncyfk6Z86mQGGWzJJq
     </pre>
 
     <p>Peer DIDs consist entirely of printable ASCII characters and in this version of the spec are exactly 56
-        characters long. They have no whitespace, and the only punctuation they use is the character <code>:</code>. When
+        characters long. They have no whitespace, and the only punctuation they use is the <code>:</code> character. When
         rendering in columns with a constrained width, they could be hyphenated one or more times as needed; the hyphens
         would not be confused with meaningful delimiters, and the final character of the DID would be easy to find.
         They could also be rendered in a short form with the middle of the long base58 section elided, if it is not
