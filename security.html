@@ -70,12 +70,12 @@
 </section>
 <section>
     <h2>Proof of Control</h2>
-    <p>Because peer DIDs are generated from an <a href="#namestring-generation-method">algorithm</a> that includes the values of their initial public key(s)
+    <p>Because peer DIDs are generated from an <a href="#generation-method">algorithm</a> that includes the values of their initial public key(s)
         as input, they cannot be created without the creator controlling them. As mentioned earlier, this prevents
         man-in-the-middle attacks at the time of creation. A man-in-the-middle attacker might still try to exchange 
 		the public key(s) in a DID Doc, while keeping the DID the same. If unnoticed, this would bind a DID generated
 		by an honest party to the attacker's public key(s). To prevent this, the receiver of a freshly generated peer
-		DID and DID Doc must verify that the DID was properly generated using the <a href="#namestring-generation-method">algorithm</a>.
+		DID and DID Doc must verify that the DID was properly generated using the <a href="#generation-method">algorithm</a>.
 		This check is required when the received (DID, DID Doc) pair was not otherwise authenticated, which is the case
 		for the exchange request during <a href="#create-register">peer DID Exchange</a>.
     </p>

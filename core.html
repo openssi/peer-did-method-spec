@@ -40,7 +40,7 @@ transform = "z"
 encnumbasis = 45*BASE58
     </pre>
     <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the source of their
-        uniqueness. The method for generating this number is described in the <a href="#namestring-generation-method">
+        uniqueness. The method for generating this number is described in the <a href="#generation-method">
         next section</a> of this spec, and is represented in the DID value with <code>numalgo
         </code> == <code>1</code>.
     </p>
@@ -77,7 +77,7 @@ encnumbasis = 45*BASE58
 </section>
 
 <section class="normative">
-    <h2>Namestring Generation Method</h2>
+    <h2>Generation Method</h2>
 
     <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
     <ul>
@@ -100,7 +100,7 @@ encnumbasis = 45*BASE58
     </ul>
     <p>By basing the numeric value of the DID on the <a>genesis version</a> of the DID doc, the DID can begin its
         lifecycle with any number of keys and endpoints. By deriving the DID in part from the single key that has the
-        the <a>register</a> privilege, and by requiring that key to authenticate when the DID and its DID doc are
+        <a>register</a> privilege, and by requiring that key to authenticate when the DID and its DID doc are
         exchanged with a peer, the peer can know that the doc has not been tampered with, and that it is being shared
         exactly as its creator intended. This makes the DID self-certifying and guarantees the initial integrity of the
         DID's chain of custody.</p>
