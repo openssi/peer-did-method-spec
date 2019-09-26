@@ -81,32 +81,43 @@ encnumbasis = 45*BASE58
 
     <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
     <ul>
-        <li>Create a <dfn>genesis version</dfn> of JSON text of the DID doc for the DID. The genesis version MUST
-            define a single key with the <a>register</a> privilege. This is the key that creates the DID and authenticates
-            when exchanging it with a peer. It SHOULD also include
-            enough state that subsequent evolutions to the doc are authorized; otherwise, the doc is a dead end.
-            It MUST NOT include the DID itself (either the root <code>id</code> property or its value). This
-            lets the doc be created without knowing the DID's value in advance.
-            Suppressing the DID value creates a <dfn>stored variant</dfn> of peer DID doc data,
-            as opposed to the <dfn>resolved variant</dfn> that would have an actual DID value in the root <code>id
-            </code> property. (In either the stored or resolved variant of the doc, anywhere else that the DID value
-            would appear, it should appear as a relative reference rather than an absolute value. For example, each
-            <code>controller</code> property of a <a href="#publickey">publicKey that is owned by this DID would say
+        <li>Create a <dfn>genesis version</dfn> of JSON text of the DID doc for the DID. The genesis version MUST define
+            a single key with the <a>register</a> privilege. This <dfn>inception key</dfn> is the key that creates the
+            DID and authenticates when exchanging it with the first peer. It SHOULD also include enough state that
+            subsequent evolutions to the doc are authorized; otherwise, the doc is a dead end. It MUST NOT include the
+            DID itself (either the root <code>id</code> property or its value). This lets the doc be created without
+            knowing the DID's value in advance. Suppressing the DID value creates a <dfn>stored variant</dfn> of peer
+            DID doc data, as opposed to the <dfn>resolved variant</dfn> that would have an actual DID value in the root
+            <code>id</code> property. (In either the stored or resolved variant of the doc, anywhere else that the DID
+            value would appear, it should appear as a relative reference rather than an absolute value. For example,
+            each<code>controller</code> property of a <a href="#publickey">publicKey that is owned by this DID would say
                 <code>"controller": "#id"</code></a>.)
         </li>
         <li>Calculate the SHA256 [[!RFC4634]] hash of the bytes of the <a>stored variant</a> of the <a>genesis
             version</a> of the DID doc, and make this value the new DID's <a>numeric basis</a>.
         </li>
     </ul>
-    <p>By basing the numeric value of the DID on the <a>genesis version</a> of the DID doc, the DID can begin its
-        lifecycle with any number of keys and endpoints. By deriving the DID in part from the single key that has the
-        <a>register</a> privilege, and by requiring that key to authenticate when the DID and its DID doc are
-        exchanged with a peer, the peer can know that the doc has not been tampered with, and that it is being shared
-        exactly as its creator intended. This makes the DID self-certifying and guarantees the initial integrity of the
-        DID's chain of custody.</p>
     <p>By hashing the stored variant, we avoid the circular problem of including the DID in the data that's being
         hashed. This means that a peer DID doc must be resolved by converting a <a>stored variant</a> of DID doc
         data into a <a>resolved variant</a> by inserting the value of the DID being resolved.</p>
+    <p>By deriving the numeric basis of the DID from the <a>genesis version</a> of the DID doc, the DID can begin its
+        lifecycle with any number of keys and endpoints, including protective M-of-N policies. The <a>inception key</a>
+        is the part of the genesis state that's true bedrock; all other information is optional and can be thought of
+        as a sort of <em>pre-rotation</em> or<em>pre-evolution</em>, initiated by the inception key, to a more complex
+        state.
+    </p>
+    <p>
+        The root of trust for peer DIDs is the entropy in the <a>inception key</a>. The inception key MUST be new for
+        each DID; it MUST NOT ever be reused--and it must be the case that anyone observing the public half of the
+        inception key cannot somehow derive or steal the private half. This guarantees that nobody other than the holder
+        of the inception key could have created the genesis version of the DID doc. Because only the inception key has
+        the privilege of sharing the DID doc with a peer, no other key holder can establish the relationship contrary to
+        the intent of the inception key holder. This gives peer DIDs a <dfn>self-certifying</dfn> property that is vital
+        to cybersecurity of all DIDs. Any DID method that does not guarantee the chain of custody of the DID between
+        when it is created and when it is shared (e.g., written to a ledger or given to a peer) lacks this quality and
+        is susceptible to attacks early in the DID's lifecycle. See <a target="_blank"
+            href="https://github.com/openssi/peer-did-method-spec/issues/112">this github issue</a> for more discussion.
+    </p>
 </section>
 
 <section class="informative">

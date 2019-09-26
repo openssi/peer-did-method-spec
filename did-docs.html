@@ -44,9 +44,12 @@
     </p>
     <p class="note">Early explorations of this DID method used the term <dfn>microledger</dfn> for backing storage. This
         term has some resonance, in that backing storage is an append-only record of immutable transactions. However,
-        we have chosen not to emphasize the term here, because it may feel intimidating to some, and because the actual
-        storage mechanism in an implementation of this method could be a simple file, a database, or anything else that
-        provides equivalent features.
+        ledger technology requires strong ordering, whereas our ordering requirements are somewhat relaxed. What we need
+        is closer to the approach of <a target="_blank" href="https://opentransactions.org/wiki/Triple-Signed_Receipts">
+            triple-signed receipts</a> or <a target="_blank" href="https://arxiv.org/abs/1907.02143">KERI</a>, not to a
+        ledger or blockchain maintained by pure consensus. Thus, we have chosen not to emphasize the term here, because
+        it may feel intimidating to some, and because the actual storage mechanism in an implementation of this method
+        could be a simple file, a database, or anything else that provides suitable features.
     </p>
     <p>In the discussion about generating a <a>numeric basis</a> for a peer DID, the <a>genesis version</a> of a peer
         DID doc was defined. The genesis version is the one associated with the first delta committed to backing
@@ -54,10 +57,12 @@
         a signature from any key defined internally in the genesis state, and <code>when</code> is populated by the
         system clock.
     </p>
-    <p class="note">The genesis state MUST only be accepted by a peer if it is authenticated (e.g., by signing a nonce
-        or by using authenticated encryption) by the key holding the <a>register</a> privilege. This proves that the
-        creator of the DID intended to register it with the peer, and has not been shadowed by a malicious
-        man-in-the-middle.
+    <p class="note">The genesis state MUST only be accepted by a peer if it is properly authenticated. This cannot be
+        done by signing the DID doc, since such a signature doesn't bind the signer to the intention to share in any
+        given context. Instead, the holder of the <a>inception key</a> must either sign a nonce that's
+        bound to the sharing context, or must place authenticated encryption around the message that transmits the
+        document to the peer. This proves that the creator of the DID intended to register it with the peer, and has
+        not been shadowed by a malicious man-in-the-middle.
     </p>
 </section>
 
@@ -470,11 +475,11 @@
         <dl>
             <dt><dfn>register</dfn></dt>
             <dd>The holder of this privilege is allowed to register the DID as an identifier with another party. Exactly
-                one key MUST hold this privilege in the genesis version of the DID doc. This is the key that creates
-                the DID and takes custody of it until it can be exchanged with a peer. This key MUST authenticate
+                one key MUST hold this privilege in the genesis version of the DID doc. This <a>inception key</a> creates
+                the DID and takes custody of it at least until it can be exchanged with a peer. This key MUST authenticate
                 with the peer during DID exchange; any other authentication MUST be rejected as it may represent a
-                different, otherwise-authorized key trying to exchange the DID with a party other than the one its
-                creator intended. After the DID has been registered once, no key SHOULD hold it unless/until it is
+                different, otherwise-authorized key trying to exchange the DID in ways that diverge from its creator's
+                intentions. After the DID has been registered once, no key SHOULD hold this privilege unless/until it is
                 registered again (e.g., in upgrading <a>pairwise</a> to <a>n-wise</a>).
             </dd>
 
@@ -493,10 +498,10 @@
             <dt><dfn>authcrypt</dfn></dt>
             <dd>The holder of this privilege is allowed to create messages and send them with <a target="wikipedia"
                     href="https://en.wikipedia.org/wiki/Authenticated_encryption">authenticated encryption</a>
-                that reveals the identity of the sender to the reciever. Most agents are likely to have this privilege,
-                but one designed for passive reception only (e.g., on an IoT sensor) might have it removed; doing so
-                would prevent a hacker from co-opting such a key into sending in a trusted way. Messages that are
-                authcrypted by a key that lacks this privilege should be rejected as illegal.</dd>
+                that reveals the identity associated with this DID to the reciever. Most agents are likely to have this
+                privilege, but one designed for passive reception only (e.g., on an IoT sensor) might have it removed;
+                doing so would prevent a hacker from co-opting such a key into sending in a trusted way. Messages that
+                are authcrypted by a key that lacks this privilege should be rejected as unauthorized.</dd>
 
             <dt><dfn>plaintext</dfn></dt>
             <dd>The holder of this privilege can see <a target="aries"
@@ -528,7 +533,7 @@
                 To guard against privilege escalation, it is important to enforce that entity 
                 adding the new key can only add grant privileges (add <code>roles</code>) that it itself has. 
                 Also note that a key can remove itself from <a href="#publickey"><code>publicKey</code> section</a>, 
-                it does nee the <code>key_admin</code> privilege. A real example would be when an existing device with a 
+                it does not need the <code>key_admin</code> privilege. A real example would be when an existing device with a
                 key in the DID doc gets damaged and the identity owner has no plans to replace it.
             </dd>
 
@@ -576,7 +581,7 @@
                         }
                     ]
                 }
-                        </pre>
+            </pre>
         </dl>
     </section>
 

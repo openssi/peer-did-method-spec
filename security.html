@@ -10,12 +10,13 @@
             Registry</a> for the method. The method is worthy of trust because it guarantees the following properties:
     </p>
     <dl>
-        <dt>DIDs are associated with at least one key pair at the moment of creation.</dt>
+        <dt>DIDs are associated with exactly one <a>inception key</a> pair at the moment of creation.</dt>
         <dd>This prevents a category of man-in-the-middle attacks where an attacker could rotate a DID's keys
-            at the outset of a relationship, unbeknownst to peers.
+            at the outset of a relationship, unbeknownst to peers. It also prevents any party other than the holder
+            of the inception key from using the DID in an unintended context.
         </dd>
         <dt>DIDs have an acceptable level of uniqueness.</dt>
-        <dd>This is NOT a guarantee that DIDs will never be reused by their owner, NOR is it a guarantee that
+        <dd>This is NOT a guarantee that DIDs will never be improperly reused by their owner, NOR is it a guarantee that
             collusion cannot subvert uniqueness. Thus, it is not a uniqueness upon which deep trust can be based.
             Rather, it is a guarantee that good behavior will not produce accidental collisions. In this
             sense, it is a bit like the uniqueness offered by NATing mechanisms in IPv4. It provides
@@ -29,7 +30,11 @@
         <dd>This prevents attackers from discovering patterns in DIDs that might undermine privacy.
         </dd>
         <dt>Parties to a relationship can prove the orderly and authorized evolution of their
-            keys to one another.</dt>
+            keys to one another, in an unbroken chain of custody stretching back to the moment of inception.</dt>
+        <dd>DIDs cannot be registered with any peer or any <a href="#grafting">grafting</a> ledger contrary to the
+            wishes of the DID controller(s). A peer DID can be shared out of context (e.g., observed and recorded by
+            an eavesdropper) -- but any reputable party will not accept a registration unless it's authorized by
+            a key with the <a>register</a> privilege.</dd>
     </dl>
 </section>
 
