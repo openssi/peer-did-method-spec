@@ -17,13 +17,13 @@
         requirements:</p>
     <ul>
         <li><em>Generation Algorithm</em> &mdash; The DIDs are created using the <a href="#method-specific-identifier">
-            algorithm described below</a>, endowing them with properties vital to trust between peers that is not
-            dependent on a central source of truth.
+            algorithm described below</a>, endowing them with properties vital to trust between peers without
+            incurring a dependency on a central source of truth.
         </li>
         <li>
             <em>Protocol</em> &mdash; The metadata for DIDs (what would be stored in an on-chain DID doc in other methods)
             is communicated and maintained as described in the <a href="#protocols">Protocols</a> section. (This
-            requirement may be mostly irrelevant if support for peer DIDs targets static DID docs only. See
+            requirement may be partly irrelevant if support for peer DIDs targets static DID docs only. See
             <a href="#layers-of-support">Layers of Support</a>.)
         </li>
     </ul>
@@ -37,7 +37,7 @@
 peer-did = "did:peer:" numalgo transform encnumbasis
 numalgo = "1"
 transform = "z"
-encnumbasis = 45*BASE58
+encnumbasis = 46*BASE58BTC
     </pre>
     <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the source of their
         uniqueness. The method for generating this number is described in the <a href="#generation-method">
@@ -55,10 +55,12 @@ encnumbasis = 45*BASE58
         <figcaption>Composition of a peer DID value</figcaption>
     </figure>
 
-    <p>In this version of the spec, the <a>multicodec descriptor</a> is the single byte <code>0x12</code>, which says
-        that what follows is a SHA2-256 hash. The <code>transform</code> is base58, represented by the <a target="_blank"
+    <p>In this version of the spec, the <a>multicodec descriptor</a> is byte pair <code>0x12 0x20</code>, which says
+        that what follows is a SHA2-256 hash, 32 bytes long. (The size is included because, although SHA-256 is known
+        to produce 32-byte digests, some hash algorithms have variable-length output.) The <code>transform</code> is
+        base58, represented by the <a target="_blank"
                 href="https://github.com/multiformats/multibase/blob/master/README.md">multibase prefix</a> <code>z</code>.
-        <code>BASE58</code> in the ABNF means the <a target="_blank"
+        <code>BASE58BTC</code> in the ABNF means the <a target="_blank"
         href="https://en.bitcoin.it/wiki/Base58Check_encoding#Base58_symbol_chart">Bitcoin base58 character inventory</a>;
         for brevity, we omit the expansion--but see the <a href="#matching-regex">matching regex</a> for details.
     </p>
@@ -130,7 +132,7 @@ encnumbasis = 45*BASE58
 did:peer:1z6Txy6b17tkRHqSfqpoYRTKwuP3Kncyfk6Z86mQGGWzJJq
     </pre>
 
-    <p>Peer DIDs consist entirely of printable ASCII characters and in this version of the spec are exactly 56
+    <p>Peer DIDs consist entirely of printable ASCII characters and in this version of the spec are exactly 57
         characters long. They have no whitespace, and the only punctuation they use is the <code>:</code> character. When
         rendering in columns with a constrained width, they could be hyphenated one or more times as needed; the hyphens
         would not be confused with meaningful delimiters, and the final character of the DID would be easy to find.
@@ -143,7 +145,7 @@ did:peer:1z6Txy6b17tkRHqSfqpoYRTKwuP3Kncyfk6Z86mQGGWzJJq
     <p>A convenient regex to match <code>peer</code> DIDs is:</p>
 
     <pre class="example nohighlight" title="Matching regex" id="matching-regex">
-^did:peer:(1)(z)([1-9a-km-zA-HJ-NP-Z]{45})$
+^did:peer:(1)(z)([1-9a-km-zA-HJ-NP-Z]{46})$
     </pre>
 
     <p>A match against this regex places <code>numalgo</code> (the algorithm for choosing a numeric basis) in
