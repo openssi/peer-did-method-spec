@@ -11,13 +11,13 @@
 <p>Grafting can be done in several ways.</p>
 <ul>
     <li>By combining another DID method's prefix with a peer DID's encoded NSI: <code>
-        did:peer:11-479...cbe &mdash;> did:xyz:11-479...cbe</code></li>
+        did:peer:1z479...cbe &mdash;> did:xyz:1z479...cbe</code></li>
     <li>By creating a child namespace for peer DIDs beneath another method: <code>
-        did:peer:11-479...cbe &mdash;> did:xyz:peer:11-479...cbe</code></li>
+        did:peer:1z479...cbe &mdash;> did:xyz:peer:1z479...cbe</code></li>
     <li>By re-encoding the <a>numeric basis</a> of a peer DID using rules of another method: <code>
-        did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe &mdash;>
+        did:peer:1zQmZMygzYqNwU6Uhmewx5Xepf2VLp5S4HLSwwgf2aiKZuwa &mdash;>
         did:xyz:5pYZg1p63mAsAbJoBCb43FYK4Ducbn6bDz9btjQ5NwdPw</code> (here, the <code>xyz</code>
-        method requires base58).
+        method requires base58 but encodes numeric basis differently).
     </li>
 </ul>
 <p>There are pros and cons to each approach.</p>

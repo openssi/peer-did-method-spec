@@ -1,1 +1,1 @@
-did:peer:11-479...cbe
+did:peer:1x479...cbe
