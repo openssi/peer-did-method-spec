@@ -1,1 +1,1 @@
-did:peer:11-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+did:peer:1zffffffffffffffffffffffffffffffffffffffffffffff
