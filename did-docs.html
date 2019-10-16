@@ -32,6 +32,10 @@
         analysis.
     </p>
     <p>Deltas are uniquely identified by the SHA256 hash of the raw (non-base64-encoded) bytes of their change fragment.
+        Change fragments are not canonicalized; they must be valid JSON objects, but how they are indented, and how their
+        keys are ordered, is not important. This is because comparisons of state between any two versions of a peer DID
+        doc compare the raw bytes of all known change fragments, beginning with the stored variant of the genesis doc;
+        they do not test the semantic equivalence of data structures built from DID docs.
     </p>
     <p>Deltas are like database transactions, in that they may embody multiple changes that must be performed together.
         For example, key rotation involves both a key addition and a key deletion, performed as a unit.
@@ -109,7 +113,7 @@
         expect from a reading of the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#authentication">DID
         spec</a>. Peer DID docs MUST define all of their internal and external keys in this section; although the DID
         spec permits inline definitions in the <code>authentication</code> and <code>authorization</code> sections of a
-        DID doc, this DID method removes that option to simplify the possible permutations of a <a>change fragment</a>.
+        DID doc, this DID method disallows that option to simplify the possible permutations of a <a>change fragment</a>.
     </p>
     <p>All <code>id</code> properties associated with a key defined internally in the DID doc MUST be in
         relative, not absolute form (that is, "#xyz" instead of "did:peer:abc#xyz"). IDs for keys defined

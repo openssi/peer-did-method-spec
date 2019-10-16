@@ -55,9 +55,10 @@ encnumbasis = 46*BASE58BTC
         <figcaption>Composition of a peer DID value</figcaption>
     </figure>
 
-    <p>In this version of the spec, the <a>multicodec descriptor</a> is byte pair <code>0x12 0x20</code>, which says
+    <p>In this version of the spec, the <a>multicodec descriptor</a> is the byte pair <code>0x12 0x20</code>, which says
         that what follows is a SHA2-256 hash, 32 bytes long. (The size is included because, although SHA-256 is known
-        to produce 32-byte digests, some hash algorithms have variable-length output.) The <code>transform</code> is
+        to produce 32-byte digests, some hash algorithms have variable-length output, and we could change the hash
+        algorithm in a future version of the spec.) The <code>transform</code> is
         base58, represented by the <a target="_blank"
                 href="https://github.com/multiformats/multibase/blob/master/README.md">multibase prefix</a> <code>z</code>.
         <code>BASE58BTC</code> in the ABNF means the <a target="_blank"
@@ -86,7 +87,8 @@ encnumbasis = 46*BASE58BTC
         <li>Create a <dfn>genesis version</dfn> of JSON text of the DID doc for the DID. The genesis version MUST define
             a single key with the <a>register</a> privilege. This <dfn>inception key</dfn> is the key that creates the
             DID and authenticates when exchanging it with the first peer. It SHOULD also include enough state that
-            subsequent evolutions to the doc are authorized; otherwise, the doc is a dead end. It MUST NOT include the
+            subsequent evolutions to the doc are authorized; otherwise, the doc is static, suitable only for
+            <a href="#layers-of-support">Layer 2 use</a>. It MUST NOT include the
             DID itself (either the root <code>id</code> property or its value). This lets the doc be created without
             knowing the DID's value in advance. Suppressing the DID value creates a <dfn>stored variant</dfn> of peer
             DID doc data, as opposed to the <dfn>resolved variant</dfn> that would have an actual DID value in the root
