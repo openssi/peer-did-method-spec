@@ -31,11 +31,17 @@
         value is like timestamps on an email header&mdash;not guaranteed to be highly accurate, but useful for rough
         analysis.
     </p>
-    <p>Deltas are uniquely identified by the SHA256 hash of the raw (non-base64-encoded) bytes of their change fragment.
-        Change fragments are not canonicalized; they must be valid JSON objects, but how they are indented, and how their
-        keys are ordered, is not important. This is because comparisons of state between any two versions of a peer DID
-        doc compare the raw bytes of all known change fragments, beginning with the stored variant of the genesis doc;
-        they do not test the semantic equivalence of data structures built from DID docs.
+    <p>Deltas are uniquely identified by the SHA256 hash of the raw (non-base64-encoded) bytes of their change fragment,
+        and so are the change fragments themselves. Two change fragments with the same semantic meaning but different
+        indents or different attribute orders are considered different changes. This is because peer DIDs entirely
+        ignore the thorny problem of JSON canonicalization. The raw bytes of change fragments are normative and MUST
+        NOT be altered.
+    </p>
+    <p>Comparisons of state between any two versions of a peer DID doc look at the raw bytes of all known
+        change fragments, beginning with the stored variant of the genesis doc. Instead of testing the semantic
+        equivalence of data structures built from DID docs, or comparing the resolved variants of DID Docs, they ask:
+        "Do both parties know about the same changes?" If yes, then peer DID docs are considered equivalent, regardless
+        of formatting differences.
     </p>
     <p>Deltas are like database transactions, in that they may embody multiple changes that must be performed together.
         For example, key rotation involves both a key addition and a key deletion, performed as a unit.

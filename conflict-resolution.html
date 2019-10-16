@@ -1,11 +1,10 @@
-<h3>Conflict Resolution</h3>
+<h2>Conflict Resolution</h2>
 
 <p>The <a href="#crdt-rules">CRDT rules</a> followed by peer DID deltas do not make conflicts impossible. However,
-    they should make conflicts from non-malicious activity
-    rare, and they make the order in which deltas are applied mostly uninteresting. Uncoordinated actions
-    that add keys, rules, and service endpoints can never cause conflicts. Holders of keys should be able to
-    operate with high autonomy and minimal coordination, even during extended periods of imperfect
-    synchronization.
+    they should make conflicts from non-malicious activity rare, and they make the order in which deltas are applied
+    mostly uninteresting. Uncoordinated actions that add keys, rules, and service endpoints can never cause conflicts.
+    Holders of keys should be able to operate with high autonomy and minimal coordination, even during extended periods
+    of imperfect synchronization.
 </p>
 <p class="note">A key rotation is a bit different. It has to be treated like a deletion as far as ordering rules
     are concerned, since it does in fact include a deletion. More on this in a moment.</p>
