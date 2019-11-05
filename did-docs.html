@@ -20,18 +20,18 @@
         a JSON object in this form:</p>
     <pre class="example nohighlight" title="Delta structure">
 {
-    "change": &lt;base64 encoding of a change fragment&gt;,
+    "change": &lt;base64url encoding of a change fragment&gt;,
     "by": [ {"key": &lt;id of key&gt;, "sig": &lt;signature value&gt;} ... ],
     "when": &lt;ISO8601/RFC3339 UTC timestamp with at least second precision&gt;
 }
     </pre>
     <p>Here, a <dfn>change fragment</dfn> is a sparse version of a DID doc that shows just the section being
-        updated. The <code>by</code> property contains one or more key+signature pairs over the raw (non-base64-encoded)
+        updated. The <code>by</code> property contains one or more key+signature pairs over the raw (non-base64url-encoded)
         JSON text of the change fragment, and <code>when</code> contains a value supplied by the system clock. This
         value is like timestamps on an email header&mdash;not guaranteed to be highly accurate, but useful for rough
         analysis.
     </p>
-    <p>Deltas are uniquely identified by the SHA256 hash of the raw (non-base64-encoded) bytes of their change fragment,
+    <p>Deltas are uniquely identified by the SHA256 hash of the raw (non-base64url-encoded) bytes of their change fragment,
         and so are the change fragments themselves. Two change fragments with the same semantic meaning but different
         indents or different attribute orders are considered different changes. This is because peer DIDs entirely
         ignore the thorny problem of JSON canonicalization. The raw bytes of change fragments are normative and MUST
@@ -202,7 +202,7 @@
             additions, not replacements, to the lists that already contain values. (The <a>trust profile</a> embodied in
             the <code>authorization.profiles</code> associates the new key with privileges. This must be done at creation
             time. It is discussed under <a href="#authorization"><code>authorization</code></a>.) The <a>delta</a> that
-            encapsulates this update would take the above JSON text, base64-encode it, and assign the result to the
+            encapsulates this update would take the above JSON text, base64url-encode it, and assign the result to the
             delta's <code>change</code> property. It would need to be authorized by a key with the <a>key_admin</a>
             privilege, evidenced in the delta's <code>by</code> field. The resulting delta might look like this:
         </p>
@@ -231,7 +231,7 @@
     "deleted": [ "izfrNTmQ" ]
 }
         </pre>
-        <p>This fragment would be base64-encoded and signed in a corresponding delta, in much the same way that
+        <p>This fragment would be base64url-encoded and signed in a corresponding delta, in much the same way that
         the fragment was handled in the example about adding a key.</p>
     </section>
 </section>
