@@ -92,7 +92,7 @@ encnumbasis = 46*BASE58BTC
         doc is considered to be empty, granting all privileges to this key (and algorithmic derivations thereof, to
         provide key agreement versus signing and so forth). The DID doc offers no endpoint. This makes the DID
         functionally equivalent to a did:key value, and visually similar, except that a peer DID will have the numeric
-        algorithm as a prefix, before the multibase encoded, multicodec-encoded public key. For example, <code>did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH</code> is equivalent to <code>did:peer:<span style="color:red">0<span>z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH</code>. The did:peer version differs
+        algorithm as a prefix, before the multibase encoded, multicodec-encoded public key. For example, <code>did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH</code> is equivalent to <code>did:peer:<span style="color:blue">0</span>z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH</code>. The did:peer version differs
         in that it is upgradeable to a dynamically updatable DID with full DID doc and endpoints, simply using deltas,
         where the first delta is authenticated by the inception key.
     </p>
