@@ -35,14 +35,14 @@
     <p>The peer DID scheme is defined by the following ABNF (see [[RFC5234]] for syntax):</p>
     <pre class="example" class="ABNF" title="ABNF for peer DIDs">
 peer-did = "did:peer:" numalgo transform encnumbasis
-numalgo = "1"
+numalgo = "0" / "1"
 transform = "z"
 encnumbasis = 46*BASE58BTC
     </pre>
     <p>Peer DIDs use an underlying number with high entropy, called the <dfn>numeric basis</dfn>, as the source of their
-        uniqueness. The method for generating this number is described in the <a href="#generation-method">
-        next section</a> of this spec, and is represented in the DID value with <code>numalgo
-        </code> == <code>1</code>.
+        uniqueness. There are two methods for generating this number, as described in the <a href="#generation-method">
+        next section</a> of this spec. These methods are represented in the DID value with <code>numalgo
+        </code> == <code>0</code> or <code>numalgo</code> == <code>1</code>.
     </p>
     <p>To build the full MSI, the raw bytes of the <em>numeric basis</em> are prefixed with a <a target="_blank"
             href="https://github.com/multiformats/multicodec"><dfn>multicodec descriptor</dfn></a> that makes those bytes
@@ -55,9 +55,13 @@ encnumbasis = 46*BASE58BTC
         <figcaption>Composition of a peer DID value</figcaption>
     </figure>
 
-    <p>In this version of the spec, the <a>multicodec descriptor</a> is byte pair <code>0x12 0x20</code>, which says
+    <p>In this version of the spec, the <a>multicodec descriptor</a> for <code>numalgo</code> == <code>0</code> is
+        dependent on key type and exactly matches the descriptor that would be used for the same value in <code>did:key</code>.
+        The <a>multicodec descriptor</a> for <code>numalgo
+        </code> == <code>1/code> is byte pair <code>0x12 0x20</code>, which says
         that what follows is a SHA2-256 hash, 32 bytes long. (The size is included because, although SHA-256 is known
-        to produce 32-byte digests, some hash algorithms have variable-length output.) The <code>transform</code> is
+        to produce 32-byte digests, other hash algorithms have variable-length output, and we want a representation
+        pattern that works for alternatives as well.) The <code>transform</code> is
         base58, represented by the <a target="_blank"
                 href="https://github.com/multiformats/multibase/blob/master/README.md">multibase prefix</a> <code>z</code>.
         <code>BASE58BTC</code> in the ABNF means the <a target="_blank"
@@ -81,7 +85,20 @@ encnumbasis = 46*BASE58BTC
 <section class="normative">
     <h2>Generation Method</h2>
 
-    <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated as follows:</p>
+    <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated in one of the following two ways:</p>
+
+    <h3>Method 0: inception key without doc</h3>
+    <p>If <code>numalgo</code> == <code>0</code>, a single keypair is chosen, having all possible privileges with respect
+        to the DID. The public key value for this pair is the numeric basis of the DID. The genesis version of the DID
+        doc is considered to be empty, granting all privileges to this key (and algorithmic derivations thereof, to
+        provide key agreement versus signing and so forth). The DID doc offers no endpoint. This makes the DID
+        functionally equivalent to a did:key value, and visually similar, except that a peer DID will have the numeric
+        algorithm as a prefix, before the multibase encoded, multicodec-encoded public key. For example, <code>did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH</code> is equivalent to <code>did:peer:<span style="color:red">0<span>z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH</code>. The did:peer version differs
+        in that it is upgradeable to a dynamically updatable DID with full DID doc and endpoints, simply using deltas,
+        where the first delta is authenticated by the inception key.
+    </p>
+
+    <h3>Method 1: genesis doc</h3>
     <ul>
         <li>Create a <dfn>genesis version</dfn> of JSON text of the DID doc for the DID. The genesis version MUST define
             a single key with the <a>register</a> privilege. This <dfn>inception key</dfn> is the key that creates the
