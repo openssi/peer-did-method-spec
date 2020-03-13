@@ -57,8 +57,7 @@ encnumbasis = 46*BASE58BTC
 
     <p>In this version of the spec, the <a>multicodec descriptor</a> for <code>numalgo</code> == <code>0</code> is
         dependent on key type and exactly matches the descriptor that would be used for the same value in <code>did:key</code>.
-        The <a>multicodec descriptor</a> for <code>numalgo
-        </code> == <code>1/code> is byte pair <code>0x12 0x20</code>, which says
+        The <a>multicodec descriptor</a> for <code>numalgo</code> == <code>1</code> is byte pair <code>0x12 0x20</code>, which says
         that what follows is a SHA2-256 hash, 32 bytes long. (The size is included because, although SHA-256 is known
         to produce 32-byte digests, other hash algorithms have variable-length output, and we could change the hash
         algorithm in a future version of the spec.) The <code>transform</code> is
