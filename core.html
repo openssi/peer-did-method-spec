@@ -94,7 +94,7 @@ encnumbasis = 46*BASE58BTC
         functionally equivalent to a did:key value, and visually similar, except that a peer DID will have the numeric
         algorithm as a prefix, before the multibase encoded, multicodec-encoded public key. For example, <code>did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH</code> is equivalent to <code>did:peer:<span style="color:blue">0</span>z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH</code>. The did:peer version differs
         in that it is upgradeable to a dynamically updatable DID with full DID doc and endpoints, simply using deltas,
-        where the first delta is authenticated by the inception key.
+        as long as the first delta is authenticated by the inception key.
     </p>
 
     <h3>Method 1: genesis doc</h3>
