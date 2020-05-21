@@ -1,5 +1,7 @@
 <h1>DID docs</h1>
 
+<p>A special, ultra-simple form of DID doc is supported.</p>
+
 <section>
     <h2>Backing Storage</h2>
 
@@ -16,22 +18,32 @@
     <p>This means that updatable peer DID docs need to be associated with some type of <dfn>backing storage</dfn> that
         adds metadata and history to the simple content of the docs themselves.
     </p>
-    <p>The backing storage for peer DID docs is therefore a sequence of <dfn>deltas</dfn>. Each delta is a JSON object
-        in this form:</p>
+    <p>The backing storage for updatable peer DID docs is therefore a sequence of <dfn>deltas</dfn>. Each delta is
+        a JSON object in this form:</p>
     <pre class="example nohighlight" title="Delta structure">
 {
-    "change": &lt;base64 encoding of a change fragment&gt;,
+    "change": &lt;base64url encoding of a change fragment&gt;,
     "by": [ {"key": &lt;id of key&gt;, "sig": &lt;signature value&gt;} ... ],
-    "when": &lt;ISO8601 UTC timestamp with at least second precision&gt;
+    "when": &lt;ISO8601/RFC3339 UTC timestamp with at least second precision&gt;
 }
     </pre>
     <p>Here, a <dfn>change fragment</dfn> is a sparse version of a DID doc that shows just the section being
-        updated. The <code>by</code> property contains one or more key+signature pairs over the raw (non-base64-encoded)
+        updated. The <code>by</code> property contains one or more key+signature pairs over the raw (non-base64url-encoded)
         JSON text of the change fragment, and <code>when</code> contains a value supplied by the system clock. This
         value is like timestamps on an email header&mdash;not guaranteed to be highly accurate, but useful for rough
         analysis.
     </p>
-    <p>Deltas are uniquely identified by the SHA256 hash of the raw (non-base64-encoded) bytes of their change fragment.
+    <p>Deltas are uniquely identified by the SHA256 hash of the raw (non-base64url-encoded) bytes of their change fragment,
+        and so are the change fragments themselves. Two change fragments with the same semantic meaning but different
+        indents or different attribute orders are considered different changes. This is because peer DIDs entirely
+        ignore the thorny problem of JSON canonicalization. The raw bytes of change fragments are normative and MUST
+        NOT be altered.
+    </p>
+    <p>Comparisons of state between any two versions of a peer DID doc look at the raw bytes of all known
+        change fragments, beginning with the stored variant of the genesis doc. Instead of testing the semantic
+        equivalence of data structures built from DID docs, or comparing the resolved variants of DID Docs, they ask:
+        "Do both parties know about the same changes?" If yes, then peer DID docs are considered equivalent, regardless
+        of formatting differences.
     </p>
     <p>Deltas are like database transactions, in that they may embody multiple changes that must be performed together.
         For example, key rotation involves both a key addition and a key deletion, performed as a unit.
@@ -95,120 +107,11 @@
             suppressed when generating a <a>resolved variant</a> of the DID doc, so it is only visible in the deltas
             of <a>backing storage</a>. See <a href="#deleting-a-publickey">this clarifying example</a>.</li>
         <li>When any party encounters two versions of a peer DID doc that are mututally incompatible, an impartial,
-            ungameable resolution algorithm is used to restore harmony. See next subsection.
+            ungameable resolution algorithm is used to restore harmony. See <a href="#conflict-resolution">Conflict
+            Resolution</a> in the appendix for details.
         </li>
     </ol>
 
-    <section>
-        <h3>Conflict Resolution</h3>
-
-        <p>These rules do not make conflicts impossible. However, they should make conflicts from non-malicious activity
-            rare, and they make the order in which deltas are applied mostly uninteresting. Uncoordinated actions
-            that add keys, rules, and service endpoints can never cause conflicts. Holders of keys should be able to
-            operate with high autonomy and minimal coordination, even during extended periods of imperfect
-            synchronization.
-        </p>
-        <p class="note">A key rotation is a bit different. It has to be treated like a deletion as far as ordering rules
-            are concerned, since it does in fact include a deletion. More on this in a moment.</p>
-        <p>A reasonable analog might be a git repo that only allows 1 version of each file--no modifications, no
-            renames--and that guarantees that independent coders never add files with the same names. Such a repo could
-            probably accept commits in any order, from an unlimited number of collaborators, and largely avoid
-            conflicts.
-        </p>
-        <p>The real difficulty is deletions. Suppose AcmeCorp has two agents, <code>A.1</code> and <code>A.2</code>, and
-            that it uses these agents to interact with Bob, via Bob's agent <code>B.1</code>. Now imagine that <code>A.2
-            </code> is hacked. <code>A.1</code> becomes suspicious and decides to take protective action. <code>A.1</code>
-            creates a delta, <code>delta[1]</code>, that revokes <code>A.2</code>'s keys, and sends it to <code>B.1</code>.
-            Meanwhile, the hacker on <code>A.2</code> is moving swiftly to consolidate his own advantage; he uses <code>A.2
-            </code>'s leaked key to create a different delta, <code>delta[2]</code>, that revokes <code>A.1</code>'s
-            keys. Each of these deltas is authorized by the very party that the other delta de-authorizes.
-        </p>
-        <p>So what does <code>B.1</code> do when it receives these contradictory deltas?
-        </p>
-
-        <figure id="contradictory-deletes">
-            <img src="contradictory-deletes.png" alt="A.1 says delete A.2; A.2 says the opposite"/>
-            <figcaption>Mutually contradictory deletes.</figcaption>
-        </figure>
-
-        <p>Before answering this question, let's reframe the situation into a less technical context, because it will
-            make the answer easier to understand. Change AcmeCorp into a country, Acmeland, and its agents into
-            diplomats that represent Acmeland in the Republic of Bob. One of the Acme diplomats becomes treasonous. Now
-            the Republic of Bob receives two contradictory letters, both on official Acmeland letterhead, from A.1 and
-            A.2. Each letter instructs the Republic of Bob to strip the other Acme diplomat of all rank and privileges.
-        </p>
-        <p>So what does the Republic of Bob do when it receives these contradictory letters?
-        </p>
-        <p>Part 1 of the answer is that <em>it processes them in the order it receives them</em>. If <code>A.1</code>'s
-            delta arrives first, <code>A.2</code> loses rank and privileges, and the letter from <code>A.2</code> must
-            be rejected. If the order changes, so does the outcome.
-        </p>
-        <p>If Acmeland is worried about this, it can prearrange with the Republic of Bob that all changes to its
-            diplomat corps will always come endorsed by multiple officials. AcmeCorp can setup similar M-of-N signature
-            policies in the <a>authorization</a> section of its DID doc. Wise planning can largely eliminate the
-            problems with this simple first-come-first-served strategy.
-        </p>
-        <p>But let's assume that planning hasn't been perfect. And let's make the question less of a corner case. What
-            if the two messages that arrive are not mutually contradictory--but one is a delete and another is an
-            operation that can't succeed if the delete happens first?
-        </p>
-
-        <figure id="delete-order-ex">
-            <img src="delete-order-ex.png" alt="A.1 says delete A.2; A.2 says to add a rule"/>
-            <figcaption>A delete and another operation, where order matters.</figcaption>
-        </figure>
-
-        <p>Again, the party that receives these two deltas processes them in the order they are received. In a
-            decentralized system, no other answer makes sense. This might feel like a terrible answer, since different
-            parties can receive what started as the same sequence of deltas in very different orders, and thus end up
-            with very different views of the world. But we can add a nuance that makes this feel more rational.
-        </p>
-
-        <p>Part 2 of the answer starts with the observation that <em>the relative order of two operations only matters
-            when it affects authorization</em>. If an official for the Republic of Bob sees a letter announcing that
-            Acmeland's ambassador Foo has been fired, and another letter announcing that Acmeland's ambassador Foo
-            requested an appointment with Bob's prime minister, the official doesn't care about the relative order
-            unless she's in charge of scheduling appointments with Bob's prime minister. Otherwise she can suspend
-            judgment about whether Foo's appointment request should be honored, and wait to see how the authorization
-            decision is made by someone else who's empowered to make it.
-        </p>
-
-        <p>The <a href="#sync-protocol">synchronization protocol</a> between parties to a DID doc allows them to have
-            different opinions about order, and to adjust that order over time, based on evidence. A delete delta
-            "bubbles" to a position in history that's after the last delta that would have been impossible before it,
-            AND that was accepted by any party that had to make authorization decisions. A delete delta that was never
-            accepted by anyone (as with one of the mutually contradictory deltas above) just disappears. And deltas that
-            were discarded by a party because of ordering differences will get re-introduced to history once evidence is
-            found that a party making authorization decisions saw the order differently. This is essentially like the
-            Republic of Bob official saying, "For now, I'm going to pretend that Foo's appointment request is rejected,
-            since I saw it after the notice that Foo was fired. But if I see that my boss has scheduled the appointment,
-            I'll put the appointment request into my official log of Acmeland actions in the other order, because my
-            boss must have received the letters in the other order."
-        </p>
-
-        <p>The net effect of these two rules for deletes is that different parties can have different views of where
-            a delete fits into history, and those views will converge over time, <em>to the extent that convergence
-            matters</em>. Where convergence never reaches closure, that means there's no evidence that forces one of
-            the views to be more correct than the other. And that's okay.
-        </p>
-
-        <p>You may be saying, "Yes, but what if the ambassador was fired in the morning, and I can prove it, and
-            someone still gave the ambassador privileges twelve hours later in the evening?" Or what if one party
-            accepted <code>delta[0]</code>, and another party accepted <code>delta[1]</code> (that were mutually
-            contradictory)? How do those get reconciled?
-        </p>
-
-        <p>They don't, and it doesn't matter. In the first case, the delete's timing moves to the evening in history;
-            that's the true last time that the ambassador's privileges had any effect, even if the intent was to
-            de-authorize earlier. The deltas are not an expression of intention, but an expression of when that intention
-            was honored in any way that mattered. In the second case, the contradictory views of reality are a real
-            historical event, and the fact that they caused inconsistent authorizations to happen in different corners
-            of the world isn't going to be reconciled into an explanation that pretends otherwise. The deltas on top
-            of the genesis doc end up containing both deletes, as well as some deltas inconsistent with both deletes.
-            At least once both deletes have been applied, the potential for new inconsistencies collapses. Real life in
-            a decentralized world is messy like this.
-        </p>
-    </section>
 </section>
 
 <section>
@@ -218,7 +121,7 @@
         expect from a reading of the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#authentication">DID
         spec</a>. Peer DID docs MUST define all of their internal and external keys in this section; although the DID
         spec permits inline definitions in the <code>authentication</code> and <code>authorization</code> sections of a
-        DID doc, this DID method removes that option to simplify the possible permutations of a <a>change fragment</a>.
+        DID doc, this DID method disallows that option to simplify the possible permutations of a <a>change fragment</a>.
     </p>
     <p>All <code>id</code> properties associated with a key defined internally in the DID doc MUST be in
         relative, not absolute form (that is, "#xyz" instead of "did:peer:abc#xyz"). IDs for keys defined
@@ -301,7 +204,7 @@
             additions, not replacements, to the lists that already contain values. (The <a>trust profile</a> embodied in
             the <code>authorization.profiles</code> associates the new key with privileges. This must be done at creation
             time. It is discussed under <a href="#authorization"><code>authorization</code></a>.) The <a>delta</a> that
-            encapsulates this update would take the above JSON text, base64-encode it, and assign the result to the
+            encapsulates this update would take the above JSON text, base64url-encode it, and assign the result to the
             delta's <code>change</code> property. It would need to be authorized by a key with the <a>key_admin</a>
             privilege, evidenced in the delta's <code>by</code> field. The resulting delta might look like this:
         </p>
@@ -330,7 +233,7 @@
     "deleted": [ "izfrNTmQ" ]
 }
         </pre>
-        <p>This fragment would be base64-encoded and signed in a corresponding delta, in much the same way that
+        <p>This fragment would be base64url-encoded and signed in a corresponding delta, in much the same way that
         the fragment was handled in the example about adding a key.</p>
     </section>
 </section>

@@ -58,19 +58,22 @@
                 between Macbooks when they are standing next to each other -- IFF they are confident that the
                 communication channel between them is not hacked. This approach would not work well when the parties
                 are remote, because trust would be unachievable. Using HTTPS might be an improvement in that situation,
-                if it were done carefully. However, even with HTTPS, there are subtleties to consider. A
-                careful study of the DIDComm protocol and its guarantees is recommended when exploring alternatives.
+                if it were done carefully. However, even with HTTPS, there are subtleties to consider and ways to go
+                wrong. A careful study of the DIDComm protocol and its guarantees is recommended when exploring
+                alternatives.
             </p>
         </section>
         <section>
             <h4>DIDComm Approach</h4>
-            <p>Agents that are capable of DIDComm use the <dfn>DID Exchange protocol</dfn> for this task. The protocol is
+            <p>Agents that are capable of DIDComm use the <dfn>Out-of-Band Protocol</dfn> to invite/trigger connections, and a handshake protocol like <dfn>DID Exchange</dfn> to complete it. These protocols are
                 <a target="aries"
-                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0023-did-exchange/README.md">
-                formally documented in Aries RFC 0023</a>; only a summary is offered here. It has 3 steps:
+                href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0434-outofband/README.md">
+                formally documented in Aries RFC 0434</a> and <a target="aries"
+                        href="https://github.com/hyperledger/aries-rfcs/blob/master/features/0023-did-exchange/README.md">Aries RFC 0023</a>; only a summary of the process is offered here. It has 3 steps:
             </p>
             <ol>
-                <li>One of the parties (the <dfn>inviter</dfn>) sends an <dfn>invitation</dfn> to connect. The
+                <li>
+                    <p>One of the parties (the <dfn>inviter</dfn>) sends an <dfn>invitation</dfn> to connect. The
                     invitation is NOT encrypted, and it does NOT require the recipient (the <dfn>invitee</dfn>) to
                     have special software that understands this protocol. Instead, it is a specially formatted URI
                     that can be a <a target="wikipedia" href="https://en.wikipedia.org/wiki/Deferred_deep_linking">
@@ -79,22 +82,27 @@
                     can be recognized by a registered handler, short-circuiting the URI fetch and the onboarding/
                     learning process. This invitation URI may be transmitted by email, SMS, QR code, or any other
                     convenient method. If it is important to the inviter that it be secured, the inviter can share
-                    the invitation on a secure channel. Important to note that if the messaging is to be done
-                    anonymously without sharing of personal identifiable information (PII) between both parties the
-                    invitation should not be transmitted to personal email, sms, etc. A one time identifier shall be
-                    used to send initial invitation.
+                    the invitation on a secure channel.
+                    </p>
+                    <p class="note">If this relationship is intended to preserve anonymity, it should not be sent from
+                        or to personal email, sms, etc. Instead, a one time identifier should be for whichever side(s)
+                        wish be anonymous.
+                    </p>
                 </li>
                 <li>The invitee sends an encrypted <dfn>connection request</dfn> back to the inviter, using the
-                    endpoint that the inviter supplied in the invitation. This connection request includes a signed
-                    version of the <a>resolved variant</a> [TODO: signed variant??] of the <a>genesis version</a> of
-                    the invitee's DID doc. The inviter must verify that the received DID was generated according to
-                    the <a href="#generation-method">namestring generation method</a> from the <a>stored variant</a>
-                    of the received genesis DID Doc. This is to ensure a strong binding between the received DID and
-                    the public key(s) contained in the DID Doc, see also: <a href="#proof-of-control">proof of control</a>.
+                    endpoint that the inviter supplied in the invitation. This connection request includes an attachment
+                    of the raw bytes of the <a>stored variant</a> of the <a>genesis version</a> of the invitee's DID
+                    doc. The sender of the request message must be the <a>inception key</a> in the DID doc; this is
+                    proved by using authenticated encryption with the encryption envelope. The inviter must verify that
+                    the received DID and its doc were generated according to the <a href="#generation-method">namestring
+                        generation method</a>, and that the inception key is the authenticated sender. This ensures a
+                    strong binding between the received DID and the public key(s) contained in the DID Doc. See
+                    <a href="#proof-of-control">Proof of Control</a>.
                 </li>
                 <li>The inviter sends an encrypted <dfn>connection response</dfn> the other direction. This response
-                    includes a signed version of the <a>resolved variant</a> of the <a>genesis version</a> of the
-                    inviter's DID doc.
+                    includes a signed version of the <a>stored variant</a> of the <a>genesis version</a> of the
+                    inviter's DID doc, and must be authenticated against the inviter's <a>inception key</a> in the same
+                    way as the request.
                 </li>
             </ol>
             <p>These three steps have been carefully defined to achieve a number of important goals:</p>
@@ -119,14 +127,16 @@
                     subsequent steps can be widely separated in time, and can use different transports.
                 </li>
             </ul>
-            <p>Additional security against man-in-the-middle attacks may be achieved by signing an invitation, if it is
-                public. If the public invitation includes an <a>anywise</a> DID, then the invitee should verify that the
-                signature on the invitation matches with an active verification key for the associated anywise DID. If the
-                public invitation includes a verification key, then the invitee can verify that the signature on the
-                invitation matches with the verification key. Once the DIDs are exchanged, the invitee can
-                ask the inviter for proof-of-control of that initial verification key. In any case, further action is
-                advisable to build deeper trust about the identity of the other side. This likely includes mutual exchange
-                of <a target="vcspec" href="https://w3c.github.io/vc-data-model/">verifiable credentials</a>.
+            <p class="note">
+                For public invitations, additional security against man-in-the-middle attacks may be achieved by signing
+                the invitation message. If the public invitation includes an <a>anywise</a> DID, the invitee should verify
+                that the signature on the invitation matches with an active (not revoked!) verification key for the
+                DID. If the public invitation includes a verification key, then the invitee should verify that the
+                signature on the invitation matches that key, and once the DIDs are exchanged, the invitee should ask the
+                inviter to prove they still control that verification key. Regardless, having a trustworthy channel of
+                communication is not the same as knowing that the party you're connected with is trustworthy. Further
+                trustbuilding should usually follow the initial connection. This
+                likely includes mutual exchange of <a target="vcspec" href="https://w3c.github.io/vc-data-model/">verifiable credentials</a>.
             </p>
         </section>
     </section>
@@ -181,7 +191,7 @@
 {
   "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/did_resolution/0.1/resolve",
   "@id": "6a4986dd-f50e-4ed5-a389-718e61517207",
-  "did": "did:peer:11-479cbc07c3f991725836a3aa2a581ca2029198aa420b9d99bc0e131d9f3e2cbe",
+  "did": "did:peer:1zQmZMygzYqNwU6Uhmewx5Xepf2VLp5S4HLSwwgf2aiKZuwa",
   "input_options": {
     "version_time": "2019-07-23T18:05:06.123Z"
   }
@@ -215,7 +225,7 @@
     <section>
         <h3 id="sync-protocol">Update</h3>
         <p>The subject of a peer DID can update their associated DID document with anyone who knows the DID&mdash;one or more
-            agents of the peer(s), or agents of the owner. This operation is more important in the peer DID method than
+            agents of the peer(s), or agents of the subject. This operation is more important in the peer DID method than
             in most other methods, because a loose collection of decentralized peers may include many different views
             of current state, caused by inconsistent and incomplete connectivity within the peer group.
         </p>
@@ -225,8 +235,7 @@
                 integrity. In addition, the protocol must guarantee that:</p>
             <ul>
                 <li>Problems with order-of-update and data gaps are solved.</li>
-                <li>It is possible to prove the correctness of an update, even if it is reported by a party of dubious
-                    motives.</li>
+                <li>It is possible to prove the correctness of an update, even if it is reported by an untrusted party.</li>
                 <li>Eventual consistency is achievable.</li>
                 <li>The protocol can tolerate imperfectly or inconsistently connected participants. Some agents may
                 not be able to participate in synchronization at any given point in time--or ever.</li>
@@ -245,7 +254,7 @@
                 the one running a particular implementation, centralize the management of their identity domains. It
                 also requires that servers be online and reachable during any DID doc updates by either party. This may
                 be a perfectly reasonable choice for any given identity owner, but it is not reasonable to impose on a
-                remote other.
+                remote party.
             </p>
         </section>
 
@@ -298,7 +307,7 @@
                     <code>~thread</code> decorator identifies the previous message's <code>@id</code> as its
                     <code>thid</code></a>.
             </p>
-            <p>If the recipient does not recognize the base_hash, it selects a hash from a point in time earlier than
+            <p>If the recipient does not recognize <code>base_hash</code>, it selects a hash from a point in time earlier than
                 <code>base_hash_time</code> and sends back a new <code>sync_state</code> message with that earlier base.
             </p>
             <p>Because of the nature of our <a href="#crdt-rules">CRDT rules</a>, truly
