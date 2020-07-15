@@ -1,4 +1,3 @@
-A spec for the `did:peer` [DID method](https://w3c-ccg.github.io/did-spec/#specific-did-method-schemes).
+This spec has moved to a new home. See https://github.com/decentralized-identity/peer-did-method-spec for the code, or https://identity.foundation/peer-did-method-spec/ for the rendered HTML.
 
-The spec is written in W3C's [respec](https://dev.w3.org/2008/video/mediaann/ReSpec.js/documentation.html) format.
-To browse the spec, see the [rendering on github pages](https://openssi.github.io/peer-did-method-spec/index.html).
+The final version of the spec as it existed in this repo is tagged as version 1.0 in the new location.
